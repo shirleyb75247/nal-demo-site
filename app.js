@@ -2468,6 +2468,29 @@
     }
   }
 
+  // Records email order requests on the server (Google Sheet, Quo/Square contacts, admin email).
+  // Fire-and-forget: the mailto still opens even if this fails.
+  function notifyOrderRequest(order) {
+    if (!apiEnabled()) return;
+    try {
+      fetch(String(API_BASE_URL).replace(/\/$/, "") + "/order-request", {
+        method: "POST",
+        credentials: "include",
+        keepalive: true,
+        headers: authHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify({
+          orderNumber: order.orderNumber,
+          customer: order.customer,
+          items: order.items,
+          shipping: order.shipping,
+          accountEmail: order.accountEmail,
+        }),
+      }).catch(() => {});
+    } catch (err) {
+      /* ignore */
+    }
+  }
+
   async function submitEmailOrder(form) {
     if (!form.reportValidity()) return;
     if (!state.cart.length) return;
@@ -2484,6 +2507,7 @@
     const orders = loadOrders();
     orders.push(order);
     saveOrders(orders);
+    notifyOrderRequest(order);
     const body = formatOrderText(order);
     const subject = "Order request " + order.orderNumber + " — North America Lighting";
     const mailto =
