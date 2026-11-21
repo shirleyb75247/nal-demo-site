@@ -512,10 +512,200 @@
     return placeholderSvg();
   }
 
+  function isVariationOos(v) {
+    return !!(v && v.inventoryTracked && (v.available === false || !(Number(v.quantity) > 0)));
+  }
+
+  function isVariationSellable(v) {
+    return !isVariationOos(v);
+  }
+
+  function productHasStock(p) {
+    const vars = (p && p.variations) || [];
+    if (!vars.length) return true;
+    return vars.some(isVariationSellable);
+  }
+
+  function cartHasOutOfStock() {
+    return (state.cart || []).some((l) => l.outOfStock);
+  }
+
+  function outOfStockLabel() {
+    return '<div class="stock-flag">Out of stock</div>';
+  }
+
+  function isExcludedStorefrontItem(item, variations) {
+    const name = String((item && (item.name || item.itemName)) || "").trim().toLowerCase();
+    if (name === "shipping" || name === "delivery" || name === "freight" || name === "shipping fee") return true;
+    const vars = variations || [];
+    if (vars.some((v) => String(v.sku || "") === "8304455") && name === "shipping") return true;
+    return false;
+  }
+
+  function slugifyName(value) {
+    const s = String(value || "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 80);
+    return s || "item";
+  }
+
+  function refreshProductPricing(p) {
+    const prices = (p.variations || []).map((v) => v.price).filter((x) => x != null);
+    p.hasPrice = prices.length > 0;
+    p.priceMin = prices.length ? Math.min.apply(null, prices) : null;
+    p.priceMax = prices.length ? Math.max.apply(null, prices) : null;
+    p.variationCount = (p.variations || []).length;
+    return p;
+  }
+
+  function applyLiveVariation(localVar, live) {
+    if (!live) return localVar;
+    localVar.price = live.price != null ? live.price : localVar.price;
+    if (live.name) localVar.name = live.name;
+    if (live.sku) localVar.sku = live.sku;
+    localVar.inventoryTracked = !!live.inventoryTracked;
+    localVar.quantity = live.inventoryTracked ? live.quantity : null;
+    localVar.available = live.available !== false;
+    if (live.imageUrl && !localVar.image && !localVar.thumb) {
+      localVar.image = live.imageUrl;
+      localVar.thumb = live.imageUrl;
+    }
+    return localVar;
+  }
+
+  function newProductFromSquare(item, variations) {
+    const name = item.name || "Untitled";
+    const vars = variations.map((v) => ({
+      id: v.id,
+      name: v.name || "",
+      sku: v.sku || "",
+      price: v.price,
+      pricingType: v.price != null ? "FIXED_PRICING" : "VARIABLE_PRICING",
+      options: {},
+      image: v.imageUrl || item.imageUrl || "",
+      thumb: v.imageUrl || item.imageUrl || "",
+      inventoryTracked: !!v.inventoryTracked,
+      quantity: v.inventoryTracked ? v.quantity : null,
+      available: v.available !== false,
+    }));
+    const img = item.imageUrl || (vars[0] && vars[0].image) || "";
+    const category = item.category || "Uncategorized";
+    return refreshProductPricing({
+      id: item.id,
+      name: name,
+      displayName: name,
+      description: item.description || "",
+      category: category,
+      categorySlug: item.categorySlug || slugifyName(category),
+      currency: "USD",
+      badges: [],
+      images: img ? [img] : [],
+      thumbs: img ? [img] : [],
+      options: [],
+      variations: vars,
+      source: "square",
+    });
+  }
+
+  function mergeLiveCatalog(local, snap) {
+    const catalog = {
+      company: local.company,
+      categories: (local.categories || []).slice(),
+      products: (local.products || []).map((p) => ({
+        ...p,
+        variations: (p.variations || []).map((v) => ({ ...v, options: v.options ? { ...v.options } : {} })),
+      })),
+    };
+    if (!snap || !Array.isArray(snap.variations)) {
+      catalog.products.forEach(refreshProductPricing);
+      return catalog;
+    }
+    const byId = {};
+    const bySku = {};
+    const byItem = {};
+    (snap.variations || []).forEach((v) => {
+      byId[v.id] = v;
+      if (v.sku) bySku[v.sku] = v;
+      if (v.itemId) {
+        if (!byItem[v.itemId]) byItem[v.itemId] = [];
+        byItem[v.itemId].push(v);
+      }
+    });
+    const matchedVarIds = new Set();
+    catalog.products.forEach((p) => {
+      (p.variations || []).forEach((v) => {
+        const live = (v.id && byId[v.id]) || (v.sku && bySku[v.sku]) || null;
+        if (!live) return;
+        applyLiveVariation(v, live);
+        matchedVarIds.add(live.id);
+      });
+      const liveItem = (snap.items || []).find((it) => it.id === p.id);
+      if (liveItem && liveItem.name) p.name = liveItem.name;
+      refreshProductPricing(p);
+    });
+    (snap.items || []).forEach((item) => {
+      const vars = (item.variations || []).map((id) => byId[id]).filter(Boolean);
+      if (isExcludedStorefrontItem(item, vars)) return;
+      const already = catalog.products.some(
+        (p) => p.id === item.id || (p.variations || []).some((v) => vars.some((lv) => lv.id === v.id || (lv.sku && v.sku === lv.sku)))
+      );
+      if (already) return;
+      if (!vars.length) return;
+      const product = newProductFromSquare(item, vars);
+      catalog.products.push(product);
+      vars.forEach((v) => matchedVarIds.add(v.id));
+      if (product.categorySlug && !catalog.categories.some((c) => c.slug === product.categorySlug)) {
+        catalog.categories.push({ name: product.category, slug: product.categorySlug });
+      }
+    });
+    return catalog;
+  }
+
+  function refreshCartFromCatalog() {
+    if (!state.catalog || !state.cart) return;
+    const allVars = [];
+    (state.catalog.products || []).forEach((p) => (p.variations || []).forEach((v) => allVars.push({ p, v })));
+    state.cart.forEach((line) => {
+      const hit = allVars.find((x) => x.v.id === line.variationId || (line.sku && x.v.sku === line.sku));
+      if (!hit) return;
+      if (hit.v.price != null) line.price = hit.v.price;
+      if (hit.v.sku) line.sku = hit.v.sku;
+      line.outOfStock = isVariationOos(hit.v);
+    });
+    saveCart();
+  }
+
+  function loadCatalog() {
+    return fetch("products.json")
+      .then((r) => {
+        if (!r.ok) throw new Error("Could not load products.json (" + r.status + ")");
+        return r.json();
+      })
+      .then((local) => {
+        const live = apiEnabled()
+          ? fetch(String(API_BASE_URL).replace(/\/$/, "") + "/catalog")
+              .then((r) => (r.ok ? r.json() : null))
+              .catch(() => null)
+          : Promise.resolve(null);
+        return Promise.all([local, live]);
+      })
+      .then(([local, snap]) => {
+        state.catalog = mergeLiveCatalog(local, snap && snap.ok === false ? null : snap);
+        state.catalogSource = snap && snap.updatedAt ? "square" : "bundle";
+        document.title = local.company.name + " — Commercial LED Wholesale";
+        refreshCartFromCatalog();
+        render();
+      });
+  }
+
   function productCard(p) {
     const quoteClass = p.hasPrice ? "" : " quote";
     return (
-      '<a class="product-card" href="#/product/' +
+      '<a class="product-card' +
+      (productHasStock(p) ? "" : " out-of-stock") +
+      '" href="#/product/' +
       encodeURIComponent(p.slug) +
       '">' +
       warrantyBadgeHtml(p) +
@@ -535,6 +725,7 @@
       '">' +
       escapeHtml(priceLabel(p)) +
       "</div>" +
+      (productHasStock(p) ? "" : outOfStockLabel()) +
       "</div></a>"
     );
   }
@@ -871,12 +1062,21 @@
           "</div>" +
           (sku ? '<div class="sku">SKU ' + escapeHtml(sku) + (match && match.name && p.variations.length > 1 ? " · " + escapeHtml(match.name) : "") + "</div>" : (match && match.name ? '<div class="sku">' + escapeHtml(match.name) + "</div>" : ""))
         : '<p class="unavailable-note">That combination is not available. Choose another option.</p>') +
+      (comboOk && match && isVariationOos(match) ? outOfStockLabel() : "") +
       (comboOk
         ? '<form data-add-form>' +
           '<div class="qty-row"><label for="qty">Qty</label>' +
-          '<input id="qty" name="qty" type="number" min="1" step="1" value="1">' +
-          '<button class="btn btn-navy" type="submit">' +
-          (hasFixed ? "Add to cart" : "Add quote request") +
+          '<input id="qty" name="qty" type="number" min="1" step="1" value="1"' +
+          (match && isVariationOos(match) ? " disabled" : "") +
+          '>' +
+          '<button class="btn btn-navy" type="submit"' +
+          (match && isVariationOos(match) ? " disabled" : "") +
+          '>' +
+          (match && isVariationOos(match)
+            ? "Out of stock"
+            : hasFixed
+            ? "Add to cart"
+            : "Add quote request") +
           "</button></div></form>"
         : "") +
       '<p class="muted">Wholesale request. Invoice and payment instructions are sent after you place the order.</p>' +
@@ -885,7 +1085,7 @@
   }
 
   function defaultSelected(p) {
-    const first = p.variations[0];
+    const first = p.variations.find(isVariationSellable) || p.variations[0];
     if (first && first.options && Object.keys(first.options).length) {
       return Object.assign({}, first.options);
     }
@@ -1200,7 +1400,10 @@
       "</div>" +
       '<div class="summary">' +
       shippingTotalsHtml(subtotal, hasQuote) +
-      '<a class="btn btn-navy btn-block" href="#/checkout" data-checkout-link>Continue to checkout</a>' +
+      (cartHasOutOfStock()
+        ? '<p class="checkout-error">Remove out-of-stock items before checkout.</p>' +
+          '<a class="btn btn-navy btn-block" href="#/checkout" data-checkout-link aria-disabled="true">Continue to checkout</a>'
+        : '<a class="btn btn-navy btn-block" href="#/checkout" data-checkout-link>Continue to checkout</a>') +
       '<p class="checkout-error" data-ship-gate hidden>Choose pickup or calculate shipping before checkout.</p>' +
       shippingFormHtml() +
       "</div></section>"
@@ -1210,7 +1413,9 @@
   function cartRow(line, idx) {
     const img = line.thumb || line.image;
     return (
-      '<div class="cart-row" data-line="' +
+      '<div class="cart-row' +
+      (line.outOfStock ? " out-of-stock" : "") +
+      '" data-line="' +
       idx +
       '">' +
       (img
@@ -1223,6 +1428,7 @@
         ? '<div class="var">' + escapeHtml(line.variationName) + "</div>"
         : "") +
       (line.sku ? '<div class="line-sku">SKU ' + escapeHtml(line.sku) + "</div>" : "") +
+      (line.outOfStock ? outOfStockLabel() : "") +
       '<div class="line-actions"><input type="number" min="1" step="1" value="' +
       line.qty +
       '" data-qty>' +
@@ -1249,6 +1455,10 @@
       return renderCart();
     }
     if (!shippingReady()) {
+      location.hash = "#/cart";
+      return renderCart();
+    }
+    if (cartHasOutOfStock()) {
       location.hash = "#/cart";
       return renderCart();
     }
@@ -1767,6 +1977,7 @@
   /* ---------- cart ops ---------- */
 
   function addToCart(product, variation, qty) {
+    if (isVariationOos(variation)) return false;
     const key = variation.id;
     const existing = state.cart.find((l) => l.variationId === key);
     if (existing) existing.qty += qty;
@@ -1904,6 +2115,10 @@
 
     const checkoutLink = e.target.closest("[data-checkout-link]");
     if (checkoutLink) {
+      if (cartHasOutOfStock()) {
+        e.preventDefault();
+        return;
+      }
       if (!shippingReady()) {
         e.preventDefault();
         const gate = document.querySelector("[data-ship-gate]");
@@ -2009,7 +2224,7 @@
       const p = findProduct(page.getAttribute("data-slug"));
       const selected = getSelectedOptions(p);
       const match = p.variations.find((v) => variationMatches(v, selected));
-      if (!match) return;
+      if (!match || isVariationOos(match)) return;
       const qty = Math.max(1, parseInt(add.qty.value, 10) || 1);
       addToCart(p, match, qty);
       const btn = add.querySelector("button[type=submit]");
@@ -2207,7 +2422,7 @@
   async function submitEmailOrder(form) {
     if (!form.reportValidity()) return;
     if (!state.cart.length) return;
-    if (!shippingReady()) {
+    if (!shippingReady() || cartHasOutOfStock()) {
       location.hash = "#/cart";
       return;
     }
@@ -2249,7 +2464,7 @@
       return;
     }
     if (!form.reportValidity()) return;
-    if (!state.cart.length || !shippingReady()) {
+    if (!state.cart.length || !shippingReady() || cartHasOutOfStock()) {
       location.hash = "#/cart";
       return;
     }
@@ -2355,20 +2570,10 @@
   fillWatermark();
   loadZip3().catch(() => {});
 
-  fetch("products.json")
-    .then((r) => {
-      if (!r.ok) throw new Error("Could not load products.json (" + r.status + ")");
-      return r.json();
-    })
-    .then((data) => {
-      state.catalog = data;
-      document.title = data.company.name + " — Commercial LED Wholesale";
-      render();
-    })
-    .catch((err) => {
-      $app().innerHTML =
-        '<section class="wrap page-error"><h1>Catalog could not load</h1><p>' +
-        escapeHtml(err.message) +
-        "</p><p>If you opened the file directly, serve the folder over HTTP instead (for example, <code>python3 -m http.server</code>).</p></section>";
-    });
+  loadCatalog().catch((err) => {
+    $app().innerHTML =
+      '<section class="wrap page-error"><h1>Catalog could not load</h1><p>' +
+      escapeHtml(err.message) +
+      "</p><p>If you opened the file directly, serve the folder over HTTP instead (for example, <code>python3 -m http.server</code>).</p></section>";
+  });
 })();

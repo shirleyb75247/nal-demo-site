@@ -758,3 +758,23 @@ p { margin: 0 0 1rem; }
 .demo-callout { background: #fff6d8; border: 1px solid #e6c56a; padding: 0.7rem 0.85rem; font-size: 0.88rem; margin: 0 0 1rem; }
 
 .email-preview pre { white-space: pre-wrap; word-break: break-word; font-size: 0.85rem; margin: 0; }
+
+/* Out of stock (Square inventory) */
+.product-card.out-of-stock .thumb { opacity: 0.72; }
+.stock-flag {
+  margin-top: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #8b1026;
+}
+.product-info .stock-flag { font-size: 0.88rem; margin: 0.45rem 0 0.15rem; }
+.cart-row.out-of-stock { opacity: 0.92; }
+.cart-row .stock-flag { margin-top: 0.25rem; }
+.product-info form[data-add-form] button[disabled],
+.btn[aria-disabled="true"] {
+  opacity: 0.55;
+  pointer-events: none;
+  cursor: not-allowed;
+}
