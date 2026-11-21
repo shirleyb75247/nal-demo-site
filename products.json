@@ -1,0 +1,3486 @@
+{
+  "exportedAt": "2026-11-20T21:53:10",
+  "company": {
+    "name": "North America Lighting LLC",
+    "shortName": "NAL",
+    "tagline": "Commercial LED lighting for the central United States.",
+    "city": "Dallas, TX",
+    "phone": "(214) 631-6666",
+    "phoneTel": "+12146316666",
+    "email": "naltx75247@gmail.com",
+    "region": "Serves the central region, ships nationwide.",
+    "note": "B2B wholesale. Commercial fixtures only."
+  },
+  "categories": [
+    {
+      "name": "Panel",
+      "slug": "panel",
+      "count": 1
+    },
+    {
+      "name": "Down Light",
+      "slug": "down-light",
+      "count": 2
+    },
+    {
+      "name": "Indoor Area",
+      "slug": "indoor-area",
+      "count": 3
+    },
+    {
+      "name": "Tube",
+      "slug": "tube",
+      "count": 8
+    },
+    {
+      "name": "High Bay",
+      "slug": "high-bay",
+      "count": 2
+    },
+    {
+      "name": "Outdoor Area",
+      "slug": "outdoor-area",
+      "count": 10
+    },
+    {
+      "name": "Canopy",
+      "slug": "canopy",
+      "count": 2
+    },
+    {
+      "name": "Corn Bulb",
+      "slug": "corn-bulb",
+      "count": 1
+    },
+    {
+      "name": "Sign",
+      "slug": "sign",
+      "count": 7
+    }
+  ],
+  "products": [
+    {
+      "id": "MTTKAMPNNC7HTDPD3F55GR6Y",
+      "slug": "panel-backlit",
+      "name": "*MS35* Panel Backlit",
+      "displayName": "Panel Backlit",
+      "badges": [
+        "MS35"
+      ],
+      "description": "Available in 1x4, 2x2, 2x4ft\n0-10V Dimmable or Non-Dimmable\nBack light Panel LED light,\nOffice Panel light",
+      "category": "Panel",
+      "categorySlug": "panel",
+      "images": [
+        "images/RCVABO3H7QEBOKDP75RJ62XJ.png"
+      ],
+      "hasPrice": true,
+      "priceMin": 3095,
+      "priceMax": 5443,
+      "currency": "USD",
+      "options": [
+        {
+          "name": "Size",
+          "values": [
+            "1x4",
+            "2x2",
+            "2x4"
+          ]
+        },
+        {
+          "name": "Wattage",
+          "values": [
+            "40W",
+            "60W",
+            "50W"
+          ]
+        },
+        {
+          "name": "Dimmable",
+          "values": [
+            "None-Dim",
+            "0-10V"
+          ]
+        }
+      ],
+      "variations": [
+        {
+          "id": "MRYUOELLXNJPAN5UFWXQSDLS",
+          "name": "1x4, 40W, None-Dim",
+          "sku": "12022211440",
+          "pricingType": "FIXED_PRICING",
+          "price": 3228,
+          "currency": "USD",
+          "options": {
+            "Size": "1x4",
+            "Wattage": "40W",
+            "Dimmable": "None-Dim"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "JR2EPCZQH2YYQHPZEI7VWFZN",
+          "name": "2x2, 40W, 0-10V",
+          "sku": "12018212240",
+          "pricingType": "FIXED_PRICING",
+          "price": 3228,
+          "currency": "USD",
+          "options": {
+            "Size": "2x2",
+            "Wattage": "40W",
+            "Dimmable": "0-10V"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "BZAHLUV5RH2U6LXB6E7B6L42",
+          "name": "2x2, 40W, None-Dim",
+          "sku": "12022212240",
+          "pricingType": "FIXED_PRICING",
+          "price": 3095,
+          "currency": "USD",
+          "options": {
+            "Size": "2x2",
+            "Wattage": "40W",
+            "Dimmable": "None-Dim"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "XJACHQTEHJ6ANU7D5FWTOEDH",
+          "name": "2x4, 60W, None-Dim",
+          "sku": "12022212460",
+          "pricingType": "FIXED_PRICING",
+          "price": 5043,
+          "currency": "USD",
+          "options": {
+            "Size": "2x4",
+            "Wattage": "60W",
+            "Dimmable": "None-Dim"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "5YFJYB7DR6SYYQ7ZGUXIBXMW",
+          "name": "2x4, 50W, 0-10V",
+          "sku": "12018212450",
+          "pricingType": "FIXED_PRICING",
+          "price": 5443,
+          "currency": "USD",
+          "options": {
+            "Size": "2x4",
+            "Wattage": "50W",
+            "Dimmable": "0-10V"
+          },
+          "image": null,
+          "thumb": null
+        }
+      ],
+      "variationCount": 5,
+      "thumbs": [
+        "images/thumbs/RCVABO3H7QEBOKDP75RJ62XJ.jpg"
+      ]
+    },
+    {
+      "id": "7C5BB23NUIAGDQIGUCG4MXVQ",
+      "slug": "3in-sylvania-can-lights",
+      "name": "[Clearance] 3in Sylvania Can Lights",
+      "displayName": "3in Sylvania Can Lights",
+      "badges": [
+        "Clearance"
+      ],
+      "description": "2700K - 5000K adjustable\n8W  500 Lumens\nClip-on LED retrofit",
+      "category": "Down Light",
+      "categorySlug": "down-light",
+      "images": [],
+      "hasPrice": true,
+      "priceMin": 450,
+      "priceMax": 450,
+      "currency": "USD",
+      "options": [],
+      "variations": [
+        {
+          "id": "Y23LNGFIELAIPXX3V3QU3HMN",
+          "name": "Regular",
+          "sku": "0U1945B4",
+          "pricingType": "FIXED_PRICING",
+          "price": 450,
+          "currency": "USD",
+          "options": {},
+          "image": null,
+          "thumb": null
+        }
+      ],
+      "variationCount": 1,
+      "thumbs": []
+    },
+    {
+      "id": "DZMVFM5IZAET2436BJKAHL65",
+      "slug": "down-light",
+      "name": "Down Light",
+      "displayName": "Down Light",
+      "badges": [],
+      "description": "Commercial Grade, Aluminum Metal Casing down lights. Retrofit for traditional CAN lights. Easy installation with clips.",
+      "category": "Down Light",
+      "categorySlug": "down-light",
+      "images": [
+        "images/LQU33KWCZLP7Q2HAVFNDOB3S.jpg",
+        "images/XY65GEWEIZO7KYTDQ3XLSH7R.jpg"
+      ],
+      "hasPrice": true,
+      "priceMin": 590,
+      "priceMax": 590,
+      "currency": "USD",
+      "options": [
+        {
+          "name": "Color Temp.",
+          "values": [
+            "3000k",
+            "4000k",
+            "5000k"
+          ]
+        },
+        {
+          "name": "Size",
+          "values": [
+            "4'",
+            "5'/6'"
+          ]
+        },
+        {
+          "name": "Wattage",
+          "values": [
+            "8W",
+            "12W"
+          ]
+        }
+      ],
+      "variations": [
+        {
+          "id": "APL4BJ5NVKWBIX3Z5BOG3AUE",
+          "name": "3000k, 4', 8W",
+          "sku": "13086083410",
+          "pricingType": "FIXED_PRICING",
+          "price": 590,
+          "currency": "USD",
+          "options": {
+            "Color Temp.": "3000k",
+            "Size": "4'",
+            "Wattage": "8W"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "V3UIO35SZ7ZI4TDXYLYYGXW3",
+          "name": "3000k, 5'/6', 12W",
+          "sku": "13086123610",
+          "pricingType": "FIXED_PRICING",
+          "price": 590,
+          "currency": "USD",
+          "options": {
+            "Color Temp.": "3000k",
+            "Size": "5'/6'",
+            "Wattage": "12W"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "RMDKIQ5EFUVC5CF6LUGXRX3K",
+          "name": "4000k, 4', 8W",
+          "sku": "13086084410",
+          "pricingType": "FIXED_PRICING",
+          "price": 590,
+          "currency": "USD",
+          "options": {
+            "Color Temp.": "4000k",
+            "Size": "4'",
+            "Wattage": "8W"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "DBTCLYOQBWYKPHZDXLIMMXON",
+          "name": "4000k, 5'/6', 12W",
+          "sku": "13086124610",
+          "pricingType": "FIXED_PRICING",
+          "price": 590,
+          "currency": "USD",
+          "options": {
+            "Color Temp.": "4000k",
+            "Size": "5'/6'",
+            "Wattage": "12W"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "4Y6Q5FZNM6APSUXSCXFMUIM6",
+          "name": "5000k, 5'/6', 12W",
+          "sku": "13086125610",
+          "pricingType": "FIXED_PRICING",
+          "price": 590,
+          "currency": "USD",
+          "options": {
+            "Color Temp.": "5000k",
+            "Size": "5'/6'",
+            "Wattage": "12W"
+          },
+          "image": null,
+          "thumb": null
+        }
+      ],
+      "variationCount": 5,
+      "thumbs": [
+        "images/thumbs/LQU33KWCZLP7Q2HAVFNDOB3S.jpg",
+        "images/thumbs/XY65GEWEIZO7KYTDQ3XLSH7R.jpg"
+      ]
+    },
+    {
+      "id": "OEEJUMOB4OH7KIMW3QAFJOOZ",
+      "slug": "ceiling-light",
+      "name": "*MS35* Ceiling Light",
+      "displayName": "Ceiling Light",
+      "badges": [
+        "MS35"
+      ],
+      "description": "11 inch Ceiling Light, 11.2\"D /3.5\"H, 15W, 5000K, ETL/ES\n10 inch Ceiling Light, 10.6\"D /3\" H, 15W, 5000K, ETL/ES",
+      "category": "Indoor Area",
+      "categorySlug": "indoor-area",
+      "images": [
+        "images/QVSSIQODTK3AJWUVE5OAKUJY.jpg",
+        "images/H4OTB476OMJRCJKIEFYO5IE4.jpg"
+      ],
+      "hasPrice": true,
+      "priceMin": 1862,
+      "priceMax": 1862,
+      "currency": "USD",
+      "options": [],
+      "variations": [
+        {
+          "id": "DRNG5DKOYQQZPNQCAY7FDBN3",
+          "name": "11 inch",
+          "sku": "16022211115",
+          "pricingType": "FIXED_PRICING",
+          "price": 1862,
+          "currency": "USD",
+          "options": {},
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "NVIFLI5WMS3NSENHYEFZQWFY",
+          "name": "10 inch",
+          "sku": "16022211015",
+          "pricingType": "FIXED_PRICING",
+          "price": 1862,
+          "currency": "USD",
+          "options": {},
+          "image": null,
+          "thumb": null
+        }
+      ],
+      "variationCount": 2,
+      "thumbs": [
+        "images/thumbs/QVSSIQODTK3AJWUVE5OAKUJY.jpg",
+        "images/thumbs/H4OTB476OMJRCJKIEFYO5IE4.jpg"
+      ]
+    },
+    {
+      "id": "PFAU5QOXO3OJI2BZDRHY4XJX",
+      "slug": "shop-light",
+      "name": "Shop Light",
+      "displayName": "Shop Light",
+      "badges": [],
+      "description": "",
+      "category": "Indoor Area",
+      "categorySlug": "indoor-area",
+      "images": [
+        "images/FGZFXKHGYIAM3PJI6PPOQ375.jpg"
+      ],
+      "hasPrice": true,
+      "priceMin": 2714,
+      "priceMax": 2714,
+      "currency": "USD",
+      "options": [
+        {
+          "name": "Wattage",
+          "values": [
+            "40W"
+          ]
+        },
+        {
+          "name": "length",
+          "values": [
+            "4 ft"
+          ]
+        }
+      ],
+      "variations": [
+        {
+          "id": "3EKEID6RITLKDVG5FNQJF47P",
+          "name": "40W, 4 ft",
+          "sku": "15004405414",
+          "pricingType": "FIXED_PRICING",
+          "price": 2714,
+          "currency": "USD",
+          "options": {
+            "Wattage": "40W",
+            "length": "4 ft"
+          },
+          "image": null,
+          "thumb": null
+        }
+      ],
+      "variationCount": 1,
+      "thumbs": [
+        "images/thumbs/FGZFXKHGYIAM3PJI6PPOQ375.jpg"
+      ]
+    },
+    {
+      "id": "7HCSESB7TP4XJFK5S7SKPRYN",
+      "slug": "tri-prove-light",
+      "name": "Tri-prove Light",
+      "displayName": "Tri-prove Light",
+      "badges": [],
+      "description": "Tri-prove ceiling mount LED light\nDust prove, Water prove and Steam prove",
+      "category": "Indoor Area",
+      "categorySlug": "indoor-area",
+      "images": [
+        "images/S33Z5QATBTILDI7723A52E2P.png"
+      ],
+      "hasPrice": true,
+      "priceMin": 4404,
+      "priceMax": 9712,
+      "currency": "USD",
+      "options": [
+        {
+          "name": "length",
+          "values": [
+            "4 ft",
+            "8 ft",
+            "2 ft"
+          ]
+        },
+        {
+          "name": "Wattage",
+          "values": [
+            "50W",
+            "45W",
+            "70W",
+            "40W"
+          ]
+        },
+        {
+          "name": "Grade",
+          "values": [
+            "Premium",
+            "Regular"
+          ]
+        }
+      ],
+      "variations": [
+        {
+          "id": "KHU55LHRIF6YGSZUAMAFZFOA",
+          "name": "4 ft, 50W, Premium",
+          "sku": "15018214650",
+          "pricingType": "FIXED_PRICING",
+          "price": 6803,
+          "currency": "USD",
+          "options": {
+            "length": "4 ft",
+            "Wattage": "50W",
+            "Grade": "Premium"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "UJBZWL3E3HUBKFXAPT5LFETU",
+          "name": "4 ft, 45W, Regular",
+          "sku": "15018114645",
+          "pricingType": "FIXED_PRICING",
+          "price": 5523,
+          "currency": "USD",
+          "options": {
+            "length": "4 ft",
+            "Wattage": "45W",
+            "Grade": "Regular"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "QLH6V3RSQ6GERTY6Q75WZPL4",
+          "name": "8 ft, 70W, Regular",
+          "sku": "15018118670",
+          "pricingType": "FIXED_PRICING",
+          "price": 9712,
+          "currency": "USD",
+          "options": {
+            "length": "8 ft",
+            "Wattage": "70W",
+            "Grade": "Regular"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "CLU3XJZU4DMBTQQDQDN5LNMY",
+          "name": "2 ft, 40W, Regular",
+          "sku": "15083045001",
+          "pricingType": "FIXED_PRICING",
+          "price": 4404,
+          "currency": "USD",
+          "options": {
+            "length": "2 ft",
+            "Wattage": "40W",
+            "Grade": "Regular"
+          },
+          "image": null,
+          "thumb": null
+        }
+      ],
+      "variationCount": 4,
+      "thumbs": [
+        "images/thumbs/S33Z5QATBTILDI7723A52E2P.jpg"
+      ]
+    },
+    {
+      "id": "6J3LDAKAGJD2SJUX2FMFZ4ZS",
+      "slug": "a19-bulb",
+      "name": "[Clearance] A19 Bulb",
+      "displayName": "A19 Bulb",
+      "badges": [
+        "Clearance"
+      ],
+      "description": "",
+      "category": "Tube",
+      "categorySlug": "tube",
+      "images": [],
+      "hasPrice": true,
+      "priceMin": 300,
+      "priceMax": 300,
+      "currency": "USD",
+      "options": [],
+      "variations": [
+        {
+          "id": "FSDVVYEC6Y5AUULNHERLV63Z",
+          "name": "Regular",
+          "sku": "4515868",
+          "pricingType": "FIXED_PRICING",
+          "price": 300,
+          "currency": "USD",
+          "options": {},
+          "image": null,
+          "thumb": null
+        }
+      ],
+      "variationCount": 1,
+      "thumbs": []
+    },
+    {
+      "id": "U2EZC4CSXMR7WIDAIRTJREWW",
+      "slug": "batten-light",
+      "name": "Batten Light",
+      "displayName": "Batten Light",
+      "badges": [],
+      "description": "4ft 40W 5000K",
+      "category": "Tube",
+      "categorySlug": "tube",
+      "images": [
+        "images/TZIBA25KI672FNFLIA2IC2YZ.jpg"
+      ],
+      "hasPrice": true,
+      "priceMin": 2318,
+      "priceMax": 2318,
+      "currency": "USD",
+      "options": [
+        {
+          "name": "length",
+          "values": [
+            "4 ft"
+          ]
+        },
+        {
+          "name": "Wattage",
+          "values": [
+            "40W"
+          ]
+        },
+        {
+          "name": "Cover",
+          "values": [
+            "Frost"
+          ]
+        }
+      ],
+      "variations": [
+        {
+          "id": "AVMZ4VT75CEXTUXJ3IL7ARER",
+          "name": "4 ft, 40W, Frost",
+          "sku": "11023406414",
+          "pricingType": "FIXED_PRICING",
+          "price": 2318,
+          "currency": "USD",
+          "options": {
+            "length": "4 ft",
+            "Wattage": "40W",
+            "Cover": "Frost"
+          },
+          "image": null,
+          "thumb": null
+        }
+      ],
+      "variationCount": 1,
+      "thumbs": [
+        "images/thumbs/TZIBA25KI672FNFLIA2IC2YZ.jpg"
+      ]
+    },
+    {
+      "id": "GVKPVREFZWPJZWVKW7PAGOTX",
+      "slug": "integrated-tube",
+      "name": "Integrated Tube",
+      "displayName": "Integrated Tube",
+      "badges": [],
+      "description": "Integrated LED Tube Light. No light fixture needed.\nAvailable in 4ft, 5ft, 6ft, 8ft.",
+      "category": "Tube",
+      "categorySlug": "tube",
+      "images": [
+        "images/L735P4NRSNRRU72VRIBBNMO7.jpg"
+      ],
+      "hasPrice": true,
+      "priceMin": 1322,
+      "priceMax": 2120,
+      "currency": "USD",
+      "options": [
+        {
+          "name": "length",
+          "values": [
+            "8 ft",
+            "5 ft",
+            "6 ft"
+          ]
+        },
+        {
+          "name": "Wattage",
+          "values": [
+            "60W",
+            "40W",
+            "48W"
+          ]
+        }
+      ],
+      "variations": [
+        {
+          "id": "G4TFUP62XY5WI5ERPX5NG4DR",
+          "name": "8 ft, 60W",
+          "sku": "11023606823",
+          "pricingType": "FIXED_PRICING",
+          "price": 2120,
+          "currency": "USD",
+          "options": {
+            "length": "8 ft",
+            "Wattage": "60W"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "ZKLRL5LQQINLK3SWQU3Y3HKK",
+          "name": "5 ft, 40W",
+          "sku": "11023406523",
+          "pricingType": "FIXED_PRICING",
+          "price": 1322,
+          "currency": "USD",
+          "options": {
+            "length": "5 ft",
+            "Wattage": "40W"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "2WSQK2LKGT2ZT6EB6UW64Z5O",
+          "name": "6 ft, 48W",
+          "sku": "11023486623",
+          "pricingType": "FIXED_PRICING",
+          "price": 1642,
+          "currency": "USD",
+          "options": {
+            "length": "6 ft",
+            "Wattage": "48W"
+          },
+          "image": null,
+          "thumb": null
+        }
+      ],
+      "variationCount": 3,
+      "thumbs": [
+        "images/thumbs/L735P4NRSNRRU72VRIBBNMO7.jpg"
+      ]
+    },
+    {
+      "id": "7N5WAADZ625ONC37OBHXDDS4",
+      "slug": "led-t5-sylvania-10pk",
+      "name": "[Clearance] LED T5 Sylvania (10pk)",
+      "displayName": "LED T5 Sylvania (10pk)",
+      "badges": [
+        "Clearance"
+      ],
+      "description": "25W T5 high lumen LED Tube\n54W retrofit ($2.5 ea)\n5000K",
+      "category": "Tube",
+      "categorySlug": "tube",
+      "images": [],
+      "hasPrice": true,
+      "priceMin": 2500,
+      "priceMax": 2500,
+      "currency": "USD",
+      "options": [
+        {
+          "name": "Base",
+          "values": [
+            "T5"
+          ]
+        }
+      ],
+      "variations": [
+        {
+          "id": "KXBCBTKJ2276F3RU6WPDJJFV",
+          "name": "T5",
+          "sku": "79749",
+          "pricingType": "FIXED_PRICING",
+          "price": 2500,
+          "currency": "USD",
+          "options": {
+            "Base": "T5"
+          },
+          "image": null,
+          "thumb": null
+        }
+      ],
+      "variationCount": 1,
+      "thumbs": []
+    },
+    {
+      "id": "Z7DFIOJRTP2RXURWPWGKIJR6",
+      "slug": "t8-philips-tube-20-pk",
+      "name": "[Clearance] T8 Philips Tube (20 pk)",
+      "displayName": "T8 Philips Tube (20 pk)",
+      "badges": [
+        "Clearance"
+      ],
+      "description": "Philips Tube T8/T10 LED retrofit\nActual Wattage 16.5W\n4000K Day Light\n20pc/box   ($2.5 ea)",
+      "category": "Tube",
+      "categorySlug": "tube",
+      "images": [],
+      "hasPrice": true,
+      "priceMin": 5000,
+      "priceMax": 5000,
+      "currency": "USD",
+      "options": [],
+      "variations": [
+        {
+          "id": "2VBPKNOFIB5PIUGSUQEPOEOM",
+          "name": "Regular",
+          "sku": "929001175104",
+          "pricingType": "FIXED_PRICING",
+          "price": 5000,
+          "currency": "USD",
+          "options": {},
+          "image": null,
+          "thumb": null
+        }
+      ],
+      "variationCount": 1,
+      "thumbs": []
+    },
+    {
+      "id": "LTNKEDRWFIRMQKZGP7JTB2N4",
+      "slug": "tube-2ft-t8-t10",
+      "name": "Tube 2ft T8/T10",
+      "displayName": "Tube 2ft T8/T10",
+      "badges": [],
+      "description": "Compatible, 5000K, UL/DLC\nSYH",
+      "category": "Tube",
+      "categorySlug": "tube",
+      "images": [
+        "images/V37JOIB3AU6QEINAFNE7TQBG.jpg"
+      ],
+      "hasPrice": true,
+      "priceMin": 688,
+      "priceMax": 688,
+      "currency": "USD",
+      "options": [
+        {
+          "name": "length",
+          "values": [
+            "2 ft"
+          ]
+        },
+        {
+          "name": "Wattage",
+          "values": [
+            "10W"
+          ]
+        },
+        {
+          "name": "Cover",
+          "values": [
+            "Frost"
+          ]
+        },
+        {
+          "name": "Type",
+          "values": [
+            "Compatible"
+          ]
+        },
+        {
+          "name": "Color Temp.",
+          "values": [
+            "5000k"
+          ]
+        }
+      ],
+      "variations": [
+        {
+          "id": "B26QWKJYVB57JAJQL7RPEXC6",
+          "name": "2 ft, 10W, Frost, Compatible, 5000k",
+          "sku": "11061105214",
+          "pricingType": "FIXED_PRICING",
+          "price": 688,
+          "currency": "USD",
+          "options": {
+            "length": "2 ft",
+            "Wattage": "10W",
+            "Cover": "Frost",
+            "Type": "Compatible",
+            "Color Temp.": "5000k"
+          },
+          "image": null,
+          "thumb": null
+        }
+      ],
+      "variationCount": 1,
+      "thumbs": [
+        "images/thumbs/V37JOIB3AU6QEINAFNE7TQBG.jpg"
+      ]
+    },
+    {
+      "id": "NFALM76TTNAFPVXJIXNGYXRX",
+      "slug": "tube-4ft-bypass-compatible",
+      "name": "Tube 4ft Bypass/Compatible [SALE]",
+      "displayName": "Tube 4ft Bypass/Compatible",
+      "badges": [
+        "Sale"
+      ],
+      "description": "LED T8/T10 Fluorescent retrofit tubes\nType A+B/Bypass/Compatible\nFrosted/Clear",
+      "category": "Tube",
+      "categorySlug": "tube",
+      "images": [
+        "images/V37JOIB3AU6QEINAFNE7TQBG.jpg",
+        "images/ZSBPSRAKUC7YQXO7DNF7VCFZ.jpg"
+      ],
+      "hasPrice": true,
+      "priceMin": 588,
+      "priceMax": 688,
+      "currency": "USD",
+      "options": [
+        {
+          "name": "length",
+          "values": [
+            "4 ft"
+          ]
+        },
+        {
+          "name": "Wattage",
+          "values": [
+            "18W",
+            "22W"
+          ]
+        },
+        {
+          "name": "Cover",
+          "values": [
+            "Frost",
+            "Clear"
+          ]
+        },
+        {
+          "name": "Type",
+          "values": [
+            "Compatible",
+            "Bypass",
+            "B/C",
+            "Double End"
+          ]
+        },
+        {
+          "name": "Color Temp.",
+          "values": [
+            "4000k",
+            "5000k",
+            "6000k"
+          ]
+        }
+      ],
+      "variations": [
+        {
+          "id": "AJLFKVF5A3A2U2T6WH7VKKJH",
+          "name": "4 ft, 18W, Frost, Compatible, 4000k",
+          "sku": "11086184414",
+          "pricingType": "FIXED_PRICING",
+          "price": 688,
+          "currency": "USD",
+          "options": {
+            "length": "4 ft",
+            "Wattage": "18W",
+            "Cover": "Frost",
+            "Type": "Compatible",
+            "Color Temp.": "4000k"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "DAVA7YHICSEEIYUF7MXXORX3",
+          "name": "4 ft, 18W, Frost, Compatible, 5000k",
+          "sku": "11086185414",
+          "pricingType": "FIXED_PRICING",
+          "price": 688,
+          "currency": "USD",
+          "options": {
+            "length": "4 ft",
+            "Wattage": "18W",
+            "Cover": "Frost",
+            "Type": "Compatible",
+            "Color Temp.": "5000k"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "2ALWLR5FJXM7WFCOKXI262DQ",
+          "name": "4 ft, 18W, Frost, Bypass, 5000k",
+          "sku": "110m11854n2",
+          "pricingType": "FIXED_PRICING",
+          "price": 588,
+          "currency": "USD",
+          "options": {
+            "length": "4 ft",
+            "Wattage": "18W",
+            "Cover": "Frost",
+            "Type": "Bypass",
+            "Color Temp.": "5000k"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "KMCJOPSW622PL5V5MDBBD242",
+          "name": "4 ft, 18W, Frost, Bypass, 6000k",
+          "sku": "11086186416",
+          "pricingType": "FIXED_PRICING",
+          "price": 588,
+          "currency": "USD",
+          "options": {
+            "length": "4 ft",
+            "Wattage": "18W",
+            "Cover": "Frost",
+            "Type": "Bypass",
+            "Color Temp.": "6000k"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "NBQJ6UPCDTOZBOILVU3KA45U",
+          "name": "4 ft, 18W, Frost, B/C, 5000k",
+          "sku": "11061185414",
+          "pricingType": "FIXED_PRICING",
+          "price": 688,
+          "currency": "USD",
+          "options": {
+            "length": "4 ft",
+            "Wattage": "18W",
+            "Cover": "Frost",
+            "Type": "B/C",
+            "Color Temp.": "5000k"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "YNT5W566GY4F6Q2VPC5ORND7",
+          "name": "4 ft, 18W, Frost, Double End, 5000k",
+          "sku": "11086185412",
+          "pricingType": "FIXED_PRICING",
+          "price": 588,
+          "currency": "USD",
+          "options": {
+            "length": "4 ft",
+            "Wattage": "18W",
+            "Cover": "Frost",
+            "Type": "Double End",
+            "Color Temp.": "5000k"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "3XBKB427W2ED72UCEKBYRM2C",
+          "name": "4 ft, 18W, Frost, Double End, 6000k",
+          "sku": "11086186422",
+          "pricingType": "FIXED_PRICING",
+          "price": 588,
+          "currency": "USD",
+          "options": {
+            "length": "4 ft",
+            "Wattage": "18W",
+            "Cover": "Frost",
+            "Type": "Double End",
+            "Color Temp.": "6000k"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "6IOA2SGNKWKDY2W4TXGBYXNR",
+          "name": "4 ft, 18W, Clear, Compatible, 4000k",
+          "sku": "11086184413",
+          "pricingType": "FIXED_PRICING",
+          "price": 688,
+          "currency": "USD",
+          "options": {
+            "length": "4 ft",
+            "Wattage": "18W",
+            "Cover": "Clear",
+            "Type": "Compatible",
+            "Color Temp.": "4000k"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "3YX6D5PABRXOLLWR4Y2MVBO3",
+          "name": "4 ft, 18W, Clear, Compatible, 5000k",
+          "sku": "11086185413",
+          "pricingType": "FIXED_PRICING",
+          "price": 688,
+          "currency": "USD",
+          "options": {
+            "length": "4 ft",
+            "Wattage": "18W",
+            "Cover": "Clear",
+            "Type": "Compatible",
+            "Color Temp.": "5000k"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "RMITGPOYDBPZLPTPDXYOLUFP",
+          "name": "4 ft, 18W, Clear, Bypass, 5000k",
+          "sku": "110911854n1",
+          "pricingType": "FIXED_PRICING",
+          "price": 588,
+          "currency": "USD",
+          "options": {
+            "length": "4 ft",
+            "Wattage": "18W",
+            "Cover": "Clear",
+            "Type": "Bypass",
+            "Color Temp.": "5000k"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "GWCCELP4TBVM2PBRFWC3DCLP",
+          "name": "4 ft, 18W, Clear, Bypass, 6000k",
+          "sku": "11086186415",
+          "pricingType": "FIXED_PRICING",
+          "price": 588,
+          "currency": "USD",
+          "options": {
+            "length": "4 ft",
+            "Wattage": "18W",
+            "Cover": "Clear",
+            "Type": "Bypass",
+            "Color Temp.": "6000k"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "364BLKUVRPI3AF62QFFWEYHO",
+          "name": "4 ft, 22W, Frost, Bypass, 4000k",
+          "sku": "11086224422",
+          "pricingType": "FIXED_PRICING",
+          "price": 588,
+          "currency": "USD",
+          "options": {
+            "length": "4 ft",
+            "Wattage": "22W",
+            "Cover": "Frost",
+            "Type": "Bypass",
+            "Color Temp.": "4000k"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "DGYUEZE345IZPB334SHQZ4WM",
+          "name": "4 ft, 22W, Frost, Bypass, 5000k",
+          "sku": "11086225422",
+          "pricingType": "FIXED_PRICING",
+          "price": 588,
+          "currency": "USD",
+          "options": {
+            "length": "4 ft",
+            "Wattage": "22W",
+            "Cover": "Frost",
+            "Type": "Bypass",
+            "Color Temp.": "5000k"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "LREWVBSM5OCLARK3INYRJY42",
+          "name": "4 ft, 22W, Frost, Double End, 6000k",
+          "sku": "11086226422",
+          "pricingType": "FIXED_PRICING",
+          "price": 588,
+          "currency": "USD",
+          "options": {
+            "length": "4 ft",
+            "Wattage": "22W",
+            "Cover": "Frost",
+            "Type": "Double End",
+            "Color Temp.": "6000k"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "N5YPQYBCX7EG6HMUBFBRM2EP",
+          "name": "4 ft, 22W, Clear, Bypass, 4000k",
+          "sku": "11086224421",
+          "pricingType": "FIXED_PRICING",
+          "price": 588,
+          "currency": "USD",
+          "options": {
+            "length": "4 ft",
+            "Wattage": "22W",
+            "Cover": "Clear",
+            "Type": "Bypass",
+            "Color Temp.": "4000k"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "YKGLCT3KHTMGKDGGAXHQ4H2C",
+          "name": "4 ft, 22W, Clear, Bypass, 5000k",
+          "sku": "11086225421",
+          "pricingType": "FIXED_PRICING",
+          "price": 588,
+          "currency": "USD",
+          "options": {
+            "length": "4 ft",
+            "Wattage": "22W",
+            "Cover": "Clear",
+            "Type": "Bypass",
+            "Color Temp.": "5000k"
+          },
+          "image": null,
+          "thumb": null
+        }
+      ],
+      "variationCount": 16,
+      "thumbs": [
+        "images/thumbs/V37JOIB3AU6QEINAFNE7TQBG.jpg",
+        "images/thumbs/ZSBPSRAKUC7YQXO7DNF7VCFZ.jpg"
+      ]
+    },
+    {
+      "id": "M3DRDOH2TTAUSQUAGJKNJLZL",
+      "slug": "tube-8ft-fa8-single-pin",
+      "name": "Tube 8ft Fa8 Single Pin [SALE]",
+      "displayName": "Tube 8ft Fa8 Single Pin",
+      "badges": [
+        "Sale"
+      ],
+      "description": "6000K - 6500K\n10/40 SALE",
+      "category": "Tube",
+      "categorySlug": "tube",
+      "images": [
+        "images/SFYYFAHNMKNJGLNAUHPBVWDG.jpg",
+        "images/ZE2US5U6UO6UPV7C3MS66EPV.jpg"
+      ],
+      "hasPrice": true,
+      "priceMin": 1484,
+      "priceMax": 2199,
+      "currency": "USD",
+      "options": [
+        {
+          "name": "Wattage",
+          "values": [
+            "40W",
+            "50W",
+            "45W",
+            "36W"
+          ]
+        },
+        {
+          "name": "Cover",
+          "values": [
+            "Clear",
+            "Frost"
+          ]
+        },
+        {
+          "name": "length",
+          "values": [
+            "8 ft"
+          ]
+        }
+      ],
+      "variations": [
+        {
+          "id": "ADPYNCPOTYUW7PA3FKX73BDQ",
+          "name": "40W, Clear, 8 ft",
+          "sku": "11091406821",
+          "pricingType": "FIXED_PRICING",
+          "price": 1484,
+          "currency": "USD",
+          "options": {
+            "Wattage": "40W",
+            "Cover": "Clear",
+            "length": "8 ft"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "UFDJMZ3PXTX735F3A567YKJM",
+          "name": "50W, Frost, 8 ft",
+          "sku": "11023506822",
+          "pricingType": "FIXED_PRICING",
+          "price": 2199,
+          "currency": "USD",
+          "options": {
+            "Wattage": "50W",
+            "Cover": "Frost",
+            "length": "8 ft"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "LNCWKR5XEIXHMVMWPOBIVZY5",
+          "name": "50W, Clear, 8 ft",
+          "sku": "11023506821",
+          "pricingType": "FIXED_PRICING",
+          "price": 2199,
+          "currency": "USD",
+          "options": {
+            "Wattage": "50W",
+            "Cover": "Clear",
+            "length": "8 ft"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "Q6FOKXAMGQCKPQ2BZNUCLTG5",
+          "name": "45W, Frost, 8 ft",
+          "sku": "11023456822",
+          "pricingType": "FIXED_PRICING",
+          "price": 1995,
+          "currency": "USD",
+          "options": {
+            "Wattage": "45W",
+            "Cover": "Frost",
+            "length": "8 ft"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "UVI5GXZFEQZD2GGJZWFMAQWC",
+          "name": "45W, Clear, 8 ft",
+          "sku": "11023456821",
+          "pricingType": "FIXED_PRICING",
+          "price": 1995,
+          "currency": "USD",
+          "options": {
+            "Wattage": "45W",
+            "Cover": "Clear",
+            "length": "8 ft"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "W6JIGRLJE5DSXGFUD4ZDLZH3",
+          "name": "36W, Frost, 8 ft",
+          "sku": "11023366822",
+          "pricingType": "FIXED_PRICING",
+          "price": 1484,
+          "currency": "USD",
+          "options": {
+            "Wattage": "36W",
+            "Cover": "Frost",
+            "length": "8 ft"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "EAWBWSDP2DGZSXZCAG3WZHOM",
+          "name": "36W, Clear, 8 ft",
+          "sku": "11086366805",
+          "pricingType": "FIXED_PRICING",
+          "price": 1484,
+          "currency": "USD",
+          "options": {
+            "Wattage": "36W",
+            "Cover": "Clear",
+            "length": "8 ft"
+          },
+          "image": null,
+          "thumb": null
+        }
+      ],
+      "variationCount": 7,
+      "thumbs": [
+        "images/thumbs/SFYYFAHNMKNJGLNAUHPBVWDG.jpg",
+        "images/thumbs/ZE2US5U6UO6UPV7C3MS66EPV.jpg"
+      ]
+    },
+    {
+      "id": "WSEZPREPSZDORESIXLMJDNYJ",
+      "slug": "high-bay-ufo-light",
+      "name": "*MS35* High Bay UFO Light",
+      "displayName": "High Bay UFO Light",
+      "badges": [
+        "MS35"
+      ],
+      "description": "",
+      "category": "High Bay",
+      "categorySlug": "high-bay",
+      "images": [
+        "images/4BXHTPRSVMGDOPLS7W6UON3M.png"
+      ],
+      "hasPrice": true,
+      "priceMin": 10597,
+      "priceMax": 18102,
+      "currency": "USD",
+      "options": [
+        {
+          "name": "Wattage",
+          "values": [
+            "150W",
+            "240W",
+            "255W"
+          ]
+        },
+        {
+          "name": "Accessory",
+          "values": [
+            "Sensor",
+            "No Sensor"
+          ]
+        },
+        {
+          "name": "Brand",
+          "values": [
+            "RZ",
+            "HG"
+          ]
+        }
+      ],
+      "variations": [
+        {
+          "id": "Y4ZXRZ554YONCY4GW7A767NS",
+          "name": "150W, Sensor, RZ",
+          "sku": "17028651591",
+          "pricingType": "FIXED_PRICING",
+          "price": 12998,
+          "currency": "USD",
+          "options": {
+            "Wattage": "150W",
+            "Accessory": "Sensor",
+            "Brand": "RZ"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "TT3LPIYOZ3JHPOUVQZGSSQFE",
+          "name": "150W, No Sensor, RZ",
+          "sku": "17028651501",
+          "pricingType": "FIXED_PRICING",
+          "price": 10597,
+          "currency": "USD",
+          "options": {
+            "Wattage": "150W",
+            "Accessory": "No Sensor",
+            "Brand": "RZ"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "CUNR7VS3VG5ATXTKUBGXEDGY",
+          "name": "150W, No Sensor, HG",
+          "sku": "17083155024",
+          "pricingType": "FIXED_PRICING",
+          "price": 10597,
+          "currency": "USD",
+          "options": {
+            "Wattage": "150W",
+            "Accessory": "No Sensor",
+            "Brand": "HG"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "24T3NCAT3KHN5CO5S5ZO2HDL",
+          "name": "240W, No Sensor, HG",
+          "sku": "17083245024",
+          "pricingType": "FIXED_PRICING",
+          "price": 15701,
+          "currency": "USD",
+          "options": {
+            "Wattage": "240W",
+            "Accessory": "No Sensor",
+            "Brand": "HG"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "RTE5ZCWW67KLA2STL37GCUB4",
+          "name": "255W, Sensor, RZ",
+          "sku": "17028652591",
+          "pricingType": "FIXED_PRICING",
+          "price": 18102,
+          "currency": "USD",
+          "options": {
+            "Wattage": "255W",
+            "Accessory": "Sensor",
+            "Brand": "RZ"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "Z5EK46YXXM7XFLI2LCOKO3M5",
+          "name": "255W, No Sensor, RZ",
+          "sku": "17028652501",
+          "pricingType": "FIXED_PRICING",
+          "price": 15701,
+          "currency": "USD",
+          "options": {
+            "Wattage": "255W",
+            "Accessory": "No Sensor",
+            "Brand": "RZ"
+          },
+          "image": null,
+          "thumb": null
+        }
+      ],
+      "variationCount": 6,
+      "thumbs": [
+        "images/thumbs/4BXHTPRSVMGDOPLS7W6UON3M.jpg"
+      ]
+    },
+    {
+      "id": "KS54G5NNEIFQBOZIS27R2Y46",
+      "slug": "high-bay-ufo-reflector-aluminum",
+      "name": "High Bay UFO Reflector (Aluminum)",
+      "displayName": "High Bay UFO Reflector (Aluminum)",
+      "badges": [],
+      "description": "",
+      "category": "High Bay",
+      "categorySlug": "high-bay",
+      "images": [
+        "images/OCEAYYME3QTRXPJRZZ2W6HH2.jpg"
+      ],
+      "hasPrice": true,
+      "priceMin": 1067,
+      "priceMax": 2208,
+      "currency": "USD",
+      "options": [
+        {
+          "name": "Brand",
+          "values": [
+            "RZ",
+            "HG"
+          ]
+        },
+        {
+          "name": "Size",
+          "values": [
+            "60 degree",
+            "90 degree",
+            "Large",
+            "Small"
+          ]
+        }
+      ],
+      "variations": [
+        {
+          "id": "RMDESSPU67N5G3ILAYD7SDLG",
+          "name": "RZ, 60 degree",
+          "sku": "17028007902",
+          "pricingType": "FIXED_PRICING",
+          "price": 1067,
+          "currency": "USD",
+          "options": {
+            "Brand": "RZ",
+            "Size": "60 degree"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "2JX4GOYUPPR5XV2TYAH7HWH4",
+          "name": "RZ, 90 degree",
+          "sku": "17028007901",
+          "pricingType": "FIXED_PRICING",
+          "price": 1067,
+          "currency": "USD",
+          "options": {
+            "Brand": "RZ",
+            "Size": "90 degree"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "TWFVUDSI5ZY7LVNZEAQI35MW",
+          "name": "HG, Large",
+          "sku": "17083000209",
+          "pricingType": "FIXED_PRICING",
+          "price": 2208,
+          "currency": "USD",
+          "options": {
+            "Brand": "HG",
+            "Size": "Large"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "MJW4UK5F6FQ5WP6MIRW3QV6R",
+          "name": "HG, Small",
+          "sku": "17083000229",
+          "pricingType": "FIXED_PRICING",
+          "price": 2208,
+          "currency": "USD",
+          "options": {
+            "Brand": "HG",
+            "Size": "Small"
+          },
+          "image": null,
+          "thumb": null
+        }
+      ],
+      "variationCount": 4,
+      "thumbs": [
+        "images/thumbs/OCEAYYME3QTRXPJRZZ2W6HH2.jpg"
+      ]
+    },
+    {
+      "id": "ZW35YYICD2FSFJHNVAI5E7ZG",
+      "slug": "barn-light-yard-light",
+      "name": "Barn Light /Yard Light",
+      "displayName": "Barn Light /Yard Light",
+      "badges": [],
+      "description": "Photocell, Dust to Dawn",
+      "category": "Outdoor Area",
+      "categorySlug": "outdoor-area",
+      "images": [
+        "images/NVH5JJHXO5GAB245SAJ2RQPO.jpg"
+      ],
+      "hasPrice": true,
+      "priceMin": 3864,
+      "priceMax": 3864,
+      "currency": "USD",
+      "options": [
+        {
+          "name": "Wattage",
+          "values": [
+            "35W"
+          ]
+        },
+        {
+          "name": "Accessory",
+          "values": [
+            "Photocell"
+          ]
+        }
+      ],
+      "variations": [
+        {
+          "id": "5EH4MJZXICP5QKDGEWGGDUHE",
+          "name": "35W, Photocell",
+          "sku": "25004355215",
+          "pricingType": "FIXED_PRICING",
+          "price": 3864,
+          "currency": "USD",
+          "options": {
+            "Wattage": "35W",
+            "Accessory": "Photocell"
+          },
+          "image": null,
+          "thumb": null
+        }
+      ],
+      "variationCount": 1,
+      "thumbs": [
+        "images/thumbs/NVH5JJHXO5GAB245SAJ2RQPO.jpg"
+      ]
+    },
+    {
+      "id": "3GUHW6ZENAIYWONMZI2T7KYV",
+      "slug": "cylinder-wall-pack",
+      "name": "Cylinder Wall Pack",
+      "displayName": "Cylinder Wall Pack",
+      "badges": [],
+      "description": "Up and Down LED Light\nWall wash light",
+      "category": "Outdoor Area",
+      "categorySlug": "outdoor-area",
+      "images": [
+        "images/DEZQCXGNXIUSNNL6WBPOOZGO.png"
+      ],
+      "hasPrice": true,
+      "priceMin": 5850,
+      "priceMax": 7961,
+      "currency": "USD",
+      "options": [
+        {
+          "name": "Wattage",
+          "values": [
+            "2x18W",
+            "2x24W"
+          ]
+        },
+        {
+          "name": "Color Temp.",
+          "values": [
+            "3000k",
+            "Blue",
+            "Green",
+            "Purple",
+            "6500k"
+          ]
+        }
+      ],
+      "variations": [
+        {
+          "id": "WD4UAKMR47IIE7HTMAEHZB7L",
+          "name": "2x18W, 3000k",
+          "sku": "23023363521",
+          "pricingType": "FIXED_PRICING",
+          "price": 5850,
+          "currency": "USD",
+          "options": {
+            "Wattage": "2x18W",
+            "Color Temp.": "3000k"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "7VVM3IV6YM6MEQWA5GFW2YJ5",
+          "name": "2x18W, Blue",
+          "sku": "23023360522",
+          "pricingType": "FIXED_PRICING",
+          "price": 5850,
+          "currency": "USD",
+          "options": {
+            "Wattage": "2x18W",
+            "Color Temp.": "Blue"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "OCJJ7PMF7UXJUT2TJ2MXUBUA",
+          "name": "2x18W, Green",
+          "sku": "23023360523",
+          "pricingType": "FIXED_PRICING",
+          "price": 5850,
+          "currency": "USD",
+          "options": {
+            "Wattage": "2x18W",
+            "Color Temp.": "Green"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "PZUZGRYSFKEHQV3C7RW54VNY",
+          "name": "2x18W, Purple",
+          "sku": "23023360524",
+          "pricingType": "FIXED_PRICING",
+          "price": 6050,
+          "currency": "USD",
+          "options": {
+            "Wattage": "2x18W",
+            "Color Temp.": "Purple"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "4AD3B55HXEBOXKOCBLJZRVRM",
+          "name": "2x24W, 3000k",
+          "sku": "23023483621",
+          "pricingType": "FIXED_PRICING",
+          "price": 7761,
+          "currency": "USD",
+          "options": {
+            "Wattage": "2x24W",
+            "Color Temp.": "3000k"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "YQ4V37CQDJLQUQ3UJWQIRNBF",
+          "name": "2x24W, 6500k",
+          "sku": "23023486621",
+          "pricingType": "FIXED_PRICING",
+          "price": 7761,
+          "currency": "USD",
+          "options": {
+            "Wattage": "2x24W",
+            "Color Temp.": "6500k"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "WLP4YFTUWDUQUCFQ3N3WQHAV",
+          "name": "2x24W, Blue",
+          "sku": "23023480622",
+          "pricingType": "FIXED_PRICING",
+          "price": 7761,
+          "currency": "USD",
+          "options": {
+            "Wattage": "2x24W",
+            "Color Temp.": "Blue"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "KZJLJYAXBSTXF5FG7K34NCKX",
+          "name": "2x24W, Green",
+          "sku": "23023480623",
+          "pricingType": "FIXED_PRICING",
+          "price": 7761,
+          "currency": "USD",
+          "options": {
+            "Wattage": "2x24W",
+            "Color Temp.": "Green"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "VWHYALMVYEX4QWLDF2WZEPXL",
+          "name": "2x24W, Purple",
+          "sku": "23023480624",
+          "pricingType": "FIXED_PRICING",
+          "price": 7961,
+          "currency": "USD",
+          "options": {
+            "Wattage": "2x24W",
+            "Color Temp.": "Purple"
+          },
+          "image": null,
+          "thumb": null
+        }
+      ],
+      "variationCount": 9,
+      "thumbs": [
+        "images/thumbs/DEZQCXGNXIUSNNL6WBPOOZGO.jpg"
+      ]
+    },
+    {
+      "id": "773ENXL4I5LGXCPDZSL2WFKN",
+      "slug": "flood-light",
+      "name": "Flood Light [HG. SALE]",
+      "displayName": "Flood Light",
+      "badges": [
+        "Sale"
+      ],
+      "description": "5000K Day Light\nClearance Sale, 1 yr exchange warranty",
+      "category": "Outdoor Area",
+      "categorySlug": "outdoor-area",
+      "images": [
+        "images/GFAVRVX67TS6RN6VZU7EGFR5.jpg",
+        "images/TO7MYNRO374N6RAL3LLP2FKU.jpg"
+      ],
+      "hasPrice": true,
+      "priceMin": 600,
+      "priceMax": 5000,
+      "currency": "USD",
+      "options": [
+        {
+          "name": "Wattage",
+          "values": [
+            "10W",
+            "20W",
+            "30W",
+            "50W",
+            "100W",
+            "70W"
+          ]
+        },
+        {
+          "name": "Accessory",
+          "values": [
+            "Sensor",
+            "-"
+          ]
+        },
+        {
+          "name": "Color",
+          "values": [
+            "-",
+            "RGB"
+          ]
+        }
+      ],
+      "variations": [
+        {
+          "id": "UWTDEMKYVJVVPRTOUXIFMSEZ",
+          "name": "10W, Sensor, -",
+          "sku": "25083015064",
+          "pricingType": "FIXED_PRICING",
+          "price": 900,
+          "currency": "USD",
+          "options": {
+            "Wattage": "10W",
+            "Accessory": "Sensor",
+            "Color": "-"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "NYRVUC2KAW6OH7SPNZFXHC3T",
+          "name": "10W, -, -",
+          "sku": "25083015061",
+          "pricingType": "FIXED_PRICING",
+          "price": 600,
+          "currency": "USD",
+          "options": {
+            "Wattage": "10W",
+            "Accessory": "-",
+            "Color": "-"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "HLQINHJ3EWBN23A6FCN7WHRN",
+          "name": "20W, Sensor, -",
+          "sku": "25083025064",
+          "pricingType": "FIXED_PRICING",
+          "price": 1500,
+          "currency": "USD",
+          "options": {
+            "Wattage": "20W",
+            "Accessory": "Sensor",
+            "Color": "-"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "IV5YFND7ES57NUJJMS5QZDZG",
+          "name": "20W, -, -",
+          "sku": "25083025061",
+          "pricingType": "FIXED_PRICING",
+          "price": 900,
+          "currency": "USD",
+          "options": {
+            "Wattage": "20W",
+            "Accessory": "-",
+            "Color": "-"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "IRMN3CEJ7RB64LQCEATBLLCN",
+          "name": "30W, Sensor, -",
+          "sku": "25083035064",
+          "pricingType": "FIXED_PRICING",
+          "price": 2000,
+          "currency": "USD",
+          "options": {
+            "Wattage": "30W",
+            "Accessory": "Sensor",
+            "Color": "-"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "LGZ3ZKIO7EKRDNYXONBKOCXS",
+          "name": "30W, -, RGB",
+          "sku": "25083030061",
+          "pricingType": "FIXED_PRICING",
+          "price": 3900,
+          "currency": "USD",
+          "options": {
+            "Wattage": "30W",
+            "Accessory": "-",
+            "Color": "RGB"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "4PEJMARE7FAOCPUAUTINNNK4",
+          "name": "30W, -, -",
+          "sku": "25083035061",
+          "pricingType": "FIXED_PRICING",
+          "price": 1700,
+          "currency": "USD",
+          "options": {
+            "Wattage": "30W",
+            "Accessory": "-",
+            "Color": "-"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "GM6PZ6XA5DDTU3WO37LFSZBD",
+          "name": "50W, -, -",
+          "sku": "25083055061",
+          "pricingType": "FIXED_PRICING",
+          "price": 2800,
+          "currency": "USD",
+          "options": {
+            "Wattage": "50W",
+            "Accessory": "-",
+            "Color": "-"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "AL7L6XRU7FZV456IQFMQ7M7R",
+          "name": "100W, -, -",
+          "sku": "25083105061",
+          "pricingType": "FIXED_PRICING",
+          "price": 5000,
+          "currency": "USD",
+          "options": {
+            "Wattage": "100W",
+            "Accessory": "-",
+            "Color": "-"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "F3APTSNLCPPN5LWYJBH5LZ6K",
+          "name": "70W, -, -",
+          "sku": "25083075061",
+          "pricingType": "FIXED_PRICING",
+          "price": 4500,
+          "currency": "USD",
+          "options": {
+            "Wattage": "70W",
+            "Accessory": "-",
+            "Color": "-"
+          },
+          "image": null,
+          "thumb": null
+        }
+      ],
+      "variationCount": 10,
+      "thumbs": [
+        "images/thumbs/GFAVRVX67TS6RN6VZU7EGFR5.jpg",
+        "images/thumbs/TO7MYNRO374N6RAL3LLP2FKU.jpg"
+      ]
+    },
+    {
+      "id": "AFP3C75THWV65WJWM2GI2NMQ",
+      "slug": "flood-light-linear",
+      "name": "Flood Light Linear",
+      "displayName": "Flood Light Linear",
+      "badges": [],
+      "description": "Available in 150W, 200W, 240W\nPremium Black Finish",
+      "category": "Outdoor Area",
+      "categorySlug": "outdoor-area",
+      "images": [
+        "images/LVWGQCQBRGX6WXRKKFHHFUZL.jpg"
+      ],
+      "hasPrice": true,
+      "priceMin": 21418,
+      "priceMax": 30912,
+      "currency": "USD",
+      "options": [
+        {
+          "name": "Wattage",
+          "values": [
+            "150W",
+            "240W",
+            "200W"
+          ]
+        }
+      ],
+      "variations": [
+        {
+          "id": "Y3OT7IRORO6YCPWGLHPAQ7NB",
+          "name": "150W",
+          "sku": "15100156012",
+          "pricingType": "FIXED_PRICING",
+          "price": 21418,
+          "currency": "USD",
+          "options": {
+            "Wattage": "150W"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "YLHZM6KSLYUQJWAW3XMO2S4M",
+          "name": "240W",
+          "sku": "15100246012",
+          "pricingType": "FIXED_PRICING",
+          "price": 30912,
+          "currency": "USD",
+          "options": {
+            "Wattage": "240W"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "I2EXU2BDLQ6ZF5EP7M7GZBK6",
+          "name": "200W",
+          "sku": "15100206012",
+          "pricingType": "FIXED_PRICING",
+          "price": 26938,
+          "currency": "USD",
+          "options": {
+            "Wattage": "200W"
+          },
+          "image": null,
+          "thumb": null
+        }
+      ],
+      "variationCount": 3,
+      "thumbs": [
+        "images/thumbs/LVWGQCQBRGX6WXRKKFHHFUZL.jpg"
+      ]
+    },
+    {
+      "id": "5F5A5FMCXCE23CITGXOG7TPD",
+      "slug": "flood-spot-light",
+      "name": "Flood/Spot Light",
+      "displayName": "Flood/Spot Light",
+      "badges": [],
+      "description": "",
+      "category": "Outdoor Area",
+      "categorySlug": "outdoor-area",
+      "images": [
+        "images/5AW2IS6VXQ7QESORTLOJ4PF7.jpg",
+        "images/J5QJVOLMAQVHOAOAMYYATNP6.jpg"
+      ],
+      "hasPrice": true,
+      "priceMin": 5323,
+      "priceMax": 5323,
+      "currency": "USD",
+      "options": [
+        {
+          "name": "Wattage",
+          "values": [
+            "50W"
+          ]
+        }
+      ],
+      "variations": [
+        {
+          "id": "GBW2REYRIBFXC4I4FA5A3MGY",
+          "name": "50W",
+          "sku": "25028650501",
+          "pricingType": "FIXED_PRICING",
+          "price": 5323,
+          "currency": "USD",
+          "options": {
+            "Wattage": "50W"
+          },
+          "image": null,
+          "thumb": null
+        }
+      ],
+      "variationCount": 1,
+      "thumbs": [
+        "images/thumbs/5AW2IS6VXQ7QESORTLOJ4PF7.jpg",
+        "images/thumbs/J5QJVOLMAQVHOAOAMYYATNP6.jpg"
+      ]
+    },
+    {
+      "id": "URI22GE4RRL62SFOMUH5R4LJ",
+      "slug": "parking-street-decorative-hg",
+      "name": "Parking/Street Decorative HG [SALE]",
+      "displayName": "Parking/Street Decorative HG",
+      "badges": [
+        "Sale"
+      ],
+      "description": "Clearance Sale, 1 yr exchange warranty",
+      "category": "Outdoor Area",
+      "categorySlug": "outdoor-area",
+      "images": [
+        "images/VS5YCU6IVFP37C3ASBUBISRD.jpg",
+        "images/KRY6UXLM7UNCZD33KODUE36H.jpg"
+      ],
+      "hasPrice": true,
+      "priceMin": 5000,
+      "priceMax": 12000,
+      "currency": "USD",
+      "options": [
+        {
+          "name": "Wattage",
+          "values": [
+            "150W",
+            "50W",
+            "80W",
+            "100W"
+          ]
+        }
+      ],
+      "variations": [
+        {
+          "id": "VZRTB3VVNKRTUSXSIYLDKZHF",
+          "name": "150W",
+          "sku": "26083155001",
+          "pricingType": "FIXED_PRICING",
+          "price": 12000,
+          "currency": "USD",
+          "options": {
+            "Wattage": "150W"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "YKVD2O5ZM2IZY2N7452VG3GH",
+          "name": "50W",
+          "sku": "26083055001",
+          "pricingType": "FIXED_PRICING",
+          "price": 5000,
+          "currency": "USD",
+          "options": {
+            "Wattage": "50W"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "INRB5PUVU4CVQ7JHHGA3FXIF",
+          "name": "80W",
+          "sku": "26083085001",
+          "pricingType": "FIXED_PRICING",
+          "price": 8000,
+          "currency": "USD",
+          "options": {
+            "Wattage": "80W"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "RINU34OZ7UMZ3Z2CNIPUWPFB",
+          "name": "100W",
+          "sku": "26083105001",
+          "pricingType": "FIXED_PRICING",
+          "price": 9500,
+          "currency": "USD",
+          "options": {
+            "Wattage": "100W"
+          },
+          "image": null,
+          "thumb": null
+        }
+      ],
+      "variationCount": 4,
+      "thumbs": [
+        "images/thumbs/VS5YCU6IVFP37C3ASBUBISRD.jpg",
+        "images/thumbs/KRY6UXLM7UNCZD33KODUE36H.jpg"
+      ]
+    },
+    {
+      "id": "2K6DK5DR4TFDPBBD5TGQLR65",
+      "slug": "parking-street-shoe-box",
+      "name": "*MS35* Parking/Street Shoe Box",
+      "displayName": "Parking/Street Shoe Box",
+      "badges": [
+        "MS35"
+      ],
+      "description": "RZ 135lm/w\nSNC UL/DLC certified\nParking Lot Light and Street Light",
+      "category": "Outdoor Area",
+      "categorySlug": "outdoor-area",
+      "images": [
+        "images/UH6TYI4JFSLFR4V57GWSBOAU.jpg"
+      ],
+      "hasPrice": true,
+      "priceMin": 13287,
+      "priceMax": 69552,
+      "currency": "USD",
+      "options": [
+        {
+          "name": "Wattage",
+          "values": [
+            "150W",
+            "240W",
+            "300W",
+            "480W",
+            "200W",
+            "30W",
+            "100W",
+            "90W"
+          ]
+        },
+        {
+          "name": "Accessory",
+          "values": [
+            "Photocell",
+            "-"
+          ]
+        },
+        {
+          "name": "Brand",
+          "values": [
+            "RZ",
+            "SNC",
+            "YR"
+          ]
+        },
+        {
+          "name": "Grade",
+          "values": [
+            "-",
+            "Premium",
+            "Slim"
+          ]
+        }
+      ],
+      "variations": [
+        {
+          "id": "FFFKNXEKBQZDC7BXP3ZLNLSB",
+          "name": "150W, Photocell, RZ, -",
+          "sku": "24028651592",
+          "pricingType": "FIXED_PRICING",
+          "price": 14675,
+          "currency": "USD",
+          "options": {
+            "Wattage": "150W",
+            "Accessory": "Photocell",
+            "Brand": "RZ",
+            "Grade": "-"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "ZX3UPFBOBPWWE4VGWRDMORC7",
+          "name": "150W, -, RZ, -",
+          "sku": "24028651502",
+          "pricingType": "FIXED_PRICING",
+          "price": 13287,
+          "currency": "USD",
+          "options": {
+            "Wattage": "150W",
+            "Accessory": "-",
+            "Brand": "RZ",
+            "Grade": "-"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "GS6HTRFLZ7D5SM4FERGLDUVH",
+          "name": "150W, -, SNC, Premium",
+          "sku": "24100155011",
+          "pricingType": "FIXED_PRICING",
+          "price": 27600,
+          "currency": "USD",
+          "options": {
+            "Wattage": "150W",
+            "Accessory": "-",
+            "Brand": "SNC",
+            "Grade": "Premium"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "XCUSFEJSDMNT34N4EHB42OAQ",
+          "name": "150W, -, SNC, Slim",
+          "sku": "24100155012",
+          "pricingType": "FIXED_PRICING",
+          "price": 13287,
+          "currency": "USD",
+          "options": {
+            "Wattage": "150W",
+            "Accessory": "-",
+            "Brand": "SNC",
+            "Grade": "Slim"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "YDEG7OJMDOAGUYCAHQWNLLBI",
+          "name": "240W, Photocell, RZ, -",
+          "sku": "24028652492",
+          "pricingType": "FIXED_PRICING",
+          "price": 23518,
+          "currency": "USD",
+          "options": {
+            "Wattage": "240W",
+            "Accessory": "Photocell",
+            "Brand": "RZ",
+            "Grade": "-"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "OZPMFJLXYPNWGSSIOK7EHVHY",
+          "name": "240W, -, RZ, -",
+          "sku": "24028652402",
+          "pricingType": "FIXED_PRICING",
+          "price": 22131,
+          "currency": "USD",
+          "options": {
+            "Wattage": "240W",
+            "Accessory": "-",
+            "Brand": "RZ",
+            "Grade": "-"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "EXKXUT42JNIUS5PUGMTJZ53Y",
+          "name": "240W, -, SNC, Premium",
+          "sku": "24100245011",
+          "pricingType": "FIXED_PRICING",
+          "price": 33782,
+          "currency": "USD",
+          "options": {
+            "Wattage": "240W",
+            "Accessory": "-",
+            "Brand": "SNC",
+            "Grade": "Premium"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "JN4GGT47F777EH23PPAIQVNJ",
+          "name": "240W, -, SNC, Slim",
+          "sku": "24100245012",
+          "pricingType": "FIXED_PRICING",
+          "price": 22131,
+          "currency": "USD",
+          "options": {
+            "Wattage": "240W",
+            "Accessory": "-",
+            "Brand": "SNC",
+            "Grade": "Slim"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "GWFAGINPNFWN7L3JSFWWLA6K",
+          "name": "300W, Photocell, RZ, -",
+          "sku": "24028653092",
+          "pricingType": "FIXED_PRICING",
+          "price": 26240,
+          "currency": "USD",
+          "options": {
+            "Wattage": "300W",
+            "Accessory": "Photocell",
+            "Brand": "RZ",
+            "Grade": "-"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "V6EF27IPKFPZQUEXSOQ44WOE",
+          "name": "300W, -, RZ, -",
+          "sku": "24028653002",
+          "pricingType": "FIXED_PRICING",
+          "price": 24852,
+          "currency": "USD",
+          "options": {
+            "Wattage": "300W",
+            "Accessory": "-",
+            "Brand": "RZ",
+            "Grade": "-"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "PE5O6J6BQJK7EBMFYW36EP3W",
+          "name": "300W, -, SNC, Premium",
+          "sku": "24100305011",
+          "pricingType": "FIXED_PRICING",
+          "price": 42394,
+          "currency": "USD",
+          "options": {
+            "Wattage": "300W",
+            "Accessory": "-",
+            "Brand": "SNC",
+            "Grade": "Premium"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "HPSHQP2YRWS7HKXEQWUNCQQB",
+          "name": "480W, -, SNC, Premium",
+          "sku": "24100485011",
+          "pricingType": "FIXED_PRICING",
+          "price": 69552,
+          "currency": "USD",
+          "options": {
+            "Wattage": "480W",
+            "Accessory": "-",
+            "Brand": "SNC",
+            "Grade": "Premium"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "6FXHB736EYJUHLRRYUBNN6U4",
+          "name": "200W, -, SNC, Premium",
+          "sku": "24100205011",
+          "pricingType": "FIXED_PRICING",
+          "price": 32899,
+          "currency": "USD",
+          "options": {
+            "Wattage": "200W",
+            "Accessory": "-",
+            "Brand": "SNC",
+            "Grade": "Premium"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "NNVMJD3HPJODHRE5VZHCCHTI",
+          "name": "30W, -, YR, Premium",
+          "sku": "26047036122",
+          "pricingType": "FIXED_PRICING",
+          "price": 14131,
+          "currency": "USD",
+          "options": {
+            "Wattage": "30W",
+            "Accessory": "-",
+            "Brand": "YR",
+            "Grade": "Premium"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "BZ3GJNZ46T7DGP6B37LEX7I5",
+          "name": "100W, -, YR, Premium",
+          "sku": "24047106020",
+          "pricingType": "FIXED_PRICING",
+          "price": 25171,
+          "currency": "USD",
+          "options": {
+            "Wattage": "100W",
+            "Accessory": "-",
+            "Brand": "YR",
+            "Grade": "Premium"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "RN4OJJXLG7A5UV35BYYX7Z62",
+          "name": "90W, -, YR, Premium",
+          "sku": "26047096322",
+          "pricingType": "FIXED_PRICING",
+          "price": 28925,
+          "currency": "USD",
+          "options": {
+            "Wattage": "90W",
+            "Accessory": "-",
+            "Brand": "YR",
+            "Grade": "Premium"
+          },
+          "image": null,
+          "thumb": null
+        }
+      ],
+      "variationCount": 16,
+      "thumbs": [
+        "images/thumbs/UH6TYI4JFSLFR4V57GWSBOAU.jpg"
+      ]
+    },
+    {
+      "id": "2ANCA5NWO7K74UOYBQON7JHH",
+      "slug": "wall-pack",
+      "name": "*MS35* Wall Pack",
+      "displayName": "Wall Pack",
+      "badges": [
+        "MS35"
+      ],
+      "description": "Available in 80w, 120w with photocell\nAlso Available in 30w, NO photocell",
+      "category": "Outdoor Area",
+      "categorySlug": "outdoor-area",
+      "images": [
+        "images/4IUZLNOIMZBQ667K2Z4FADSG.jpg"
+      ],
+      "hasPrice": true,
+      "priceMin": 6982,
+      "priceMax": 14941,
+      "currency": "USD",
+      "options": [
+        {
+          "name": "Wattage",
+          "values": [
+            "30W",
+            "80W",
+            "120W"
+          ]
+        },
+        {
+          "name": "Brand",
+          "values": [
+            "HG",
+            "RZ"
+          ]
+        },
+        {
+          "name": "Sale",
+          "values": [
+            "[SALE]",
+            "-"
+          ]
+        }
+      ],
+      "variations": [
+        {
+          "id": "ULZI2EAHGJSDKTJXUQQKDBKF",
+          "name": "30W, HG, [SALE]",
+          "sku": "23083035040",
+          "pricingType": "FIXED_PRICING",
+          "price": 6982,
+          "currency": "USD",
+          "options": {
+            "Wattage": "30W",
+            "Brand": "HG",
+            "Sale": "[SALE]"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "AP5AGKAFGLDIZ6XYM25WAFKO",
+          "name": "80W, RZ, -",
+          "sku": "23028650801",
+          "pricingType": "FIXED_PRICING",
+          "price": 10125,
+          "currency": "USD",
+          "options": {
+            "Wattage": "80W",
+            "Brand": "RZ",
+            "Sale": "-"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "JEQKJQMLD3RYDYTJBEYUHUSE",
+          "name": "120W, RZ, -",
+          "sku": "23028651201",
+          "pricingType": "FIXED_PRICING",
+          "price": 14941,
+          "currency": "USD",
+          "options": {
+            "Wattage": "120W",
+            "Brand": "RZ",
+            "Sale": "-"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "7ACE772FBTWMZJDAOSKFCIZG",
+          "name": "120W, HG, [SALE]",
+          "sku": "23083125032",
+          "pricingType": "FIXED_PRICING",
+          "price": 12600,
+          "currency": "USD",
+          "options": {
+            "Wattage": "120W",
+            "Brand": "HG",
+            "Sale": "[SALE]"
+          },
+          "image": null,
+          "thumb": null
+        }
+      ],
+      "variationCount": 4,
+      "thumbs": [
+        "images/thumbs/4IUZLNOIMZBQ667K2Z4FADSG.jpg"
+      ]
+    },
+    {
+      "id": "MIVLACC2QTCAOIUNW2D3IHVU",
+      "slug": "wall-pack-yr",
+      "name": "[Display] Wall Pack (YR)",
+      "displayName": "Wall Pack (YR)",
+      "badges": [
+        "Display"
+      ],
+      "description": "",
+      "category": "Outdoor Area",
+      "categorySlug": "outdoor-area",
+      "images": [],
+      "hasPrice": false,
+      "priceMin": null,
+      "priceMax": null,
+      "currency": "USD",
+      "options": [
+        {
+          "name": "Wattage",
+          "values": [
+            "240W",
+            "180W"
+          ]
+        }
+      ],
+      "variations": [
+        {
+          "id": "XCA6FVUOTGJOMCAR22WLEESX",
+          "name": "240W",
+          "sku": "",
+          "pricingType": "VARIABLE_PRICING",
+          "price": null,
+          "currency": "USD",
+          "options": {
+            "Wattage": "240W"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "W2RSYE7B4LCSGOBVRQPVFT6E",
+          "name": "180W",
+          "sku": "",
+          "pricingType": "VARIABLE_PRICING",
+          "price": null,
+          "currency": "USD",
+          "options": {
+            "Wattage": "180W"
+          },
+          "image": null,
+          "thumb": null
+        }
+      ],
+      "variationCount": 2,
+      "thumbs": []
+    },
+    {
+      "id": "NMV52FSEL7DW3SB4P7M4H7SU",
+      "slug": "canopy-15-inch",
+      "name": "Canopy 15 inch",
+      "displayName": "Canopy 15 inch",
+      "badges": [],
+      "description": "5700K, UL/DLC\n380*380*78mm, Philips Chip, Meanwell Driver (15\")",
+      "category": "Canopy",
+      "categorySlug": "canopy",
+      "images": [
+        "images/FDFVVCJOBRJ6WFFNFLA4FLN7.jpg"
+      ],
+      "hasPrice": true,
+      "priceMin": 16400,
+      "priceMax": 18600,
+      "currency": "USD",
+      "options": [
+        {
+          "name": "Wattage",
+          "values": [
+            "150W",
+            "100W"
+          ]
+        }
+      ],
+      "variations": [
+        {
+          "id": "H6TQBJ7H57T7MJNNOYWT3FOB",
+          "name": "150W",
+          "sku": "22100156011",
+          "pricingType": "FIXED_PRICING",
+          "price": 18600,
+          "currency": "USD",
+          "options": {
+            "Wattage": "150W"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "YZMMMUSOAUYI7RETNTBMUPHK",
+          "name": "100W",
+          "sku": "22100106021",
+          "pricingType": "FIXED_PRICING",
+          "price": 16400,
+          "currency": "USD",
+          "options": {
+            "Wattage": "100W"
+          },
+          "image": null,
+          "thumb": null
+        }
+      ],
+      "variationCount": 2,
+      "thumbs": [
+        "images/thumbs/FDFVVCJOBRJ6WFFNFLA4FLN7.jpg"
+      ]
+    },
+    {
+      "id": "M6WLBUJGICIEU2V3IIQ4EECG",
+      "slug": "canopy-20-inch",
+      "name": "Canopy 20 inch",
+      "displayName": "Canopy 20 inch",
+      "badges": [],
+      "description": "5700K, UL/DLC, 20 inch\n520 x 520 x 242mm, Epistar Chip, Meanwell Driver (20\")",
+      "category": "Canopy",
+      "categorySlug": "canopy",
+      "images": [
+        "images/QIRJX6X7LGXYVEPJ6CBC5IF2.jpg"
+      ],
+      "hasPrice": true,
+      "priceMin": 25400,
+      "priceMax": 28600,
+      "currency": "USD",
+      "options": [],
+      "variations": [
+        {
+          "id": "Y4Q2CZWSVODRWVRFNRFZBEXV",
+          "name": "240W",
+          "sku": "22100246012",
+          "pricingType": "FIXED_PRICING",
+          "price": 28600,
+          "currency": "USD",
+          "options": {},
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "4WK6WUBIHZTJHQQMZSRM3UFA",
+          "name": "180W",
+          "sku": "22100186012",
+          "pricingType": "FIXED_PRICING",
+          "price": 25400,
+          "currency": "USD",
+          "options": {},
+          "image": null,
+          "thumb": null
+        }
+      ],
+      "variationCount": 2,
+      "thumbs": [
+        "images/thumbs/QIRJX6X7LGXYVEPJ6CBC5IF2.jpg"
+      ]
+    },
+    {
+      "id": "A5TNWNX3KSVNJM3MU7H5BIKA",
+      "slug": "corn-bulb",
+      "name": "Corn Bulb",
+      "displayName": "Corn Bulb",
+      "badges": [],
+      "description": "",
+      "category": "Corn Bulb",
+      "categorySlug": "corn-bulb",
+      "images": [
+        "images/KT5G2ZMD43772PUVWMXN7QNA.png"
+      ],
+      "hasPrice": true,
+      "priceMin": 1170,
+      "priceMax": 10980,
+      "currency": "USD",
+      "options": [
+        {
+          "name": "Wattage",
+          "values": [
+            "60W",
+            "150W",
+            "80W",
+            "120W",
+            "100W",
+            "12W"
+          ]
+        },
+        {
+          "name": "Base",
+          "values": [
+            "E39",
+            "E26"
+          ]
+        }
+      ],
+      "variations": [
+        {
+          "id": "UB64EXKSCFVY4N3XGEDFK4TM",
+          "name": "60W, E39",
+          "sku": "14100066212",
+          "pricingType": "FIXED_PRICING",
+          "price": 4500,
+          "currency": "USD",
+          "options": {
+            "Wattage": "60W",
+            "Base": "E39"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "ETUUGMCVBGPPOABHMUQOOBKC",
+          "name": "150W, E39",
+          "sku": "14100156212",
+          "pricingType": "FIXED_PRICING",
+          "price": 10980,
+          "currency": "USD",
+          "options": {
+            "Wattage": "150W",
+            "Base": "E39"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "AITW3P2YZOZZGAUZLD4KXU7D",
+          "name": "80W, E39",
+          "sku": "14100086212",
+          "pricingType": "FIXED_PRICING",
+          "price": 7560,
+          "currency": "USD",
+          "options": {
+            "Wattage": "80W",
+            "Base": "E39"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "B763P34G4VW2DB3Q4B4ILGQJ",
+          "name": "120W, E39",
+          "sku": "14100126212",
+          "pricingType": "FIXED_PRICING",
+          "price": 8820,
+          "currency": "USD",
+          "options": {
+            "Wattage": "120W",
+            "Base": "E39"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "OXENA54HHIJ52NH5BMY2SSS3",
+          "name": "100W, E39",
+          "sku": "14100106212",
+          "pricingType": "FIXED_PRICING",
+          "price": 8010,
+          "currency": "USD",
+          "options": {
+            "Wattage": "100W",
+            "Base": "E39"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "VOJT4D3AYIVDOAYGF3MKJV67",
+          "name": "12W, E26",
+          "sku": "14100016121",
+          "pricingType": "FIXED_PRICING",
+          "price": 1170,
+          "currency": "USD",
+          "options": {
+            "Wattage": "12W",
+            "Base": "E26"
+          },
+          "image": null,
+          "thumb": null
+        }
+      ],
+      "variationCount": 6,
+      "thumbs": [
+        "images/thumbs/KT5G2ZMD43772PUVWMXN7QNA.jpg"
+      ]
+    },
+    {
+      "id": "GPDXAZCFFOVEOG3X56Y56BJG",
+      "slug": "flex-strip",
+      "name": "Flex Strip",
+      "displayName": "Flex Strip",
+      "badges": [],
+      "description": "",
+      "category": "Sign",
+      "categorySlug": "sign",
+      "images": [
+        "images/MYBS2YEVBN445ZV637CALSRN.jpg"
+      ],
+      "hasPrice": true,
+      "priceMin": 910,
+      "priceMax": 2089,
+      "currency": "USD",
+      "options": [
+        {
+          "name": "Wattage",
+          "values": [
+            "60W",
+            "30W"
+          ]
+        },
+        {
+          "name": "Color Temp.",
+          "values": [
+            "3000k",
+            "6000k",
+            "RGB"
+          ]
+        },
+        {
+          "name": "Size",
+          "values": [
+            "8mm",
+            "10mm"
+          ]
+        },
+        {
+          "name": "Grade",
+          "values": [
+            "Regular",
+            "Premium"
+          ]
+        }
+      ],
+      "variations": [
+        {
+          "id": "GOBO6NUSC76ZRH72FSUXGMKN",
+          "name": "60W, 3000k, 8mm, Regular",
+          "sku": "",
+          "pricingType": "FIXED_PRICING",
+          "price": 1197,
+          "currency": "USD",
+          "options": {
+            "Wattage": "60W",
+            "Color Temp.": "3000k",
+            "Size": "8mm",
+            "Grade": "Regular"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "ZN5F7KQRL3HONBXRUIY4BF3K",
+          "name": "60W, 3000k, 10mm, Premium",
+          "sku": "",
+          "pricingType": "FIXED_PRICING",
+          "price": 2089,
+          "currency": "USD",
+          "options": {
+            "Wattage": "60W",
+            "Color Temp.": "3000k",
+            "Size": "10mm",
+            "Grade": "Premium"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "AF3XPK3AWIFOXGSHKEBGQLVP",
+          "name": "60W, 6000k, 8mm, Premium",
+          "sku": "",
+          "pricingType": "FIXED_PRICING",
+          "price": 1587,
+          "currency": "USD",
+          "options": {
+            "Wattage": "60W",
+            "Color Temp.": "6000k",
+            "Size": "8mm",
+            "Grade": "Premium"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "ABFM5WLGHZ4IJVTHT6RF7PBV",
+          "name": "60W, 6000k, 8mm, Regular",
+          "sku": "",
+          "pricingType": "FIXED_PRICING",
+          "price": 1168,
+          "currency": "USD",
+          "options": {
+            "Wattage": "60W",
+            "Color Temp.": "6000k",
+            "Size": "8mm",
+            "Grade": "Regular"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "54SEPFEFXTNVKZOTMYAWPN6M",
+          "name": "60W, 6000k, 10mm, Premium",
+          "sku": "",
+          "pricingType": "FIXED_PRICING",
+          "price": 2089,
+          "currency": "USD",
+          "options": {
+            "Wattage": "60W",
+            "Color Temp.": "6000k",
+            "Size": "10mm",
+            "Grade": "Premium"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "KMSI5YO3WHE7XMMIG4Z7RDMQ",
+          "name": "60W, RGB, 10mm, Premium",
+          "sku": "",
+          "pricingType": "FIXED_PRICING",
+          "price": 1889,
+          "currency": "USD",
+          "options": {
+            "Wattage": "60W",
+            "Color Temp.": "RGB",
+            "Size": "10mm",
+            "Grade": "Premium"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "VRK33FRZADK3GV2LPQRQLZI6",
+          "name": "30W, 3000k, 8mm, Regular",
+          "sku": "",
+          "pricingType": "FIXED_PRICING",
+          "price": 910,
+          "currency": "USD",
+          "options": {
+            "Wattage": "30W",
+            "Color Temp.": "3000k",
+            "Size": "8mm",
+            "Grade": "Regular"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "4EBBTJSFUKL6FKZEOMMRFITF",
+          "name": "30W, 6000k, 8mm, Premium",
+          "sku": "",
+          "pricingType": "FIXED_PRICING",
+          "price": 1368,
+          "currency": "USD",
+          "options": {
+            "Wattage": "30W",
+            "Color Temp.": "6000k",
+            "Size": "8mm",
+            "Grade": "Premium"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "HV6UKYF5COG4K2F7XWCHQ354",
+          "name": "30W, 6000k, 8mm, Regular",
+          "sku": "",
+          "pricingType": "FIXED_PRICING",
+          "price": 910,
+          "currency": "USD",
+          "options": {
+            "Wattage": "30W",
+            "Color Temp.": "6000k",
+            "Size": "8mm",
+            "Grade": "Regular"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "LV5VV7QLQU72O33AYOG6GAF5",
+          "name": "30W, RGB, 10mm, Premium",
+          "sku": "",
+          "pricingType": "FIXED_PRICING",
+          "price": 1368,
+          "currency": "USD",
+          "options": {
+            "Wattage": "30W",
+            "Color Temp.": "RGB",
+            "Size": "10mm",
+            "Grade": "Premium"
+          },
+          "image": null,
+          "thumb": null
+        }
+      ],
+      "variationCount": 10,
+      "thumbs": [
+        "images/thumbs/MYBS2YEVBN445ZV637CALSRN.jpg"
+      ]
+    },
+    {
+      "id": "7T7QX4WTDEWUDIEWQNVVU3LW",
+      "slug": "lightbox-diffuse-backlit",
+      "name": "Lightbox Diffuse Backlit [Premium 18W]",
+      "displayName": "Lightbox Diffuse Backlit",
+      "badges": [
+        "Premium 18W"
+      ],
+      "description": "",
+      "category": "Sign",
+      "categorySlug": "sign",
+      "images": [],
+      "hasPrice": true,
+      "priceMin": 1565,
+      "priceMax": 1565,
+      "currency": "USD",
+      "options": [],
+      "variations": [
+        {
+          "id": "U3I5DXO2IC2BQEHGMSMN754V",
+          "name": "Regular",
+          "sku": "",
+          "pricingType": "FIXED_PRICING",
+          "price": 1565,
+          "currency": "USD",
+          "options": {},
+          "image": null,
+          "thumb": null
+        }
+      ],
+      "variationCount": 1,
+      "thumbs": []
+    },
+    {
+      "id": "RF5CWE652QHAMWHIIE3DA7TY",
+      "slug": "lightbox-diffuse-backlit-12w-20pcs-pk",
+      "name": "Lightbox Diffuse Backlit 12w (20pcs PK)",
+      "displayName": "Lightbox Diffuse Backlit 12w (20pcs PK)",
+      "badges": [],
+      "description": "",
+      "category": "Sign",
+      "categorySlug": "sign",
+      "images": [],
+      "hasPrice": true,
+      "priceMin": 14507,
+      "priceMax": 14507,
+      "currency": "USD",
+      "options": [],
+      "variations": [
+        {
+          "id": "OHX6HLVHSC24DHGTDIS7VYN7",
+          "name": "Regular",
+          "sku": "",
+          "pricingType": "FIXED_PRICING",
+          "price": 14507,
+          "currency": "USD",
+          "options": {},
+          "image": null,
+          "thumb": null
+        }
+      ],
+      "variationCount": 1,
+      "thumbs": []
+    },
+    {
+      "id": "QF3D3WNMA3VXU66QCYW2KD77",
+      "slug": "lightbox-diffuse-backlit-shutter-roll-20-pcs",
+      "name": "Lightbox Diffuse Backlit Shutter Roll (20 Pcs)",
+      "displayName": "Lightbox Diffuse Backlit Shutter Roll (20 Pcs)",
+      "badges": [],
+      "description": "4ft wide, 20 pcs in a roll, $5.1/pc",
+      "category": "Sign",
+      "categorySlug": "sign",
+      "images": [],
+      "hasPrice": true,
+      "priceMin": 10234,
+      "priceMax": 10234,
+      "currency": "USD",
+      "options": [],
+      "variations": [
+        {
+          "id": "EF4E4EFGDEF7SJDZMWCQ2Q2Z",
+          "name": "Regular",
+          "sku": "",
+          "pricingType": "FIXED_PRICING",
+          "price": 10234,
+          "currency": "USD",
+          "options": {},
+          "image": null,
+          "thumb": null
+        }
+      ],
+      "variationCount": 1,
+      "thumbs": []
+    },
+    {
+      "id": "R3KWILTBUWMMPABQBNAK6KD2",
+      "slug": "module-20ft-kit-wt-power-adapter",
+      "name": "Module 20ft Kit wt. Power Adapter",
+      "displayName": "Module 20ft Kit wt. Power Adapter",
+      "badges": [],
+      "description": "0.72w per module",
+      "category": "Sign",
+      "categorySlug": "sign",
+      "images": [
+        "images/VU7XJTMODZUVIDHP3OUF22M6.png"
+      ],
+      "hasPrice": true,
+      "priceMin": 2628,
+      "priceMax": 2628,
+      "currency": "USD",
+      "options": [
+        {
+          "name": "Color",
+          "values": [
+            "White-White",
+            "Black-white"
+          ]
+        }
+      ],
+      "variations": [
+        {
+          "id": "SU6OJT2CHDAHAW52U5BWCHK2",
+          "name": "White-White",
+          "sku": "29085078363",
+          "pricingType": "FIXED_PRICING",
+          "price": 2628,
+          "currency": "USD",
+          "options": {
+            "Color": "White-White"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "HSDCH7ER3ZHAOQT6266E74LJ",
+          "name": "Black-white",
+          "sku": "29085078364",
+          "pricingType": "FIXED_PRICING",
+          "price": 2628,
+          "currency": "USD",
+          "options": {
+            "Color": "Black-white"
+          },
+          "image": null,
+          "thumb": null
+        }
+      ],
+      "variationCount": 2,
+      "thumbs": [
+        "images/thumbs/VU7XJTMODZUVIDHP3OUF22M6.jpg"
+      ]
+    },
+    {
+      "id": "ZRH46L7H5QLFHSWMCEG75SSI",
+      "slug": "module-50ft-3-chip-100-pcs-bag",
+      "name": "Module, 50ft, 3 chip, 100 pcs/bag",
+      "displayName": "Module, 50ft, 3 chip, 100 pcs/bag",
+      "badges": [],
+      "description": "",
+      "category": "Sign",
+      "categorySlug": "sign",
+      "images": [
+        "images/AWDNEIPGZLGP37NY7RDC4JSK.jpg",
+        "images/ARC7JBBPYK6IM6CRHFQXDOBD.jpg"
+      ],
+      "hasPrice": true,
+      "priceMin": 3974,
+      "priceMax": 3974,
+      "currency": "USD",
+      "options": [
+        {
+          "name": "Color",
+          "values": [
+            "White-White",
+            "Black-white"
+          ]
+        }
+      ],
+      "variations": [
+        {
+          "id": "IZVWGPZD3XOS6K4H3V7QUHJW",
+          "name": "White-White",
+          "sku": "28085078361",
+          "pricingType": "FIXED_PRICING",
+          "price": 3974,
+          "currency": "USD",
+          "options": {
+            "Color": "White-White"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "I4CZCARBESZR7QV4TOUZSB6B",
+          "name": "Black-white",
+          "sku": "28085078362",
+          "pricingType": "FIXED_PRICING",
+          "price": 3974,
+          "currency": "USD",
+          "options": {
+            "Color": "Black-white"
+          },
+          "image": null,
+          "thumb": null
+        }
+      ],
+      "variationCount": 2,
+      "thumbs": [
+        "images/thumbs/AWDNEIPGZLGP37NY7RDC4JSK.jpg",
+        "images/thumbs/ARC7JBBPYK6IM6CRHFQXDOBD.jpg"
+      ]
+    },
+    {
+      "id": "PWRZDB5XX5344GQM2TEVHXWY",
+      "slug": "power-supply",
+      "name": "Power Supply [Waterproof, Quiet]",
+      "displayName": "Power Supply",
+      "badges": [
+        "Waterproof, Quiet"
+      ],
+      "description": "Waterproof Quiet 12V/24V power supply transformer",
+      "category": "Sign",
+      "categorySlug": "sign",
+      "images": [
+        "images/G77EVZKLBIYWUIRRM6SVX6PM.jpg"
+      ],
+      "hasPrice": true,
+      "priceMin": 1980,
+      "priceMax": 2780,
+      "currency": "USD",
+      "options": [
+        {
+          "name": "Wattage",
+          "values": [
+            "150W",
+            "120W",
+            "100W"
+          ]
+        }
+      ],
+      "variations": [
+        {
+          "id": "KFYIJRMH3PBXTF6H3UMEIGHU",
+          "name": "150W",
+          "sku": "31099151003",
+          "pricingType": "FIXED_PRICING",
+          "price": 2780,
+          "currency": "USD",
+          "options": {
+            "Wattage": "150W"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "QC3KEFEBRLNGIOS4HNLSAM4P",
+          "name": "120W",
+          "sku": "31099121003",
+          "pricingType": "FIXED_PRICING",
+          "price": 2380,
+          "currency": "USD",
+          "options": {
+            "Wattage": "120W"
+          },
+          "image": null,
+          "thumb": null
+        },
+        {
+          "id": "ULXISWJNEBYSYRKERIFC35Q5",
+          "name": "100W",
+          "sku": "31099101003",
+          "pricingType": "FIXED_PRICING",
+          "price": 1980,
+          "currency": "USD",
+          "options": {
+            "Wattage": "100W"
+          },
+          "image": null,
+          "thumb": null
+        }
+      ],
+      "variationCount": 3,
+      "thumbs": [
+        "images/thumbs/G77EVZKLBIYWUIRRM6SVX6PM.jpg"
+      ]
+    },
+    {
+      "id": "ZDIXGAYUUI2L4AXWTFRI5BAR",
+      "slug": "mini-wallpack",
+      "name": "[Clearance] Mini Wallpack",
+      "displayName": "Mini Wallpack",
+      "badges": [
+        "Clearance"
+      ],
+      "description": "",
+      "category": "Outdoor Area",
+      "categorySlug": "outdoor-area",
+      "images": [],
+      "hasPrice": true,
+      "priceMin": 990,
+      "priceMax": 990,
+      "currency": "USD",
+      "options": [],
+      "variations": [
+        {
+          "id": "HSTQZCO7BFFDO6E7GMSEXLYS",
+          "name": "Regular",
+          "sku": "Y861405",
+          "pricingType": "FIXED_PRICING",
+          "price": 990,
+          "currency": "USD",
+          "options": {},
+          "image": null,
+          "thumb": null
+        }
+      ],
+      "variationCount": 1,
+      "thumbs": []
+    }
+  ]
+}
