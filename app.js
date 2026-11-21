@@ -1,11 +1,17 @@
 (function () {
   const CART_KEY = "nal-demo-cart";
   const ORDER_KEY = "nal-demo-orders";
+  const SHIPPING_KEY = "nal-demo-shipping";
   const ORDER_EMAIL = "naltx75247@gmail.com";
+  const ORIGIN_ZIP = "75247";
+  // Empty keeps the email-only order flow. Set to a Cloudflare Worker URL
+  // (see /worker) to show "Pay with card (Square)". Never put a Square token here.
+  const PAYMENT_PROXY_URL = "";
 
   const state = {
     catalog: null,
     cart: loadCart(),
+    shipping: loadShipping(),
   };
 
   const $app = () => document.getElementById("app");
@@ -21,6 +27,24 @@
   function saveCart() {
     localStorage.setItem(CART_KEY, JSON.stringify(state.cart));
     updateCartCounts();
+  }
+
+  function defaultShipping() {
+    return { method: "", zip: "", estimate: null };
+  }
+
+  function loadShipping() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(SHIPPING_KEY) || "null");
+      if (!raw || typeof raw !== "object") return defaultShipping();
+      return Object.assign(defaultShipping(), raw);
+    } catch {
+      return defaultShipping();
+    }
+  }
+
+  function saveShipping() {
+    localStorage.setItem(SHIPPING_KEY, JSON.stringify(state.shipping));
   }
   function loadOrders() {
     try {
@@ -504,6 +528,273 @@
     return optionMemory[p.slug];
   }
 
+  /* ---------- shipping ---------- */
+
+  const DEFAULT_WEIGHT_LB = {
+    Panel: 8,
+    "Down Light": 1.5,
+    "Indoor Area": 6,
+    Tube: 1.2,
+    "High Bay": 12,
+    "Outdoor Area": 8,
+    Canopy: 10,
+    "Corn Bulb": 1.5,
+    Sign: 2.5,
+  };
+
+  // Zone table used by the client-side estimate (cents).
+  // amount = base + perLb * billableLb, plus $0.40/lb over 70 lb.
+  const SHIP_ZONES = [
+    { maxMiles: 150, id: 1, name: "Zone 1 (local)", base: 995, perLb: 45 },
+    { maxMiles: 300, id: 2, name: "Zone 2", base: 1295, perLb: 55 },
+    { maxMiles: 600, id: 3, name: "Zone 3", base: 1695, perLb: 70 },
+    { maxMiles: 1000, id: 4, name: "Zone 4", base: 2195, perLb: 90 },
+    { maxMiles: 1400, id: 5, name: "Zone 5", base: 2695, perLb: 110 },
+    { maxMiles: 1800, id: 6, name: "Zone 6", base: 3295, perLb: 130 },
+    { maxMiles: Infinity, id: 7, name: "Zone 7", base: 3895, perLb: 150 },
+  ];
+
+  const ESTIMATE_NOTE = "Estimated — final freight confirmed on invoice";
+  const PICKUP_NOTE = "Dallas, TX — address provided with order confirmation";
+
+  let zip3Cache = null;
+  let zip3Loading = null;
+
+  function loadZip3() {
+    if (zip3Cache) return Promise.resolve(zip3Cache);
+    if (zip3Loading) return zip3Loading;
+    zip3Loading = fetch("zip3.json")
+      .then((r) => {
+        if (!r.ok) throw new Error("Could not load ZIP data");
+        return r.json();
+      })
+      .then((data) => {
+        zip3Cache = data;
+        return data;
+      })
+      .finally(() => {
+        zip3Loading = null;
+      });
+    return zip3Loading;
+  }
+
+  function weightForLine(line) {
+    if (line.weightLb != null && line.weightLb > 0) return line.weightLb;
+    return DEFAULT_WEIGHT_LB[line.category] || 5;
+  }
+
+  function cartWeightLb() {
+    let productLb = 0;
+    let units = 0;
+    state.cart.forEach((l) => {
+      productLb += weightForLine(l) * l.qty;
+      units += l.qty;
+    });
+    // Packing allowance: 1 lb plus 0.3 lb per unit.
+    return Math.ceil(productLb + 1 + 0.3 * units);
+  }
+
+  function haversineMiles(a, b) {
+    const R = 3958.8;
+    const toRad = (d) => (d * Math.PI) / 180;
+    const dLat = toRad(b.lat - a.lat);
+    const dLon = toRad(b.lon - a.lon);
+    const s =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLon / 2) ** 2;
+    return 2 * R * Math.asin(Math.min(1, Math.sqrt(s)));
+  }
+
+  function normalizeZip(raw) {
+    const digits = String(raw || "").replace(/\D/g, "");
+    if (digits.length < 5) return "";
+    return digits.slice(0, 5);
+  }
+
+  function estimateShippingRate({ destZip, weightLb, zipData }) {
+    const zip = normalizeZip(destZip);
+    if (!zip) {
+      return { ok: false, error: "Enter a valid 5-digit US ZIP code." };
+    }
+    const origin = (zipData && zipData.origin) || {
+      zip: ORIGIN_ZIP,
+      lat: 32.814402,
+      lon: -96.878295,
+    };
+    const prefix = zip.slice(0, 3);
+    const dest = zipData && zipData.zip3 && zipData.zip3[prefix];
+    if (!dest) {
+      return {
+        ok: false,
+        error: "We could not locate that ZIP. Check the code, or call (214) 631-6666 for a freight quote.",
+      };
+    }
+    const miles = Math.round(
+      haversineMiles({ lat: origin.lat, lon: origin.lon }, { lat: dest[0], lon: dest[1] })
+    );
+    const zone = SHIP_ZONES.find((z) => miles <= z.maxMiles) || SHIP_ZONES[SHIP_ZONES.length - 1];
+    const lb = Math.max(1, Math.ceil(weightLb || 1));
+    let amount = zone.base + zone.perLb * lb;
+    if (lb > 70) amount += 40 * (lb - 70);
+    return {
+      ok: true,
+      source: "estimate",
+      method: "ship",
+      destZip: zip,
+      originZip: ORIGIN_ZIP,
+      weightLb: lb,
+      miles,
+      zone: zone.id,
+      zoneName: zone.name,
+      amount,
+      currency: "USD",
+      label: "Estimated shipping",
+      note: ESTIMATE_NOTE,
+    };
+  }
+
+  // Single plug-in point for a future carrier-rate API (via a serverless proxy).
+  // Swap the body to call that proxy; keep the same return shape.
+  async function getShippingRate({ destZip, weightLb, items }) {
+    const zipData = await loadZip3();
+    return estimateShippingRate({ destZip, weightLb, items, zipData });
+  }
+
+  function pickupRate() {
+    return {
+      ok: true,
+      source: "pickup",
+      method: "pickup",
+      destZip: "",
+      originZip: ORIGIN_ZIP,
+      amount: 0,
+      currency: "USD",
+      label: "Pickup at Dallas warehouse",
+      note: PICKUP_NOTE,
+    };
+  }
+
+  function shippingReady() {
+    const s = state.shipping;
+    if (s.method === "pickup") return true;
+    if (s.method === "ship" && s.estimate && s.estimate.ok) return true;
+    return false;
+  }
+
+  function shippingAmount() {
+    const s = state.shipping;
+    if (s.method === "pickup") return 0;
+    if (s.method === "ship" && s.estimate && s.estimate.ok) return s.estimate.amount;
+    return null;
+  }
+
+  function shippingLabel() {
+    const s = state.shipping;
+    if (s.method === "pickup") return "Pickup (Dallas, TX) — FREE";
+    if (s.method === "ship" && s.estimate && s.estimate.ok) {
+      return "Shipping to " + s.estimate.destZip;
+    }
+    return "Shipping";
+  }
+
+  function orderShippingSnapshot() {
+    if (state.shipping.method === "pickup") return pickupRate();
+    if (state.shipping.method === "ship" && state.shipping.estimate) {
+      return Object.assign({}, state.shipping.estimate);
+    }
+    return null;
+  }
+
+  function shippingTotalsHtml(subtotal, hasQuote) {
+    const shipAmt = shippingAmount();
+    const shipReady = shippingReady();
+    const shipLine = shipReady
+      ? shipAmt === 0
+        ? "FREE"
+        : money(shipAmt)
+      : "Select a method";
+    const canTotal = shipReady && !(hasQuote && subtotal === 0);
+    const total = canTotal && shipAmt != null ? subtotal + shipAmt : null;
+    return (
+      '<div class="summary-row"><span>Subtotal</span><span>' +
+      (hasQuote && subtotal === 0
+        ? "Call for price / request quote"
+        : money(subtotal) + (hasQuote ? " + items to quote" : "")) +
+      '</span></div>' +
+      '<div class="summary-row subtle"><span>' +
+      escapeHtml(shippingLabel()) +
+      "</span><span>" +
+      escapeHtml(shipLine) +
+      "</span></div>" +
+      (total != null
+        ? '<div class="summary-row total"><span>Estimated total</span><span>' +
+          money(total) +
+          (hasQuote ? " + items to quote" : "") +
+          "</span></div>"
+        : "") +
+      '<p class="form-note">Taxes and final freight are confirmed on the invoice. ' +
+      escapeHtml(ESTIMATE_NOTE) +
+      ".</p>"
+    );
+  }
+
+  function shippingFormHtml() {
+    const s = state.shipping;
+    const method = s.method || "";
+    const zipVal = s.zip || "";
+    const shipOn = method === "ship";
+    let result = "";
+    if (method === "pickup") {
+      result =
+        '<div class="ship-result"><strong>FREE pickup</strong>' +
+        escapeHtml(PICKUP_NOTE) +
+        "</div>";
+    } else if (s.estimate && s.estimate.ok) {
+      const e = s.estimate;
+      result =
+        '<div class="ship-result"><strong>' +
+        escapeHtml(money(e.amount)) +
+        "</strong>" +
+        escapeHtml(e.zoneName) +
+        " · about " +
+        e.miles +
+        " miles · " +
+        e.weightLb +
+        " lb billable<br>" +
+        escapeHtml(ESTIMATE_NOTE) +
+        "</div>";
+    } else if (s.estimate && s.estimate.error) {
+      result = '<div class="ship-result error">' + escapeHtml(s.estimate.error) + "</div>";
+    }
+    return (
+      '<div class="shipping-box" data-shipping>' +
+      "<h2>Shipping</h2>" +
+      '<label class="ship-option"><input type="radio" name="ship-method" value="pickup"' +
+      (method === "pickup" ? " checked" : "") +
+      '><span><span class="opt-title">Pickup at Dallas warehouse — FREE</span>' +
+      '<span class="hint">' +
+      escapeHtml(PICKUP_NOTE) +
+      "</span></span></label>" +
+      '<label class="ship-option"><input type="radio" name="ship-method" value="ship"' +
+      (method === "ship" ? " checked" : "") +
+      '><span><span class="opt-title">Ship to me</span>' +
+      '<span class="hint">Enter your ZIP to estimate shipping from our Dallas warehouse (ZIP ' +
+      ORIGIN_ZIP +
+      ").</span></span></label>" +
+      '<div class="ship-calc" data-ship-calc' +
+      (shipOn ? "" : " hidden") +
+      ">" +
+      '<label>Destination ZIP *<input type="text" name="ship-zip" inputmode="numeric" maxlength="10" placeholder="e.g. 78701" value="' +
+      escapeHtml(zipVal) +
+      '" autocomplete="postal-code"></label>' +
+      '<button type="button" class="btn btn-outline" data-calc-ship>Calculate</button>' +
+      "</div>" +
+      '<div data-ship-result>' +
+      result +
+      "</div></div>"
+    );
+  }
+
   function renderCart() {
     if (!state.cart.length) {
       return (
@@ -517,13 +808,12 @@
       '<div class="cart-list">' +
       state.cart.map(cartRow).join("") +
       "</div>" +
-      '<div class="summary"><div class="summary-row"><span>Subtotal</span><span>' +
-      (hasQuote && subtotal === 0
-        ? "Call for price / request quote"
-        : money(subtotal) + (hasQuote ? " + items to quote" : "")) +
-      "</span></div>" +
-      '<p class="form-note">Taxes, freight, and payment terms are confirmed on the invoice.</p>' +
-      '<a class="btn btn-navy btn-block" href="#/checkout">Continue to checkout</a></div></section>'
+      '<div class="summary">' +
+      shippingTotalsHtml(subtotal, hasQuote) +
+      '<a class="btn btn-navy btn-block" href="#/checkout" data-checkout-link>Continue to checkout</a>' +
+      '<p class="checkout-error" data-ship-gate hidden>Choose pickup or calculate shipping before checkout.</p>' +
+      shippingFormHtml() +
+      "</div></section>"
     );
   }
 
@@ -568,19 +858,42 @@
       location.hash = "#/cart";
       return renderCart();
     }
+    if (!shippingReady()) {
+      location.hash = "#/cart";
+      return renderCart();
+    }
     const { subtotal, hasQuote } = cartTotals();
+    const pickup = state.shipping.method === "pickup";
+    const zip = (state.shipping.estimate && state.shipping.estimate.destZip) || state.shipping.zip || "";
+    const shipPlaceholder = pickup
+      ? ""
+      : "Street, city, state, " + (zip || "ZIP");
+    const payBtn = PAYMENT_PROXY_URL
+      ? '<button class="btn btn-pay btn-block" type="button" data-pay-square>Pay with card (Square)</button>' +
+        '<p class="form-note">Card payments are taken on Square’s secure checkout page. Quote-only items cannot be charged online.</p>'
+      : "";
     return (
       '<section class="wrap"><h1>Checkout</h1>' +
-      '<p class="form-note">This is a demo checkout. Submitting opens an email to North America Lighting with your order. You will also get an on-page confirmation with an order number. Invoice and payment instructions follow by email. No payment is taken here.</p>' +
+      '<p class="form-note">This is a demo checkout. Submitting opens an email to North America Lighting with your order. You will also get an on-page confirmation with an order number. Invoice and payment instructions follow by email. No payment is taken on this page unless you use Pay with card and a payment proxy has been configured.</p>' +
       '<div class="checkout-grid">' +
       '<form class="form" data-checkout-form novalidate>' +
       "<label>Company name *<input name='company' required autocomplete='organization'></label>" +
       "<label>Your name *<input name='name' required autocomplete='name'></label>" +
       "<label>Email *<input name='email' type='email' required autocomplete='email'></label>" +
       "<label>Phone *<input name='phone' type='tel' required autocomplete='tel'></label>" +
-      "<label>Ship-to address *<textarea name='shipTo' required autocomplete='street-address' placeholder='Street, city, state, ZIP'></textarea></label>" +
+      (pickup
+        ? "<p class='form-note'><strong>Pickup at Dallas warehouse — FREE.</strong> " +
+          escapeHtml(PICKUP_NOTE) +
+          "</p><input type='hidden' name='shipTo' value='" +
+          escapeHtml(PICKUP_NOTE) +
+          "'>"
+        : "<label>Ship-to address *<textarea name='shipTo' required autocomplete='street-address' placeholder='" +
+          escapeHtml(shipPlaceholder) +
+          "'></textarea></label>") +
       "<label>PO number / notes<span class='hint'>Purchase order, job name, or delivery notes</span><textarea name='notes' placeholder='Optional'></textarea></label>" +
-      '<button class="btn btn-gold btn-block" type="submit">Submit order request</button>' +
+      '<button class="btn btn-gold btn-block" type="submit" name="submitEmail">Submit order request</button>' +
+      payBtn +
+      '<p class="checkout-error" data-pay-error hidden></p>' +
       "</form>" +
       '<div class="summary"><h2>Order summary</h2>' +
       state.cart
@@ -597,11 +910,9 @@
             "</p>"
         )
         .join("") +
-      '<div class="summary-row"><span>Subtotal</span><span>' +
-      (hasQuote && subtotal === 0
-        ? "Call for price / request quote"
-        : money(subtotal) + (hasQuote ? " + items to quote" : "")) +
-      "</span></div></div></div></section>"
+      shippingTotalsHtml(subtotal, hasQuote) +
+      '<p><a href="#/cart">Change shipping</a></p>' +
+      "</div></div></section>"
     );
   }
 
@@ -685,9 +996,34 @@
     lines.push("Email: " + order.customer.email);
     lines.push("Phone: " + order.customer.phone);
     lines.push("");
-    lines.push("SHIP TO");
-    lines.push(order.customer.shipTo);
-    lines.push("");
+    const ship = order.shipping;
+    if (ship && ship.method === "pickup") {
+      lines.push("SHIPPING / PICKUP");
+      lines.push("Pickup at Dallas warehouse — FREE");
+      lines.push(PICKUP_NOTE);
+      lines.push("");
+    } else {
+      lines.push("SHIP TO");
+      lines.push(order.customer.shipTo || "");
+      lines.push("");
+      if (ship && ship.method === "ship") {
+        lines.push("SHIPPING");
+        lines.push(
+          "Ship to ZIP " +
+            (ship.destZip || "") +
+            (ship.zoneName ? " — " + ship.zoneName : "") +
+            (ship.miles != null ? ", about " + ship.miles + " miles" : "") +
+            (ship.weightLb != null ? ", " + ship.weightLb + " lb billable" : "")
+        );
+        lines.push(
+          "Shipping: " +
+            (ship.amount == null ? "Quote" : money(ship.amount)) +
+            (ship.source === "estimate" ? " (estimate)" : "")
+        );
+        if (ship.note) lines.push(ship.note);
+        lines.push("");
+      }
+    }
     if (order.customer.notes) {
       lines.push("PO / NOTES");
       lines.push(order.customer.notes);
@@ -705,15 +1041,32 @@
     });
     lines.push("");
     const { subtotal, hasQuote } = totalsFromItems(order.items);
+    const shipAmt = ship && ship.method === "pickup" ? 0 : ship && ship.amount != null ? ship.amount : null;
     lines.push(
       "SUBTOTAL: " +
         (hasQuote && subtotal === 0
           ? "Call for price / request quote"
           : money(subtotal) + (hasQuote ? " + items to quote" : ""))
     );
+    if (ship && ship.method === "pickup") {
+      lines.push("SHIPPING: FREE (warehouse pickup)");
+    } else if (shipAmt != null) {
+      lines.push("SHIPPING: " + money(shipAmt) + (ship && ship.source === "estimate" ? " (estimate)" : ""));
+    }
+    if (shipAmt != null && !(hasQuote && subtotal === 0)) {
+      lines.push(
+        "ESTIMATED TOTAL: " +
+          money(subtotal + shipAmt) +
+          (hasQuote ? " + items to quote" : "")
+      );
+    }
     lines.push("");
-    lines.push("This request was submitted from the NAL demo website.");
-    lines.push("Please send an invoice and payment instructions.");
+    if (order.payment && order.payment === "square-pending") {
+      lines.push("Payment: customer sent to Square Checkout (card).");
+    } else {
+      lines.push("This request was submitted from the NAL demo website.");
+      lines.push("Please send an invoice and payment instructions.");
+    }
     return lines.join("\n");
   }
 
@@ -764,11 +1117,17 @@
         sku: variation.sku || "",
         price: variation.price,
         qty,
+        category: product.category || "",
+        weightLb: product.weightLb != null ? product.weightLb : (DEFAULT_WEIGHT_LB[product.category] || 5),
         image: variation.image || (product.images && product.images[0]) || "",
         thumb: variation.thumb || (product.thumbs && product.thumbs[0]) || "",
       });
     }
     saveCart();
+    if (state.shipping.method === "ship") {
+      state.shipping.estimate = null;
+      saveShipping();
+    }
   }
 
   /* ---------- router & events ---------- */
@@ -867,7 +1226,39 @@
       const idx = Number(row.getAttribute("data-line"));
       state.cart.splice(idx, 1);
       saveCart();
+      if (state.shipping.method === "ship") {
+        state.shipping.estimate = null;
+        saveShipping();
+      }
       render();
+      return;
+    }
+
+    const checkoutLink = e.target.closest("[data-checkout-link]");
+    if (checkoutLink) {
+      if (!shippingReady()) {
+        e.preventDefault();
+        const gate = document.querySelector("[data-ship-gate]");
+        if (gate) {
+          gate.hidden = false;
+          document.querySelector("[data-shipping]")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }
+      return;
+    }
+
+    const calc = e.target.closest("[data-calc-ship]");
+    if (calc) {
+      e.preventDefault();
+      runShippingCalc();
+      return;
+    }
+
+    const payBtn = e.target.closest("[data-pay-square]");
+    if (payBtn) {
+      e.preventDefault();
+      const form = document.querySelector("[data-checkout-form]");
+      if (form) startSquarePayment(form);
     }
   });
 
@@ -878,7 +1269,24 @@
       const qty = Math.max(1, parseInt(e.target.value, 10) || 1);
       state.cart[idx].qty = qty;
       saveCart();
+      if (state.shipping.method === "ship" && state.shipping.zip) {
+        runShippingCalc().then(() => render());
+      } else {
+        render();
+      }
+      return;
+    }
+    if (e.target.matches("input[name='ship-method']")) {
+      const method = e.target.value;
+      state.shipping.method = method;
+      if (method === "pickup") {
+        state.shipping.estimate = pickupRate();
+      } else {
+        state.shipping.estimate = null;
+      }
+      saveShipping();
       render();
+      return;
     }
   });
 
@@ -915,45 +1323,170 @@
     const checkout = e.target.closest("[data-checkout-form]");
     if (checkout) {
       e.preventDefault();
-      if (!checkout.reportValidity()) return;
-      if (!state.cart.length) return;
-      const order = {
-        orderNumber: newOrderNumber(),
-        createdAt: new Date().toISOString(),
-        customer: {
-          company: checkout.company.value.trim(),
-          name: checkout.name.value.trim(),
-          email: checkout.email.value.trim(),
-          phone: checkout.phone.value.trim(),
-          shipTo: checkout.shipTo.value.trim(),
-          notes: checkout.notes.value.trim(),
-        },
-        items: state.cart.map((l) => ({ ...l })),
-      };
+      submitEmailOrder(checkout);
+    }
+  });
+
+  function collectOrder(form, payment) {
+    return {
+      orderNumber: newOrderNumber(),
+      createdAt: new Date().toISOString(),
+      customer: {
+        company: form.company.value.trim(),
+        name: form.name.value.trim(),
+        email: form.email.value.trim(),
+        phone: form.phone.value.trim(),
+        shipTo: (form.shipTo && form.shipTo.value.trim()) || (state.shipping.method === "pickup" ? PICKUP_NOTE : ""),
+        notes: form.notes.value.trim(),
+      },
+      items: state.cart.map((l) => Object.assign({}, l)),
+      shipping: orderShippingSnapshot(),
+      payment: payment || "email",
+    };
+  }
+
+  function clearCartAndShipping() {
+    state.cart = [];
+    saveCart();
+    state.shipping = defaultShipping();
+    saveShipping();
+  }
+
+  function submitEmailOrder(form) {
+    if (!form.reportValidity()) return;
+    if (!state.cart.length) return;
+    if (!shippingReady()) {
+      location.hash = "#/cart";
+      return;
+    }
+    const order = collectOrder(form, "email");
+    const orders = loadOrders();
+    orders.push(order);
+    saveOrders(orders);
+    const body = formatOrderText(order);
+    const subject = "Order request " + order.orderNumber + " — North America Lighting";
+    const mailto =
+      "mailto:" +
+      ORDER_EMAIL +
+      "?subject=" +
+      encodeURIComponent(subject) +
+      "&body=" +
+      encodeURIComponent(body);
+    clearCartAndShipping();
+    location.hash = "#/order/" + encodeURIComponent(order.orderNumber);
+    setTimeout(() => {
+      window.location.href = mailto;
+    }, 250);
+  }
+
+  async function startSquarePayment(form) {
+    const errEl = document.querySelector("[data-pay-error]");
+    const showErr = (msg) => {
+      if (errEl) {
+        errEl.hidden = false;
+        errEl.textContent = msg;
+      }
+    };
+    if (!PAYMENT_PROXY_URL) {
+      showErr("Card payment is not configured on this demo.");
+      return;
+    }
+    if (!form.reportValidity()) return;
+    if (!state.cart.length || !shippingReady()) {
+      location.hash = "#/cart";
+      return;
+    }
+    if (state.cart.some((l) => l.price == null)) {
+      showErr("This cart has items that need a quote. Submit an order request by email instead.");
+      return;
+    }
+    const order = collectOrder(form, "square-pending");
+    const btn = form.querySelector("[data-pay-square]");
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Connecting to Square…";
+    }
+    try {
+      const res = await fetch(PAYMENT_PROXY_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderNumber: order.orderNumber,
+          customer: order.customer,
+          items: order.items,
+          shipping: order.shipping,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.url) {
+        throw new Error(data.error || "Could not start Square checkout (" + res.status + ").");
+      }
       const orders = loadOrders();
       orders.push(order);
       saveOrders(orders);
-      const body = formatOrderText(order);
-      const subject = "Order request " + order.orderNumber + " — North America Lighting";
-      const mailto =
-        "mailto:" +
-        ORDER_EMAIL +
-        "?subject=" +
-        encodeURIComponent(subject) +
-        "&body=" +
-        encodeURIComponent(body);
-      state.cart = [];
-      saveCart();
-      location.hash = "#/order/" + encodeURIComponent(order.orderNumber);
-      setTimeout(() => {
-        window.location.href = mailto;
-      }, 250);
+      clearCartAndShipping();
+      window.location.href = data.url;
+    } catch (err) {
+      showErr(err.message || "Could not start Square checkout.");
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = "Pay with card (Square)";
+      }
     }
-  });
+  }
+
+  async function runShippingCalc() {
+    const input = document.querySelector("input[name='ship-zip']");
+    const zip = normalizeZip(input ? input.value : state.shipping.zip);
+    if (input) state.shipping.zip = input.value.trim();
+    state.shipping.method = "ship";
+    const resultEl = document.querySelector("[data-ship-result]");
+    if (!zip) {
+      state.shipping.estimate = { ok: false, error: "Enter a valid 5-digit US ZIP code." };
+      saveShipping();
+      if (resultEl) {
+        resultEl.innerHTML = '<div class="ship-result error">' + escapeHtml(state.shipping.estimate.error) + "</div>";
+      }
+      return state.shipping.estimate;
+    }
+    if (resultEl) resultEl.innerHTML = '<div class="ship-result">Calculating…</div>';
+    try {
+      const estimate = await getShippingRate({
+        destZip: zip,
+        weightLb: cartWeightLb(),
+        items: state.cart,
+      });
+      state.shipping.zip = zip;
+      state.shipping.estimate = estimate;
+      saveShipping();
+      render();
+      return estimate;
+    } catch (err) {
+      state.shipping.estimate = {
+        ok: false,
+        error: err.message || "Could not calculate shipping.",
+      };
+      saveShipping();
+      render();
+      return state.shipping.estimate;
+    }
+  }
+
+  function fillWatermark() {
+    const inner = document.querySelector(".demo-watermark-inner");
+    if (!inner || inner.childElementCount) return;
+    for (let i = 0; i < 48; i++) {
+      const s = document.createElement("span");
+      s.textContent = "Demo Site, Coming Soon";
+      inner.appendChild(s);
+    }
+  }
 
   window.addEventListener("hashchange", render);
 
   updateCartCounts();
+  fillWatermark();
+  loadZip3().catch(() => {});
 
   fetch("products.json")
     .then((r) => {
