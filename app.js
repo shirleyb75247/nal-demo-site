@@ -45,6 +45,27 @@
   ];
   const PROMO_INTERVAL_MS = 3000;
 
+  // Installation page YouTube how-tos.
+  // To swap a video later (e.g. when NAL records its own), edit ONLY this object.
+  // The page embeds via youtube-nocookie; do not download or rehost the files.
+  // Note: ToolboxDIY's 2020 "UPDATED" video (VKEQ1HCLW5c) is not used for
+  // single-ended wiring — that video itself points back to SCWoI0X4jw0.
+  const INSTALL_VIDEOS = {
+    singleEnded: {
+      id: "SCWoI0X4jw0",
+      title: "How to easily convert fluorescent Lights to LED –Easy Ways to Save Money",
+      channel: "ToolboxDIY",
+      url: "https://www.youtube.com/watch?v=SCWoI0X4jw0",
+    },
+    doubleEnded: {
+      id: "QMcT9jdhK9w",
+      title: "Rewire Fluorescent to Led Lights - Using Double-Ended Tubes",
+      channel: "Mr. Hardware",
+      url: "https://www.youtube.com/watch?v=QMcT9jdhK9w",
+    },
+  };
+  const INSTALL_PRODUCT_SLUG = "tube-4ft-bypass-compatible";
+
   const state = {
     catalog: null,
     cart: loadCart(),
@@ -164,6 +185,23 @@
     const token = sessionToken();
     if (token && !headers.Authorization) headers.Authorization = "Bearer " + token;
     return headers;
+  }
+  // Customer language for the back office (zh / es / en), same rule as chat.js:
+  // the visitor's first preferred browser language wins; anything else is English.
+  function siteLang() {
+    var list = [];
+    try {
+      if (navigator.languages && navigator.languages.length) list = list.concat(Array.from(navigator.languages));
+    } catch (e) {}
+    if (navigator.language) list.push(navigator.language);
+    for (var i = 0; i < list.length; i++) {
+      var l = String(list[i] || "").toLowerCase();
+      if (!l) continue;
+      if (l.indexOf("zh") === 0) return "zh";
+      if (l.indexOf("es") === 0) return "es";
+      return "en";
+    }
+    return "en";
   }
   function upsertAccount(account) {
     const list = loadAccounts();
@@ -413,7 +451,7 @@
       const data = await apiFetch("/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: key, password, company, name, phone, address }),
+        body: JSON.stringify({ email: key, password, company, name, phone, address, lang: siteLang() }),
       });
       if (data.account) upsertAccount(data.account);
       setSession(key, data.sessionToken);
@@ -1321,6 +1359,251 @@
     );
   }
 
+
+  function installCtaHtml(p) {
+    if (!p || p.slug !== INSTALL_PRODUCT_SLUG) return "";
+    const type = (getSelectedOptions(p) || {}).Type || "";
+    let href = "#/installation";
+    let title = "Installation instructions";
+    let body =
+      "Guides for Compatible (Type A) plug-and-play, single-ended Type B, and double-ended Type B 4 ft retrofit tubes.";
+    if (type === "Compatible") {
+      href = "#/installation/compatible";
+      title = "Installation instructions — Compatible (Type A)";
+      body =
+        "Plug-and-play: no rewiring. Uses about 40–50% less energy than fluorescent. These tubes run on the existing ballast, so if that ballast fails the tube stops working too, like a fluorescent lamp. A ballast-bypass upgrade is an option at that point.";
+    } else if (type === "Bypass") {
+      href = "#/installation/single-ended";
+      title = "Installation instructions — Single-ended Type B";
+      body =
+        "Ballast-bypass, single-ended. UL certified, with a high level of safety. Line and neutral land on one end; the far end has no line voltage, which makes relamping simpler and safer. Requires bypass wiring and non-shunted tombstones on the powered end.";
+    } else if (type === "Double End") {
+      href = "#/installation/double-ended";
+      title = "Installation instructions — Double-ended Type B";
+      body =
+        "Ballast-bypass, double-ended. Fast for electricians: the tube can go in either way. Typically no tombstone replacement — remove the ballast, run line to one end and neutral to the other.";
+    } else if (type === "B/C") {
+      title = "Installation instructions";
+      body =
+        "This lamp can be installed as plug-and-play (Compatible) or as ballast-bypass. See both methods in the installation guide.";
+    }
+    return (
+      '<div class="install-product-cta">' +
+      '<a href="' +
+      href +
+      '">' +
+      escapeHtml(title) +
+      "</a>" +
+      "<p>" +
+      escapeHtml(body) +
+      (type === "B/C"
+        ? ' <a href="#/installation/compatible">Compatible (Type A)</a> · <a href="#/installation/single-ended">Single-ended Type B</a> · <a href="#/installation/double-ended">Double-ended Type B</a>.'
+        : "") +
+      "</p></div>"
+    );
+  }
+
+  function installVideoHtml(video) {
+    if (!video || !video.id) return "";
+    const embedSrc = "https://www.youtube-nocookie.com/embed/" + encodeURIComponent(video.id);
+    const credit = "Video: " + video.title + " by " + video.channel + " (YouTube)";
+    return (
+      '<div class="install-video">' +
+      '<div class="install-video-frame">' +
+      '<iframe src="' +
+      escapeHtml(embedSrc) +
+      '" title="' +
+      escapeHtml(video.title) +
+      '" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>' +
+      "</div></div>" +
+      '<p class="install-credit"><a href="' +
+      escapeHtml(video.url) +
+      '" target="_blank" rel="noopener noreferrer">' +
+      escapeHtml(credit) +
+      "</a></p>"
+    );
+  }
+
+  function installWiringDiagramSvg() {
+    return (
+      '<svg class="install-diagram-svg" viewBox="0 0 800 390" role="img" aria-labelledby="install-diag-title install-diag-desc" xmlns="http://www.w3.org/2000/svg">' +
+      '<title id="install-diag-title">Single-ended Type B ballast-bypass wiring diagram</title>' +
+      '<desc id="install-diag-desc">Line and neutral land only on a non-shunted tombstone at the tube’s labeled input end. The opposite end is mechanical support only, with no line voltage. The fluorescent ballast is removed from the circuit.</desc>' +
+      '<rect width="800" height="390" fill="#fbfaf6"/>' +
+      '<text x="400" y="26" text-anchor="middle" font-family="Manrope, Segoe UI, sans-serif" font-size="16" font-weight="700" fill="#011337">Single-ended Type B (ballast bypass) — typical wiring</text>' +
+      '<text x="400" y="46" text-anchor="middle" font-family="Manrope, Segoe UI, sans-serif" font-size="12" fill="#3d4753">Follow the L / N markings on the tube if they differ from this diagram</text>' +
+      '<rect x="90" y="78" width="620" height="230" rx="6" fill="#ece7dc" stroke="#011337" stroke-width="1.5"/>' +
+      '<text x="400" y="100" text-anchor="middle" font-family="Manrope, Segoe UI, sans-serif" font-size="11" font-weight="700" letter-spacing="0.1em" fill="#3d4753">FIXTURE WIREWAY</text>' +
+      '<g transform="translate(330 114)">' +
+      '<rect x="0" y="0" width="140" height="34" rx="2" fill="#d7d2c6" stroke="#6b7280" stroke-width="1" stroke-dasharray="4 3"/>' +
+      '<line x1="8" y1="5" x2="132" y2="29" stroke="#8c2d1c" stroke-width="2"/>' +
+      '<line x1="132" y1="5" x2="8" y2="29" stroke="#8c2d1c" stroke-width="2"/>' +
+      '<text x="70" y="50" text-anchor="middle" font-family="Manrope, Segoe UI, sans-serif" font-size="12" font-weight="700" fill="#8c2d1c">Ballast removed</text>' +
+      "</g>" +
+      '<text x="18" y="196" font-family="Manrope, Segoe UI, sans-serif" font-size="12" font-weight="700" fill="#111">LINE</text>' +
+      '<text x="18" y="211" font-family="Manrope, Segoe UI, sans-serif" font-size="11" fill="#111">(hot)</text>' +
+      '<text x="18" y="258" font-family="Manrope, Segoe UI, sans-serif" font-size="12" font-weight="700" fill="#3d4753">NEUTRAL</text>' +
+      '<path d="M64 200 H126" fill="none" stroke="#111" stroke-width="3" stroke-linecap="round"/>' +
+      '<path d="M64 250 H126" fill="none" stroke="#6b7c93" stroke-width="3" stroke-linecap="round"/>' +
+      '<g transform="translate(116 186)">' +
+      '<rect x="0" y="0" width="66" height="78" rx="3" fill="#fbfaf6" stroke="#011337" stroke-width="1.8"/>' +
+      '<rect x="10" y="10" width="46" height="22" rx="1.5" fill="#011337"/>' +
+      '<text x="33" y="26" text-anchor="middle" font-family="Manrope, Segoe UI, sans-serif" font-size="13" font-weight="700" fill="#e4c36a">L</text>' +
+      '<rect x="10" y="46" width="46" height="22" rx="1.5" fill="#011337"/>' +
+      '<text x="33" y="62" text-anchor="middle" font-family="Manrope, Segoe UI, sans-serif" font-size="13" font-weight="700" fill="#fbfaf6">N</text>' +
+      "</g>" +
+      '<rect x="194" y="202" width="412" height="46" rx="23" fill="#011337"/>' +
+      '<rect x="210" y="210" width="380" height="30" rx="15" fill="#14305f"/>' +
+      '<text x="400" y="231" text-anchor="middle" font-family="Manrope, Segoe UI, sans-serif" font-size="13" font-weight="700" fill="#e4c36a">4 ft LED tube (single-ended Type B)</text>' +
+      '<line x1="182" y1="214" x2="194" y2="214" stroke="#c9a24a" stroke-width="3.2" stroke-linecap="round"/>' +
+      '<line x1="182" y1="236" x2="194" y2="236" stroke="#c9a24a" stroke-width="3.2" stroke-linecap="round"/>' +
+      '<line x1="606" y1="214" x2="618" y2="214" stroke="#9aa3ad" stroke-width="3.2" stroke-linecap="round"/>' +
+      '<line x1="606" y1="236" x2="618" y2="236" stroke="#9aa3ad" stroke-width="3.2" stroke-linecap="round"/>' +
+      '<g transform="translate(618 186)">' +
+      '<rect x="0" y="0" width="66" height="78" rx="3" fill="#fbfaf6" stroke="#6b7280" stroke-width="1.8" stroke-dasharray="5 4"/>' +
+      '<rect x="10" y="10" width="46" height="22" rx="1.5" fill="#d7d2c6"/>' +
+      '<rect x="10" y="46" width="46" height="22" rx="1.5" fill="#d7d2c6"/>' +
+      "</g>" +
+      '<text x="149" y="336" text-anchor="middle" font-family="Manrope, Segoe UI, sans-serif" font-size="13" font-weight="700" fill="#011337">Powered end</text>' +
+      '<text x="149" y="354" text-anchor="middle" font-family="Manrope, Segoe UI, sans-serif" font-size="12" fill="#3d4753">Non-shunted tombstone</text>' +
+      '<text x="149" y="372" text-anchor="middle" font-family="Manrope, Segoe UI, sans-serif" font-size="12" fill="#3d4753">L and N per tube label</text>' +
+      '<text x="651" y="336" text-anchor="middle" font-family="Manrope, Segoe UI, sans-serif" font-size="13" font-weight="700" fill="#011337">Opposite end</text>' +
+      '<text x="651" y="354" text-anchor="middle" font-family="Manrope, Segoe UI, sans-serif" font-size="12" fill="#3d4753">Mechanical support only</text>' +
+      '<text x="651" y="372" text-anchor="middle" font-family="Manrope, Segoe UI, sans-serif" font-size="12" fill="#3d4753">No line voltage</text>' +
+      "</svg>"
+    );
+  }
+
+  function installDoubleEndedDiagramSvg() {
+    return (
+      '<svg class="install-diagram-svg" viewBox="0 0 800 360" role="img" aria-labelledby="install-de-title install-de-desc" xmlns="http://www.w3.org/2000/svg">' +
+      '<title id="install-de-title">Double-ended Type B ballast-bypass wiring diagram</title>' +
+      '<desc id="install-de-desc">After the ballast is removed, line (hot) is connected to the sockets at one end of the fixture and neutral to the sockets at the other end. The tube can typically be installed either way. Always follow the tube’s label.</desc>' +
+      '<rect width="800" height="360" fill="#fbfaf6"/>' +
+      '<text x="400" y="26" text-anchor="middle" font-family="Manrope, Segoe UI, sans-serif" font-size="16" font-weight="700" fill="#011337">Double-ended Type B (ballast bypass) — typical wiring</text>' +
+      '<text x="400" y="46" text-anchor="middle" font-family="Manrope, Segoe UI, sans-serif" font-size="12" fill="#3d4753">Follow the markings on the tube if they differ from this diagram</text>' +
+      '<rect x="90" y="70" width="620" height="200" rx="6" fill="#ece7dc" stroke="#011337" stroke-width="1.5"/>' +
+      '<text x="400" y="92" text-anchor="middle" font-family="Manrope, Segoe UI, sans-serif" font-size="11" font-weight="700" letter-spacing="0.1em" fill="#3d4753">FIXTURE WIREWAY</text>' +
+      '<g transform="translate(330 102)">' +
+      '<rect x="0" y="0" width="140" height="30" rx="2" fill="#d7d2c6" stroke="#6b7280" stroke-width="1" stroke-dasharray="4 3"/>' +
+      '<line x1="8" y1="4" x2="132" y2="26" stroke="#8c2d1c" stroke-width="2"/>' +
+      '<line x1="132" y1="4" x2="8" y2="26" stroke="#8c2d1c" stroke-width="2"/>' +
+      '<text x="70" y="46" text-anchor="middle" font-family="Manrope, Segoe UI, sans-serif" font-size="12" font-weight="700" fill="#8c2d1c">Ballast removed</text>' +
+      "</g>" +
+      '<text x="18" y="200" font-family="Manrope, Segoe UI, sans-serif" font-size="12" font-weight="700" fill="#111">LINE</text>' +
+      '<text x="18" y="215" font-family="Manrope, Segoe UI, sans-serif" font-size="11" fill="#111">(hot)</text>' +
+      '<path d="M64 204 H126" fill="none" stroke="#111" stroke-width="3" stroke-linecap="round"/>' +
+      '<g transform="translate(116 166)">' +
+      '<rect x="0" y="0" width="66" height="78" rx="3" fill="#fbfaf6" stroke="#011337" stroke-width="1.8"/>' +
+      '<rect x="10" y="10" width="46" height="22" rx="1.5" fill="#011337"/>' +
+      '<rect x="10" y="46" width="46" height="22" rx="1.5" fill="#011337"/>' +
+      "</g>" +
+      '<rect x="194" y="182" width="412" height="46" rx="23" fill="#011337"/>' +
+      '<rect x="210" y="190" width="380" height="30" rx="15" fill="#14305f"/>' +
+      '<text x="400" y="211" text-anchor="middle" font-family="Manrope, Segoe UI, sans-serif" font-size="13" font-weight="700" fill="#e4c36a">4 ft LED tube (double-ended Type B)</text>' +
+      '<line x1="182" y1="194" x2="194" y2="194" stroke="#c9a24a" stroke-width="3.2" stroke-linecap="round"/>' +
+      '<line x1="182" y1="216" x2="194" y2="216" stroke="#c9a24a" stroke-width="3.2" stroke-linecap="round"/>' +
+      '<line x1="606" y1="194" x2="618" y2="194" stroke="#c9a24a" stroke-width="3.2" stroke-linecap="round"/>' +
+      '<line x1="606" y1="216" x2="618" y2="216" stroke="#c9a24a" stroke-width="3.2" stroke-linecap="round"/>' +
+      '<g transform="translate(618 166)">' +
+      '<rect x="0" y="0" width="66" height="78" rx="3" fill="#fbfaf6" stroke="#011337" stroke-width="1.8"/>' +
+      '<rect x="10" y="10" width="46" height="22" rx="1.5" fill="#011337"/>' +
+      '<rect x="10" y="46" width="46" height="22" rx="1.5" fill="#011337"/>' +
+      "</g>" +
+      '<path d="M736 204 H684" fill="none" stroke="#6b7c93" stroke-width="3" stroke-linecap="round"/>' +
+      '<text x="748" y="200" font-family="Manrope, Segoe UI, sans-serif" font-size="12" font-weight="700" fill="#3d4753">NEUTRAL</text>' +
+      '<text x="149" y="308" text-anchor="middle" font-family="Manrope, Segoe UI, sans-serif" font-size="13" font-weight="700" fill="#011337">One end — line (hot)</text>' +
+      '<text x="149" y="326" text-anchor="middle" font-family="Manrope, Segoe UI, sans-serif" font-size="12" fill="#3d4753">Typically no tombstone change</text>' +
+      '<text x="651" y="308" text-anchor="middle" font-family="Manrope, Segoe UI, sans-serif" font-size="13" font-weight="700" fill="#011337">Opposite end — neutral</text>' +
+      '<text x="651" y="326" text-anchor="middle" font-family="Manrope, Segoe UI, sans-serif" font-size="12" fill="#3d4753">Tube can go in either way</text>' +
+      "</svg>"
+    );
+  }
+
+  function renderInstallation() {
+    const c = company();
+    const videos = INSTALL_VIDEOS;
+    return (
+      '<section class="wrap install-page">' +
+      '<div class="crumbs"><a href="#/">Home</a> / Installation Instructions</div>' +
+      '<div class="section-kicker">Installation</div>' +
+      "<h1>Installation Instructions</h1>" +
+      '<p class="install-lead">4-foot T8/T10 fluorescent retrofit LED tubes. Use the section that matches the Type marked on your tube: Compatible (Type A, plug-and-play), single-ended Type B (ballast bypass), or double-ended Type B.</p>' +
+      '<nav class="install-jump" aria-label="Tube types">' +
+      '<a href="#/installation/compatible">Compatible (Type A)</a>' +
+      '<a href="#/installation/single-ended">Single-ended Type B</a>' +
+      '<a href="#/installation/double-ended">Double-ended Type B</a>' +
+      '<a href="#/installation/why-bypass">Why bypass</a>' +
+      "</nav>" +
+      '<div class="install-safety" role="note">' +
+      "<strong>Safety.</strong> Always follow the wiring diagram printed on the tube and in its instructions — that label governs if it differs from this page. Ballast-bypass (Type B) work involves fixture rewiring: turn off power at the circuit breaker, verify the fixture is de-energized with a properly rated meter, comply with the National Electrical Code (NEC) and any applicable local amendments, and have a licensed electrician do the work." +
+      "</div>" +
+
+      '<h2 id="install-compatible">Compatible (Type A, plug-and-play)</h2>' +
+      "<p>Compatible, or Type A, tubes are the easiest install: they are plug-and-play. Anyone can take out the fluorescent lamp and plug the LED tube into the existing fixture — no rewiring and no ballast work.</p>" +
+      "<p>These tubes use about 40–50% less energy than a fluorescent lamp (up to about 40–50%, depending on the fixture and the lamp being replaced).</p>" +
+      "<p>A Compatible tube runs on the existing ballast. If that ballast later fails, the tube stops working too, just as a fluorescent lamp would. A ballast-bypass upgrade is an option at that point — see the Type B sections below and <a href=\"#/installation/why-bypass\">Why bypass the ballast</a>.</p>" +
+
+      '<h2 id="install-single-ended">Single-ended Type B (ballast bypass)</h2>' +
+      "<p>Our single-ended Type B tubes are UL certified, with a high level of safety. Line and neutral enter at one end only, as marked on the lamp. The far end of the fixture has no line voltage — it provides mechanical support only — which makes relamping simpler and safer.</p>" +
+      "<p>Installation requires bypassing the existing fluorescent ballast and rewiring so that line (hot) and neutral land only on the sockets at the tube’s labeled input end. The powered-end tombstones must be non-shunted.</p>" +
+      '<ol class="install-steps">' +
+      "<li><strong>Turn off power at the breaker</strong> that supplies the fixture. Apply lockout/tagout if required by site procedure.</li>" +
+      "<li><strong>Verify the fixture is dead</strong> with a voltage tester or multimeter at the supply leads and lampholders.</li>" +
+      "<li><strong>Remove the fluorescent tubes</strong> and the lens or diffuser, if present.</li>" +
+      "<li><strong>Open the wireway</strong> or ballast cover to expose the ballast and lampholder leads.</li>" +
+      "<li><strong>Cut or disconnect all ballast leads.</strong> Remove the ballast (and any starter) and dispose of it in accordance with local regulations. Do not leave the ballast in the circuit.</li>" +
+      "<li><strong>Wire line (hot) and neutral to the single-ended input.</strong> Connect both conductors only to the non-shunted tombstones at one end of the fixture — the end that will receive the tube’s labeled input (typically marked L and N). Do not apply line voltage to the opposite end; those sockets provide mechanical support only.</li>" +
+      "<li><strong>Replace shunted tombstones where required.</strong> Instant-start fluorescent fixtures often use shunted holders. For single-ended Type B lamps, the powered-end holders must be non-shunted. Confirm the type against the tube’s instructions and replace them before landing the new connections.</li>" +
+      "<li><strong>Apply the retrofit / relamping label</strong> supplied with the tubes to a visible location on the fixture so future service knows it has been rewired for Type B lamps only.</li>" +
+      "<li><strong>Reinstall the cover and tubes.</strong> Insert each LED tube with the labeled input end in the powered sockets, restore power, and test.</li>" +
+      "</ol>" +
+      '<figure class="install-diagram">' +
+      installWiringDiagramSvg() +
+      "<figcaption>Typical single-ended Type B wiring. Line and neutral land on one end only. Always follow the tube’s own label.</figcaption>" +
+      "<p>If existing tombstones are shunted (typical of instant-start fluorescent fixtures), replace the powered-end holders with non-shunted tombstones. Multiple lamps in one fixture are typically wired in parallel to the same line and neutral.</p>" +
+      "</figure>" +
+      "<p>The video below is a third-party demonstration of converting a fluorescent fixture for single-ended, ballast-bypass LED tubes. Use it as a visual walkthrough. If anything in the video conflicts with the label or instructions on the tubes you received, follow the tube’s label.</p>" +
+      installVideoHtml(videos.singleEnded) +
+
+      '<h2 id="install-double-ended">Double-ended Type B</h2>' +
+      "<p>Double-ended Type B tubes are fast for electricians: there is no orientation to worry about — the tube can go in either way. Installation still requires a ballast bypass and fixture rewiring, but the rewiring can be simpler. Typically no tombstone replacement is needed: remove the ballast, run line (hot) to one end of the fixture and neutral to the other. Always follow the tube’s label.</p>" +
+      '<figure class="install-diagram">' +
+      installDoubleEndedDiagramSvg() +
+      "<figcaption>Typical double-ended Type B wiring. Line at one end, neutral at the other. Always follow the tube’s own label.</figcaption>" +
+      "</figure>" +
+      "<p>The video below is a third-party demonstration of rewiring a fluorescent fixture for double-ended LED tubes. If anything in the video conflicts with the label on the tubes you received, follow the tube’s label.</p>" +
+      installVideoHtml(videos.doubleEnded) +
+
+      '<h2 id="install-why-bypass">Why bypass the ballast</h2>' +
+      "<p>Leaving the ballast in the circuit may look like less work on day one, but it leaves a wear item in place. If that ballast fails, the lamp goes out with it, just as a fluorescent tube would. You are then back to diagnosing or replacing a ballast. Bypassing the ballast removes that failure point.</p>" +
+      "<p>Bypassing the ballast is a one-time wiring job. After that:</p>" +
+      '<ul class="install-bullets">' +
+      "<li>The LED tube is powered directly from the branch circuit, so ballast life no longer matters.</li>" +
+      "<li>LED tubes typically last far longer than fluorescent lamps, so relamping is less frequent — and when a tube is replaced, no further rewiring is required.</li>" +
+      "<li>The fixture no longer carries the ballast’s own energy draw.</li>" +
+      "</ul>" +
+
+      '<div class="install-actions">' +
+      '<a class="btn btn-navy" href="#/product/' +
+      encodeURIComponent(INSTALL_PRODUCT_SLUG) +
+      '">View 4 ft retrofit tubes</a>' +
+      '<a class="btn btn-outline" href="tel:' +
+      escapeHtml(c.phoneTel) +
+      '">' +
+      escapeHtml(c.phone) +
+      "</a>" +
+      '<a class="btn btn-outline" href="mailto:' +
+      escapeHtml(c.email) +
+      '">' +
+      escapeHtml(c.email) +
+      "</a>" +
+      "</div>" +
+      "</section>" +
+      factsBand()
+    );
+  }
+
   function renderAbout() {
     const c = company();
     return (
@@ -1519,6 +1802,7 @@
         : "") +
       '<p class="muted">Wholesale request. Invoice and payment instructions are sent after you place the order.</p>' +
       featuresHtml(p) +
+      installCtaHtml(p) +
       "</div></section>"
     );
   }
@@ -2463,6 +2747,7 @@
     else if (root === "exemption") html = renderExemption();
     else if (root === "approve") html = renderApprove(parts[1] || "");
     else if (root === "about") html = renderAbout();
+    else if (root === "installation" || root === "installation-instructions") html = renderInstallation();
     else html = '<section class="wrap"><h1>Page not found</h1><p><a href="#/">Home</a></p></section>';
     $app().innerHTML = html;
     updateCartCounts();
@@ -2470,6 +2755,10 @@
     closeMenu();
     window.scrollTo(0, 0);
     initPromoCarousel();
+    if ((root === "installation" || root === "installation-instructions") && parts[1]) {
+      const el = document.getElementById("install-" + parts[1]);
+      if (el) requestAnimationFrame(function () { el.scrollIntoView({ block: "start" }); });
+    }
   }
 
   function closeMenu() {
@@ -2755,7 +3044,7 @@
         await apiFetch("/apply", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(application),
+          body: JSON.stringify(Object.assign({}, application, { lang: siteLang() })),
         });
       }
       const apps = loadApplications();
@@ -2877,6 +3166,7 @@
           items: order.items,
           shipping: order.shipping,
           accountEmail: order.accountEmail,
+          lang: siteLang(),
         }),
       }).catch(() => {});
     } catch (err) {
@@ -2962,6 +3252,7 @@
           shipping: order.shipping,
           tax: order.tax,
           accountEmail: order.accountEmail,
+          lang: siteLang(),
         }),
       });
       const data = await res.json().catch(() => ({}));

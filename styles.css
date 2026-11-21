@@ -958,3 +958,140 @@ p { margin: 0 0 1rem; }
 
 /* Grid thumbnails: no warranty badge (shown on product detail page only) */
 .product-card .warranty-badge { display: none !important; }
+
+
+/* Installation instructions */
+.install-page { max-width: 48rem; }
+.install-page h1 {
+  margin-bottom: 0.55rem;
+  font-size: clamp(1.8rem, 3.5vw, 2.4rem);
+}
+.install-lead {
+  font-size: 1.05rem;
+  color: var(--ink-soft);
+  margin-bottom: 1.15rem;
+}
+.install-safety {
+  background: #fff6d8;
+  border: 1px solid #e6c56a;
+  border-left: 4px solid var(--gold);
+  padding: 0.95rem 1.05rem;
+  margin: 0 0 1.8rem;
+  font-size: 0.95rem;
+}
+.install-safety strong { color: var(--navy); }
+.install-page h2 {
+  font-size: 1.35rem;
+  margin: 2.1rem 0 0.7rem;
+}
+.install-page h2[id] {
+  scroll-margin-top: calc(var(--header-h) + var(--demo-h) + 0.85rem);
+}
+.install-jump {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0 0 1.35rem;
+}
+.install-jump a {
+  text-decoration: none;
+  border: 1px solid var(--line);
+  background: var(--white);
+  padding: 0.32rem 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 999px;
+  color: var(--navy);
+}
+.install-jump a:hover {
+  background: var(--navy);
+  color: var(--white);
+  border-color: var(--navy);
+}
+.install-steps {
+  margin: 0 0 1.1rem;
+  padding: 0 0 0 1.25rem;
+}
+.install-steps li {
+  margin: 0 0 0.7rem;
+  padding-left: 0.2rem;
+}
+.install-steps li:last-child { margin-bottom: 0; }
+.install-bullets {
+  margin: 0 0 1rem;
+  padding: 0 0 0 1.25rem;
+}
+.install-bullets li { margin: 0 0 0.55rem; }
+.install-diagram {
+  background: var(--white);
+  border: 1px solid var(--line);
+  padding: 0.7rem 0.55rem 0.85rem;
+  margin: 1.2rem 0 0.2rem;
+}
+.install-diagram svg,
+.install-diagram-svg { width: 100%; height: auto; display: block; }
+.install-diagram figcaption {
+  margin: 0.7rem 0.4rem 0;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+.install-diagram p {
+  margin: 0.45rem 0.4rem 0;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+.install-video {
+  margin: 1rem 0 0.45rem;
+  background: #000;
+  border: 1px solid var(--line);
+}
+.install-video-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #111;
+}
+.install-video-frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+.install-credit {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  margin: 0 0 0.4rem;
+}
+.install-credit a {
+  color: var(--navy);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+.install-credit a:hover { color: var(--navy-2); }
+.install-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: 1.7rem;
+}
+.install-product-cta {
+  margin-top: 1.25rem;
+  padding: 0.95rem 1.05rem;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--gold);
+}
+.install-product-cta a {
+  font-weight: 700;
+  color: var(--navy);
+  text-decoration: none;
+}
+.install-product-cta a:hover { color: var(--navy-2); text-decoration: underline; }
+.install-product-cta p {
+  margin: 0.3rem 0 0;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
