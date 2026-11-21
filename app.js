@@ -302,6 +302,39 @@
     if (!p || isClearance(p)) return "";
     return '<span class="warranty-badge">' + escapeHtml(WARRANTY_BADGE_TEXT) + "</span>";
   }
+
+  const LENS_BADGE_TEXT = "Tempered Glass Lens";
+  const PRODUCT_FEATURES = {
+    "wall-pack": [
+      "Thick tempered glass lens, same construction as traditional wall packs — impact-resistant and UV-stable; will not yellow, haze, or degrade from sun exposure.",
+    ],
+  };
+
+  function hasLensBadge(p) {
+    return !!(p && p.slug === "wall-pack");
+  }
+
+  function lensBadgeHtml(p) {
+    if (!hasLensBadge(p)) return "";
+    return '<span class="lens-badge">' + escapeHtml(LENS_BADGE_TEXT) + "</span>";
+  }
+
+  function productFeatures(p) {
+    if (p && Array.isArray(p.features) && p.features.length) return p.features;
+    return (p && PRODUCT_FEATURES[p.slug]) || [];
+  }
+
+  function featuresHtml(p) {
+    const items = productFeatures(p);
+    if (!items.length) return "";
+    return (
+      '<div class="product-features">' +
+      "<h2>Features</h2>" +
+      "<ul>" +
+      items.map((item) => "<li>" + escapeHtml(item) + "</li>").join("") +
+      "</ul></div>"
+    );
+  }
   function guaranteeBannerHtml() {
     return (
       '<div class="guarantee-banner" role="region" aria-label="Replacement guarantee">' +
@@ -554,10 +587,11 @@
         escapeHtml(src) +
         '" alt="' +
         escapeHtml(product.displayName) +
-        '">'
+        '">' +
+        lensBadgeHtml(product)
       );
     }
-    return placeholderSvg();
+    return placeholderSvg() + lensBadgeHtml(product);
   }
 
   function isVariationOos(v) {
@@ -851,10 +885,6 @@
       '<div class="hero-grid">' +
       heroImgs
         .map((p) => {
-          const note =
-            p.slug === "wall-pack"
-              ? '<span class="hero-lens-note">Thick glass lens, same as traditional wall packs — won\'t be damaged by the sun</span>'
-              : "";
           return (
             "<figure><a class=\"hero-tile\" href=\"#/product/" +
             encodeURIComponent(p.slug) +
@@ -865,7 +895,7 @@
             '" alt="' +
             escapeHtml(p.displayName) +
             '">' +
-            note +
+            lensBadgeHtml(p) +
             "</a></figure>"
           );
         })
@@ -981,6 +1011,7 @@
           p.name,
           p.displayName,
           p.description,
+          productFeatures(p).join(" "),
           p.category,
           (p.badges || []).join(" "),
           p.variations.map((v) => (v.sku || "") + " " + (v.name || "")).join(" "),
@@ -1104,6 +1135,7 @@
       (img
         ? '<img src="' + escapeHtml(img) + '" alt="' + escapeHtml(p.displayName) + '">'
         : placeholderSvg()) +
+      lensBadgeHtml(p) +
       "</div></div>" +
       '<div class="product-info">' +
       warrantyBadgeHtml(p) +
@@ -1141,6 +1173,7 @@
           "</button></div></form>"
         : "") +
       '<p class="muted">Wholesale request. Invoice and payment instructions are sent after you place the order.</p>' +
+      featuresHtml(p) +
       "</div></section>"
     );
   }

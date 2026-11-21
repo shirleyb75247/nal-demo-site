@@ -2561,6 +2561,9 @@
         "MS35"
       ],
       "description": "Available in 80w, 120w with photocell\nAlso Available in 30w, NO photocell",
+      "features": [
+        "Thick tempered glass lens, same construction as traditional wall packs — impact-resistant and UV-stable; will not yellow, haze, or degrade from sun exposure."
+      ],
       "category": "Outdoor Area",
       "categorySlug": "outdoor-area",
       "images": [
