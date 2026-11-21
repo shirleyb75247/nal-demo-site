@@ -34,6 +34,17 @@
 
   const WARRANTY_BADGE_TEXT = "1 Year Replacement Warranty";
 
+  // Homepage Promotion area. Swap, add, or remove entries to change
+  // currently promoted products. `image` and `label` override the catalog
+  // thumbnail and name when set; `badge` is an optional on-image label.
+  const HOME_PROMOS = [
+    { slug: "high-bay-ufo-light" },
+    { slug: "wall-pack", badge: "Tempered Glass Lens" },
+    { slug: "down-light" },
+    { slug: "flood-light" },
+  ];
+  const PROMO_INTERVAL_MS = 3000;
+
   const state = {
     catalog: null,
     cart: loadCart(),
@@ -842,22 +853,7 @@
     const c = company();
     const cats = state.catalog.categories;
     const featured = pickFeatured();
-    const heroPref = [
-      "high-bay-ufo-light",
-      "wall-pack",
-      "down-light",
-      "flood-light",
-      "panel-backlit",
-      "canopy-15-inch",
-      "corn-bulb",
-      "flex-strip",
-    ];
-    const heroImgs = [];
-    for (const slug of heroPref) {
-      const p = state.catalog.products.find((x) => x.slug === slug && x.thumbs && x.thumbs[0]);
-      if (p) heroImgs.push(p);
-      if (heroImgs.length >= 4) break;
-    }
+    const promos = resolveHomePromos();
 
     return (
       '<section class="hero"><div class="hero-inner">' +
@@ -882,25 +878,8 @@
       escapeHtml(c.email) +
       "</a></div>" +
       "</div>" +
-      '<div class="hero-grid">' +
-      heroImgs
-        .map((p) => {
-          return (
-            "<figure><a class=\"hero-tile\" href=\"#/product/" +
-            encodeURIComponent(p.slug) +
-            '" aria-label="' +
-            escapeHtml(p.displayName) +
-            '"><img src="' +
-            escapeHtml(p.thumbs[0]) +
-            '" alt="' +
-            escapeHtml(p.displayName) +
-            '">' +
-            lensBadgeHtml(p) +
-            "</a></figure>"
-          );
-        })
-        .join("") +
-      "</div></div></section>" +
+      promoCarouselHtml(promos) +
+      "</div></section>" +
       '<section class="wrap">' +
       '<div class="section-head"><div><div class="section-kicker">Shop by type</div><h2>Categories</h2></div></div>' +
       '<div class="cat-grid">' +
@@ -934,6 +913,372 @@
       "</div></section>" +
       factsBand()
     );
+  }
+
+  function resolveHomePromos() {
+    const products = (state.catalog && state.catalog.products) || [];
+    const items = [];
+    for (const entry of HOME_PROMOS) {
+      if (!entry || !entry.slug) continue;
+      const p = products.find((x) => x.slug === entry.slug);
+      if (!p) continue;
+      const image =
+        entry.image ||
+        (p.thumbs && p.thumbs[0]) ||
+        (p.images && p.images[0]) ||
+        "";
+      if (!image) continue;
+      items.push({
+        slug: p.slug,
+        label: entry.label || p.displayName || p.name || "",
+        image: image,
+        badge: entry.badge || "",
+      });
+    }
+    return items;
+  }
+
+  function promoCarouselHtml(promos) {
+    if (!promos.length) return "";
+    const slides = promos
+      .map((item, i) => {
+        const badge = item.badge
+          ? '<span class="lens-badge">' + escapeHtml(item.badge) + "</span>"
+          : "";
+        return (
+          '<a class="promo-slide" href="#/product/' +
+          encodeURIComponent(item.slug) +
+          '" data-promo-index="' +
+          i +
+          '"' +
+          (i === 0 ? "" : ' aria-hidden="true"') +
+          ' aria-label="' +
+          escapeHtml(item.label) +
+          '">' +
+          '<span class="promo-frame">' +
+          '<img src="' +
+          escapeHtml(item.image) +
+          '" alt="' +
+          escapeHtml(item.label) +
+          '">' +
+          badge +
+          "</span>" +
+          '<span class="promo-caption">' +
+          escapeHtml(item.label) +
+          "</span>" +
+          "</a>"
+        );
+      })
+      .join("");
+    const dots = promos
+      .map((item, i) => {
+        return (
+          '<button type="button" class="promo-dot' +
+          (i === 0 ? " is-active" : "") +
+          '" data-promo-dot="' +
+          i +
+          '" aria-label="Show ' +
+          escapeHtml(item.label) +
+          " (" +
+          (i + 1) +
+          " of " +
+          promos.length +
+          ')"' +
+          (i === 0 ? ' aria-current="true"' : "") +
+          "></button>"
+        );
+      })
+      .join("");
+    const nav =
+      promos.length > 1
+        ? '<div class="promo-controls">' +
+          '<button type="button" class="promo-nav promo-prev" data-promo-prev aria-label="Previous promotion">' +
+          '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+          "</button>" +
+          '<div class="promo-dots" role="tablist" aria-label="Promotion slides">' +
+          dots +
+          "</div>" +
+          '<button type="button" class="promo-nav promo-next" data-promo-next aria-label="Next promotion">' +
+          '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+          "</button>" +
+          "</div>"
+        : "";
+    return (
+      '<div class="promo-carousel" data-promo-carousel data-promo-active="0">' +
+      '<div class="promo-kicker">Promotion</div>' +
+      '<div class="promo-viewport" tabindex="0" aria-roledescription="carousel" aria-label="Promoted products">' +
+      '<div class="promo-track">' +
+      slides +
+      "</div></div>" +
+      nav +
+      "</div>"
+    );
+  }
+
+  let promoCarousel = null;
+
+  function stopPromoCarousel() {
+    if (!promoCarousel) return;
+    if (promoCarousel.timer) {
+      clearInterval(promoCarousel.timer);
+      promoCarousel.timer = null;
+    }
+    if (promoCarousel.cleanup) promoCarousel.cleanup();
+    promoCarousel = null;
+  }
+
+  function initPromoCarousel() {
+    stopPromoCarousel();
+    const root = document.querySelector("[data-promo-carousel]");
+    if (!root) return;
+    const viewport = root.querySelector(".promo-viewport");
+    const track = root.querySelector(".promo-track");
+    const originals = Array.from(root.querySelectorAll(".promo-slide"));
+    const dots = Array.from(root.querySelectorAll("[data-promo-dot]"));
+    const prevBtn = root.querySelector("[data-promo-prev]");
+    const nextBtn = root.querySelector("[data-promo-next]");
+    if (!viewport || !track || !originals.length) return;
+
+    const n = originals.length;
+    const reduce =
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const loop = n > 1 && !reduce;
+
+    if (loop) {
+      const lastClone = originals[n - 1].cloneNode(true);
+      const firstClone = originals[0].cloneNode(true);
+      lastClone.classList.add("is-clone");
+      firstClone.classList.add("is-clone");
+      lastClone.setAttribute("aria-hidden", "true");
+      firstClone.setAttribute("aria-hidden", "true");
+      lastClone.removeAttribute("data-promo-index");
+      firstClone.removeAttribute("data-promo-index");
+      lastClone.setAttribute("tabindex", "-1");
+      firstClone.setAttribute("tabindex", "-1");
+      track.insertBefore(lastClone, originals[0]);
+      track.appendChild(firstClone);
+    }
+
+    let index = 0;
+    let pos = loop ? 1 : 0;
+    let paused = false;
+    let animating = false;
+    let swiped = false;
+    let pointerActive = false;
+    let pointerStartX = 0;
+    let pointerStartY = 0;
+
+    function applyPos(instant) {
+      if (instant || reduce) {
+        track.style.transition = "none";
+      } else {
+        track.style.transition = "";
+      }
+      track.style.transform = "translateX(" + -pos * 100 + "%)";
+      if (instant || reduce) {
+        track.offsetHeight;
+        if (!reduce) track.style.transition = "";
+      }
+    }
+
+    function syncUi() {
+      root.setAttribute("data-promo-active", String(index));
+      originals.forEach((slide, i) => {
+        const on = i === index;
+        slide.setAttribute("aria-hidden", on ? "false" : "true");
+        if (on) slide.removeAttribute("tabindex");
+        else slide.setAttribute("tabindex", "-1");
+      });
+      dots.forEach((dot, i) => {
+        const on = i === index;
+        dot.classList.toggle("is-active", on);
+        if (on) dot.setAttribute("aria-current", "true");
+        else dot.removeAttribute("aria-current");
+      });
+    }
+
+    function goTo(next, instant) {
+      if (n < 2) return;
+      const target = ((next % n) + n) % n;
+      if (loop && !instant && !reduce) {
+        if (index === n - 1 && target === 0) {
+          pos = n + 1;
+          index = 0;
+          animating = true;
+        } else if (index === 0 && target === n - 1) {
+          pos = 0;
+          index = n - 1;
+          animating = true;
+        } else {
+          index = target;
+          pos = index + 1;
+          animating = true;
+        }
+        applyPos(false);
+      } else {
+        index = target;
+        pos = loop ? index + 1 : index;
+        applyPos(true);
+        animating = false;
+      }
+      syncUi();
+    }
+
+    function onTransitionEnd(e) {
+      if (e.target !== track) return;
+      if (!loop) {
+        animating = false;
+        return;
+      }
+      if (pos === n + 1) {
+        pos = 1;
+        applyPos(true);
+      } else if (pos === 0) {
+        pos = n;
+        applyPos(true);
+      }
+      animating = false;
+    }
+
+    function play() {
+      if (promoCarousel.timer) {
+        clearInterval(promoCarousel.timer);
+        promoCarousel.timer = null;
+      }
+      if (reduce || paused || n < 2 || document.hidden) return;
+      promoCarousel.timer = setInterval(function () {
+        goTo(index + 1);
+      }, PROMO_INTERVAL_MS);
+    }
+
+    function pause() {
+      if (promoCarousel.timer) {
+        clearInterval(promoCarousel.timer);
+        promoCarousel.timer = null;
+      }
+    }
+
+    function onEnter() {
+      paused = true;
+      pause();
+    }
+    function onLeave() {
+      paused = false;
+      play();
+    }
+    function onFocusOut(e) {
+      if (!root.contains(e.relatedTarget)) onLeave();
+    }
+    function onVisibility() {
+      if (document.hidden) pause();
+      else if (!paused) play();
+    }
+    function onPrev(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      goTo(index - 1);
+      play();
+    }
+    function onNext(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      goTo(index + 1);
+      play();
+    }
+    function onDot(e) {
+      const i = Number(e.currentTarget.getAttribute("data-promo-dot"));
+      if (Number.isFinite(i)) goTo(i);
+      play();
+    }
+    function onKey(e) {
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        goTo(index - 1);
+        play();
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        goTo(index + 1);
+        play();
+      }
+    }
+    function onPointerDown(e) {
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      pointerActive = true;
+      pointerStartX = e.clientX;
+      pointerStartY = e.clientY;
+      swiped = false;
+      paused = true;
+      pause();
+    }
+    function onPointerUp(e) {
+      if (!pointerActive) return;
+      pointerActive = false;
+      const dx = e.clientX - pointerStartX;
+      const dy = e.clientY - pointerStartY;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+        swiped = true;
+        if (dx < 0) goTo(index + 1);
+        else goTo(index - 1);
+      }
+      paused = false;
+      play();
+    }
+    function onPointerCancel() {
+      pointerActive = false;
+      paused = false;
+      play();
+    }
+    function onClickCapture(e) {
+      if (swiped) {
+        e.preventDefault();
+        e.stopPropagation();
+        swiped = false;
+      }
+    }
+
+    track.addEventListener("transitionend", onTransitionEnd);
+    root.addEventListener("mouseenter", onEnter);
+    root.addEventListener("mouseleave", onLeave);
+    root.addEventListener("focusin", onEnter);
+    root.addEventListener("focusout", onFocusOut);
+    viewport.addEventListener("keydown", onKey);
+    viewport.addEventListener("pointerdown", onPointerDown);
+    viewport.addEventListener("click", onClickCapture, true);
+    window.addEventListener("pointerup", onPointerUp);
+    window.addEventListener("pointercancel", onPointerCancel);
+    document.addEventListener("visibilitychange", onVisibility);
+    if (prevBtn) prevBtn.addEventListener("click", onPrev);
+    if (nextBtn) nextBtn.addEventListener("click", onNext);
+    dots.forEach(function (dot) {
+      dot.addEventListener("click", onDot);
+    });
+
+    promoCarousel = {
+      timer: null,
+      cleanup: function () {
+        track.removeEventListener("transitionend", onTransitionEnd);
+        root.removeEventListener("mouseenter", onEnter);
+        root.removeEventListener("mouseleave", onLeave);
+        root.removeEventListener("focusin", onEnter);
+        root.removeEventListener("focusout", onFocusOut);
+        viewport.removeEventListener("keydown", onKey);
+        viewport.removeEventListener("pointerdown", onPointerDown);
+        viewport.removeEventListener("click", onClickCapture, true);
+        window.removeEventListener("pointerup", onPointerUp);
+        window.removeEventListener("pointercancel", onPointerCancel);
+        document.removeEventListener("visibilitychange", onVisibility);
+        if (prevBtn) prevBtn.removeEventListener("click", onPrev);
+        if (nextBtn) nextBtn.removeEventListener("click", onNext);
+        dots.forEach(function (dot) {
+          dot.removeEventListener("click", onDot);
+        });
+      },
+    };
+
+    applyPos(true);
+    syncUi();
+    play();
   }
 
   function pickFeatured() {
@@ -1583,8 +1928,8 @@
       '<p class="form-note">This is a demo checkout. Submitting opens an email to North America Lighting with your order. You will also get an on-page confirmation with an order number. Invoice and payment instructions follow by email. No payment is taken on this page unless you use Pay with card and a payment proxy has been configured.</p>' +
       '<div class="checkout-grid">' +
       '<form class="form" data-checkout-form novalidate>' +
-      "<label>Company name *<input name='company' required autocomplete='organization' value='" + v(acc && acc.company) + "'></label>" +
-      "<label>Your name *<input name='name' required autocomplete='name' value='" + v(acc && acc.name) + "'></label>" +
+      "<label>Company/Organization Name (optional)<input name='company' autocomplete='organization' value='" + v(acc && acc.company) + "'></label>" +
+      "<label>Recipient Name *<input name='name' required autocomplete='name' value='" + v(acc && acc.name) + "'></label>" +
       "<label>Email *<input name='email' type='email' required autocomplete='email' value='" + v(acc && acc.email) + "'></label>" +
       "<label>Phone *<input name='phone' type='tel' required autocomplete='tel' value='" + v(acc && acc.phone) + "'></label>" +
       (pickup
@@ -1932,8 +2277,8 @@
     lines.push("Date: " + formatLocal(order.createdAt));
     lines.push("");
     lines.push("BILL TO");
-    lines.push("Company: " + order.customer.company);
-    lines.push("Name: " + order.customer.name);
+    lines.push("Company/Organization: " + (order.customer.company || ""));
+    lines.push("Recipient Name: " + order.customer.name);
     lines.push("Email: " + order.customer.email);
     lines.push("Phone: " + order.customer.phone);
     lines.push("");
@@ -2102,6 +2447,7 @@
 
   function render() {
     if (!state.catalog) return;
+    stopPromoCarousel();
     const { parts, qs } = parseRoute();
     const root = parts[0] || "";
     let html;
@@ -2123,6 +2469,7 @@
     updateAuthLinks();
     closeMenu();
     window.scrollTo(0, 0);
+    initPromoCarousel();
   }
 
   function closeMenu() {

@@ -197,42 +197,144 @@ p { margin: 0 0 1rem; }
 .hero-meta { margin-top: 1.4rem; font-size: 0.92rem; color: rgba(251, 250, 246, 0.7); }
 .hero-meta a { color: var(--gold-2); text-decoration: none; }
 
-.hero-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.6rem;
+/* Homepage Promotion carousel — no visible frame, no dark header bar */
+.promo-carousel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  min-width: 0;
 }
-.hero-grid figure {
-  margin: 0;
-  background: var(--navy-2);
-  border: 1px solid rgba(201, 162, 74, 0.2);
+.promo-kicker {
+  color: var(--gold-2);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.promo-viewport {
+  overflow: hidden;
+  width: 100%;
+  position: relative;
+  touch-action: pan-y;
+}
+.promo-track {
+  display: flex;
+  width: 100%;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+.promo-slide {
+  flex: 0 0 100%;
+  width: 100%;
+  min-width: 0;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+  cursor: pointer;
+}
+.promo-slide:focus { outline: none; }
+.promo-slide:focus-visible .promo-frame {
+  box-shadow: 0 0 0 2px var(--gold-2);
+}
+.promo-frame {
+  position: relative;
+  width: 100%;
   aspect-ratio: 1;
+  background: #fff;
+  border: 0;
+  border-radius: 12px;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
 }
-.hero-grid img { width: 100%; height: 100%; object-fit: contain; background: #152538; }
-.hero-grid figure:nth-child(2) { transform: translateY(0.8rem); }
-.hero-grid figure:nth-child(3) { transform: translateY(-0.8rem); }
-.hero-grid figure:hover,
-.hero-grid figure:focus-within { border-color: var(--gold); }
-.hero-grid .hero-tile {
+.promo-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #fff;
+  display: block;
+}
+.promo-caption {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: rgba(251, 250, 246, 0.88);
+  text-align: center;
+}
+.promo-controls {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  height: 100%;
-  text-decoration: none;
-  color: inherit;
+  gap: 0.15rem;
+}
+.promo-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
+}
+.promo-dot,
+.promo-nav {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 0;
+  background: transparent;
+  color: rgba(251, 250, 246, 0.7);
+  padding: 0;
+  margin: 0;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.promo-dot {
+  width: 2rem;
+  height: 2rem;
   position: relative;
 }
-.hero-grid .hero-tile:focus { outline: none; }
-.hero-grid .hero-tile:focus-visible {
-  outline: none;
-  box-shadow: inset 0 0 0 2px var(--gold-2);
+.promo-dot::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(251, 250, 246, 0.35);
+}
+.promo-dot.is-active::after {
+  background: var(--gold-2);
+  width: 0.68rem;
+  height: 0.68rem;
+}
+.promo-dot:focus,
+.promo-nav:focus { outline: none; }
+.promo-dot:focus-visible::after,
+.promo-nav:focus-visible {
+  box-shadow: 0 0 0 2px var(--gold-2);
+  border-radius: 50%;
+}
+.promo-nav {
+  width: 2rem;
+  height: 2rem;
+  color: var(--gold-2);
+  border-radius: 50%;
+}
+.promo-nav:hover { color: var(--white); }
+.promo-frame .lens-badge {
+  left: 0.7rem;
+  bottom: 0.7rem;
+  font-size: 0.93rem;
+  padding: 0.32rem 0.7rem 0.34rem;
+}
+@media (prefers-reduced-motion: reduce) {
+  .promo-track { transition: none; }
 }
 .lens-badge {
   position: absolute;
@@ -252,12 +354,6 @@ p { margin: 0 0 1rem; }
   white-space: nowrap;
   pointer-events: none;
   box-shadow: 0 1px 6px rgba(1, 19, 55, 0.28);
-}
-.hero-grid .lens-badge {
-  left: 0.4rem;
-  bottom: 0.4rem;
-  font-size: 0.84rem;
-  padding: 0.28rem 0.58rem 0.3rem;
 }
 .product-card .thumb { position: relative; }
 .gallery { position: relative; }
@@ -288,7 +384,7 @@ p { margin: 0 0 1rem; }
 .product-features li:last-child { margin-bottom: 0; }
 @media (max-width: 420px) {
   .lens-badge,
-  .hero-grid .lens-badge {
+  .promo-frame .lens-badge {
     font-size: 0.74rem;
     letter-spacing: 0.01em;
     left: 0.28rem;
