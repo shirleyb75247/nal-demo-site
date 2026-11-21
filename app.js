@@ -796,18 +796,55 @@
   function closeMenu() {
     const menu = document.getElementById("mobile-menu");
     const btn = document.getElementById("menu-toggle");
-    if (menu) menu.hidden = true;
+    if (menu) {
+      menu.hidden = true;
+      menu.classList.remove("is-open");
+    }
     if (btn) btn.setAttribute("aria-expanded", "false");
   }
+
+  function openMenu() {
+    const menu = document.getElementById("mobile-menu");
+    const btn = document.getElementById("menu-toggle");
+    if (menu) {
+      menu.hidden = false;
+      menu.classList.add("is-open");
+    }
+    if (btn) btn.setAttribute("aria-expanded", "true");
+  }
+
+  function isMenuOpen() {
+    const menu = document.getElementById("mobile-menu");
+    return !!(menu && !menu.hidden);
+  }
+
+  function isHoverDevice() {
+    return window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  }
+
+  const menuWrap = document.getElementById("menu-wrap");
+  if (menuWrap) {
+    menuWrap.addEventListener("mouseleave", () => {
+      if (isHoverDevice()) closeMenu();
+    });
+  }
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeMenu();
+  });
 
   document.addEventListener("click", (e) => {
     const toggle = e.target.closest("#menu-toggle");
     if (toggle) {
-      const menu = document.getElementById("mobile-menu");
-      const open = menu.hidden;
-      menu.hidden = !open;
-      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+      if (isMenuOpen()) closeMenu();
+      else openMenu();
       return;
+    }
+
+    if (e.target.closest("#mobile-menu a")) {
+      closeMenu();
+    } else if (isMenuOpen() && !e.target.closest("#menu-wrap")) {
+      closeMenu();
     }
 
     const optBtn = e.target.closest("[data-option]");

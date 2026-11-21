@@ -117,23 +117,45 @@ p { margin: 0 0 1rem; }
   padding: 0 0.35rem;
 }
 .nav-mobile-actions { display: flex; align-items: center; gap: 0.9rem; }
+.menu-wrap { position: relative; }
 .menu-toggle {
   background: transparent;
   border: 1px solid rgba(255,255,255,0.25);
   color: var(--white);
-  padding: 0.3rem 0.7rem;
+  padding: 0.28rem 0.45rem;
   border-radius: 4px;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
 }
+.menu-toggle[aria-expanded="true"] { border-color: var(--gold-2); color: var(--gold-2); }
+.hamburger { display: block; }
 .mobile-menu {
-  display: flex;
+  display: none;
+  position: absolute;
+  top: calc(100% + 0.45rem);
+  right: 0;
+  min-width: 15.5rem;
   flex-direction: column;
-  padding: 0.25rem 1.25rem 1rem;
-  gap: 0.65rem;
-  border-top: 1px solid rgba(255,255,255,0.08);
+  gap: 0;
+  padding: 0.4rem 0;
+  background: var(--navy-2);
+  border: 1px solid rgba(201, 162, 74, 0.28);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
+  z-index: 60;
 }
-.mobile-menu a { color: var(--white); text-decoration: none; font-weight: 600; }
-.mobile-menu a:hover { color: var(--gold-2); }
+.mobile-menu.is-open,
+.mobile-menu:not([hidden]) { display: flex; }
+.mobile-menu[hidden] { display: none !important; }
+.mobile-menu a {
+  color: var(--white);
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0.7rem 1.05rem;
+}
+.mobile-menu a:hover { color: var(--gold-2); background: rgba(255,255,255,0.05); }
 
 #app { flex: 1; }
 .page-loading, .page-error { padding: 4rem 1.25rem; text-align: center; color: var(--ink-soft); }
@@ -510,7 +532,7 @@ p { margin: 0 0 1rem; }
 
 @media (min-width: 720px) {
   .nav-desktop { display: flex; }
-  .nav-mobile-actions .cart-link, .menu-toggle, .mobile-menu { display: none !important; }
+  .nav-mobile-actions .cart-link, .menu-toggle, .mobile-menu, .menu-wrap { display: none !important; }
   .hero-inner { grid-template-columns: 1.1fr 0.9fr; align-items: center; }
   .cat-grid { grid-template-columns: repeat(5, 1fr); }
   .product-grid { grid-template-columns: repeat(3, 1fr); gap: 1rem; }
