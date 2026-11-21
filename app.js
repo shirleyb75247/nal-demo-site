@@ -6,10 +6,11 @@
   const ORIGIN_ZIP = "75247";
   // Empty keeps the email-only order flow. Set to a Cloudflare Worker URL
   // (see /worker) to show "Pay with card (Square)". Never put a Square token here.
-  const PAYMENT_PROXY_URL = "https://nal-api.naltx75247.workers.dev";
+  // Primary API is the first-party custom domain; workers.dev remains deployed.
+  const PAYMENT_PROXY_URL = "https://api.naltx.com";
   // When set to the Worker origin (see /worker), auth, tax exemption, and tax
   // calculation use the server API instead of this browser-only demo.
-  const API_BASE_URL = "https://nal-api.naltx75247.workers.dev";
+  const API_BASE_URL = "https://api.naltx.com";
 
   const ACCOUNT_KEY = "nal-demo-accounts";
   const SESSION_KEY = "nal-demo-session";
@@ -127,9 +128,31 @@
     if (!key) return null;
     return loadAccounts().find((a) => a.email === key) || null;
   }
-  function setSession(email) {
-    if (!email) localStorage.removeItem(SESSION_KEY);
-    else saveJson(SESSION_KEY, { email: String(email).toLowerCase(), createdAt: new Date().toISOString() });
+  function setSession(email, token) {
+    if (!email) {
+      localStorage.removeItem(SESSION_KEY);
+      return;
+    }
+    const prev = loadJson(SESSION_KEY, null) || {};
+    const next = {
+      email: String(email).toLowerCase(),
+      createdAt: prev.createdAt || new Date().toISOString(),
+    };
+    const tok = token || prev.token || "";
+    if (tok) next.token = tok;
+    saveJson(SESSION_KEY, next);
+  }
+
+  function sessionToken() {
+    const s = loadJson(SESSION_KEY, null);
+    return s && s.token ? String(s.token) : "";
+  }
+
+  function authHeaders(extra) {
+    const headers = Object.assign({}, extra || {});
+    const token = sessionToken();
+    if (token && !headers.Authorization) headers.Authorization = "Bearer " + token;
+    return headers;
   }
   function upsertAccount(account) {
     const list = loadAccounts();
@@ -175,7 +198,9 @@
   }
   async function apiFetch(path, opts) {
     const base = String(API_BASE_URL).replace(/\/$/, "");
-    const res = await fetch(base + path, Object.assign({ credentials: "include" }, opts || {}));
+    const options = Object.assign({ credentials: "include" }, opts || {});
+    options.headers = authHeaders(options.headers);
+    const res = await fetch(base + path, options);
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || "Request failed (" + res.status + ")");
     return data;
@@ -341,13 +366,14 @@
     if (!password || String(password).length < 8) throw new Error("Password must be at least 8 characters.");
     if (findAccountByEmail(key)) throw new Error("An account with this email already exists. Sign in instead.");
     if (apiEnabled()) {
-      await apiFetch("/register", {
+      const data = await apiFetch("/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: key, password, company, name, phone, address }),
       });
-      setSession(key);
-      return findAccountByEmail(key) || { email: key, company, name, phone, address };
+      if (data.account) upsertAccount(data.account);
+      setSession(key, data.sessionToken);
+      return findAccountByEmail(key) || data.account || { email: key, company, name, phone, address };
     }
     const passwordRecord = await hashPassword(password);
     const account = {
@@ -369,12 +395,13 @@
   async function signIn(email, password) {
     const key = String(email || "").trim().toLowerCase();
     if (apiEnabled()) {
-      await apiFetch("/login", {
+      const data = await apiFetch("/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: key, password }),
       });
-      setSession(key);
+      if (data.account) upsertAccount(data.account);
+      setSession(key, data.sessionToken);
       return true;
     }
     const acc = findAccountByEmail(key);
@@ -385,8 +412,29 @@
     return acc;
   }
 
-  function signOut() {
+  async function signOut() {
+    if (apiEnabled()) {
+      try {
+        await apiFetch("/logout", { method: "POST" });
+      } catch (err) {
+        /* local session is still cleared below */
+      }
+    }
     setSession("");
+  }
+
+  async function hydrateApiSession() {
+    if (!apiEnabled() || (!sessionToken() && !sessionEmail())) return;
+    try {
+      const data = await apiFetch("/me");
+      if (data && data.account) {
+        upsertAccount(data.account);
+        setSession(data.account.email, sessionToken());
+        updateAuthLinks();
+      }
+    } catch (err) {
+      if (sessionToken()) setSession("");
+    }
   }
 
   function approveApplication(appId) {
@@ -2148,10 +2196,11 @@
     const out = e.target.closest("[data-sign-out]");
     if (out) {
       e.preventDefault();
-      signOut();
-      updateAuthLinks();
-      location.hash = "#/signin";
-      render();
+      signOut().finally(() => {
+        updateAuthLinks();
+        location.hash = "#/signin";
+        render();
+      });
       return;
     }
 
@@ -2488,7 +2537,7 @@
       const res = await fetch(PAYMENT_PROXY_URL, {
         method: "POST",
         credentials: "include",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify({
           orderNumber: order.orderNumber,
           customer: order.customer,
@@ -2569,6 +2618,7 @@
   updateAuthLinks();
   fillWatermark();
   loadZip3().catch(() => {});
+  hydrateApiSession().then(() => updateAuthLinks()).catch(() => {});
 
   loadCatalog().catch((err) => {
     $app().innerHTML =
