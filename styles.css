@@ -778,3 +778,6 @@ p { margin: 0 0 1rem; }
   pointer-events: none;
   cursor: not-allowed;
 }
+
+/* Grid thumbnails: no warranty badge (shown on product detail page only) */
+.product-card .warranty-badge { display: none !important; }
