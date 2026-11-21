@@ -237,6 +237,7 @@
   function post(path, payload) {
     payload.sessionId = state.sessionId;
     payload.page = location.href.slice(0, 300);
+    if (!payload.lang) payload.lang = state.lang;
     payload.messages = wireMessages();
     return fetch(BASE + path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) })
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { d.__status = r.status; return d; }); });
