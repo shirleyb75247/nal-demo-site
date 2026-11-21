@@ -848,14 +848,27 @@
       escapeHtml(c.email) +
       "</a></div>" +
       "</div>" +
-      '<div class="hero-grid" aria-hidden="true">' +
+      '<div class="hero-grid">' +
       heroImgs
-        .map(
-          (p) =>
-            "<figure><img src=\"" +
+        .map((p) => {
+          const note =
+            p.slug === "wall-pack"
+              ? '<span class="hero-lens-note">Thick glass lens, same as traditional wall packs — won\'t be damaged by the sun</span>'
+              : "";
+          return (
+            "<figure><a class=\"hero-tile\" href=\"#/product/" +
+            encodeURIComponent(p.slug) +
+            '" aria-label="' +
+            escapeHtml(p.displayName) +
+            '"><img src="' +
             escapeHtml(p.thumbs[0]) +
-            '" alt=""></figure>'
-        )
+            '" alt="' +
+            escapeHtml(p.displayName) +
+            '">' +
+            note +
+            "</a></figure>"
+          );
+        })
         .join("") +
       "</div></div></section>" +
       '<section class="wrap">' +
