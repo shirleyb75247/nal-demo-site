@@ -6,7 +6,32 @@
   const ORIGIN_ZIP = "75247";
   // Empty keeps the email-only order flow. Set to a Cloudflare Worker URL
   // (see /worker) to show "Pay with card (Square)". Never put a Square token here.
-  const PAYMENT_PROXY_URL = "";
+  const PAYMENT_PROXY_URL = "https://nal-api.naltx75247.workers.dev";
+  // When set to the Worker origin (see /worker), auth, tax exemption, and tax
+  // calculation use the server API instead of this browser-only demo.
+  const API_BASE_URL = "https://nal-api.naltx75247.workers.dev";
+
+  const ACCOUNT_KEY = "nal-demo-accounts";
+  const SESSION_KEY = "nal-demo-session";
+  const APPLY_KEY = "nal-demo-applications";
+
+  // All sales-tax rates and nexus rules live in this one config object.
+  const TAX_CONFIG = {
+    originState: "TX",
+    originZip: "75247",
+    originCity: "Dallas",
+    // NAL is assumed to have sales-tax nexus only in Texas unless updated here.
+    nexusStates: ["TX"],
+    texas: {
+      stateRate: 0.0625,
+      localRate: 0.02, // Dallas local portion
+      combinedRate: 0.0825,
+      // In Texas, delivery charges on taxable items are taxable.
+      shippingTaxable: true,
+    },
+  };
+
+  const WARRANTY_BADGE_TEXT = "1 Year Replacement Warranty";
 
   const state = {
     catalog: null,
@@ -57,6 +82,353 @@
   function saveOrders(orders) {
     localStorage.setItem(ORDER_KEY, JSON.stringify(orders));
   }
+
+  /* ---------- tax, accounts, warranty (demo, browser-only unless API_BASE_URL is set) ---------- */
+
+  function loadJson(key, fallback) {
+    try {
+      const raw = JSON.parse(localStorage.getItem(key) || "null");
+      return raw == null ? fallback : raw;
+    } catch {
+      return fallback;
+    }
+  }
+  function saveJson(key, value) {
+    localStorage.setItem(key, JSON.stringify(value));
+  }
+  function loadAccounts() {
+    const raw = loadJson(ACCOUNT_KEY, []);
+    return Array.isArray(raw) ? raw : [];
+  }
+  function saveAccounts(list) {
+    saveJson(ACCOUNT_KEY, list);
+  }
+  function loadApplications() {
+    const raw = loadJson(APPLY_KEY, []);
+    return Array.isArray(raw) ? raw : [];
+  }
+  function saveApplications(list) {
+    saveJson(APPLY_KEY, list);
+  }
+  function sessionEmail() {
+    const s = loadJson(SESSION_KEY, null);
+    return s && s.email ? String(s.email).toLowerCase() : "";
+  }
+  function isSignedIn() {
+    return !!currentAccount();
+  }
+  function currentAccount() {
+    const email = sessionEmail();
+    if (!email) return null;
+    return findAccountByEmail(email);
+  }
+  function findAccountByEmail(email) {
+    const key = String(email || "").trim().toLowerCase();
+    if (!key) return null;
+    return loadAccounts().find((a) => a.email === key) || null;
+  }
+  function setSession(email) {
+    if (!email) localStorage.removeItem(SESSION_KEY);
+    else saveJson(SESSION_KEY, { email: String(email).toLowerCase(), createdAt: new Date().toISOString() });
+  }
+  function upsertAccount(account) {
+    const list = loadAccounts();
+    const i = list.findIndex((a) => a.email === account.email);
+    if (i >= 0) list[i] = account;
+    else list.push(account);
+    saveAccounts(list);
+    return account;
+  }
+  function newId(prefix) {
+    return (
+      prefix +
+      "-" +
+      Date.now().toString(36).toUpperCase() +
+      "-" +
+      Math.random().toString(36).slice(2, 8).toUpperCase()
+    );
+  }
+
+  async function hashPassword(password, saltB64) {
+    const enc = new TextEncoder();
+    const salt = saltB64
+      ? Uint8Array.from(atob(saltB64), (c) => c.charCodeAt(0))
+      : crypto.getRandomValues(new Uint8Array(16));
+    const key = await crypto.subtle.importKey("raw", enc.encode(password), "PBKDF2", false, ["deriveBits"]);
+    const bits = await crypto.subtle.deriveBits(
+      { name: "PBKDF2", salt, iterations: 100000, hash: "SHA-256" },
+      key,
+      256
+    );
+    const hash = btoa(String.fromCharCode.apply(null, Array.from(new Uint8Array(bits))));
+    const saltOut = btoa(String.fromCharCode.apply(null, Array.from(salt)));
+    return { hash, salt: saltOut, iterations: 100000 };
+  }
+  async function verifyPassword(password, record) {
+    if (!record || !record.hash || !record.salt) return false;
+    const { hash } = await hashPassword(password, record.salt);
+    return hash === record.hash;
+  }
+
+  function apiEnabled() {
+    return !!(API_BASE_URL && String(API_BASE_URL).trim());
+  }
+  async function apiFetch(path, opts) {
+    const base = String(API_BASE_URL).replace(/\/$/, "");
+    const res = await fetch(base + path, Object.assign({ credentials: "include" }, opts || {}));
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || "Request failed (" + res.status + ")");
+    return data;
+  }
+
+  function isTexasZip(zip) {
+    const z = normalizeZip(zip);
+    if (!z) return false;
+    const n = parseInt(z, 10);
+    if (n >= 75000 && n <= 79999) return true;
+    if (n >= 88500 && n <= 88599) return true;
+    if (z.slice(0, 3) === "733") return true;
+    return false;
+  }
+
+  function isTaxExemptAccount(account) {
+    return !!(account && account.exemption && account.exemption.status === "approved");
+  }
+
+  function computeTax({ subtotal, shippingAmount, method, destZip, account }) {
+    const cfg = TAX_CONFIG;
+    if (isTaxExemptAccount(account)) {
+      return {
+        amount: 0,
+        rate: 0,
+        label: "Tax exempt — permit #" + (account.exemption.permitNumber || "on file"),
+        appliesToShipping: cfg.texas.shippingTaxable,
+        jurisdiction: "exempt",
+        estimated: false,
+        exempt: true,
+        taxableBase: 0,
+        pending: false,
+        note: "A signed-in, approved resale exemption is on this account. Sales tax is not charged.",
+      };
+    }
+    if (!method || (method === "ship" && shippingAmount == null && !normalizeZip(destZip))) {
+      return { amount: null, rate: null, label: "Sales tax", pending: true, exempt: false };
+    }
+    const inTX = method === "pickup" || isTexasZip(destZip);
+    const inNexus = inTX && cfg.nexusStates.indexOf("TX") >= 0;
+    if (!inNexus) {
+      return {
+        amount: 0,
+        rate: 0,
+        label: "Sales tax (out of state — no nexus)",
+        appliesToShipping: false,
+        jurisdiction: "none",
+        estimated: false,
+        exempt: false,
+        taxableBase: 0,
+        pending: false,
+        note: "No sales tax is collected on shipments outside Texas. NAL is assumed to have nexus only in Texas. Shipping charges are also not taxed on out-of-state orders.",
+      };
+    }
+    const rate = cfg.texas.combinedRate;
+    const ship = cfg.texas.shippingTaxable ? shippingAmount || 0 : 0;
+    const base = (subtotal || 0) + ship;
+    const amount = Math.round(base * rate);
+    const pickup = method === "pickup";
+    return {
+      amount,
+      rate,
+      label: pickup ? "Sales tax (Dallas, TX 8.25%)" : "Sales tax (TX estimate, 8.25%)",
+      appliesToShipping: true,
+      jurisdiction: pickup ? "Dallas, TX" : "Texas",
+      estimated: !pickup,
+      exempt: false,
+      taxableBase: base,
+      pending: false,
+      note: pickup
+        ? "Dallas combined rate of 8.25% (6.25% state + 2% local). In Texas, delivery charges on taxable items are taxable. Warehouse pickup is taxed at the Dallas location rate."
+        : "Estimated at the 8.25% origin combined rate. Texas generally sources sales tax for in-state sellers to the origin. Final tax is confirmed on the invoice. In Texas, delivery charges on taxable items are taxable, so this estimate includes tax on shipping.",
+    };
+  }
+
+  function currentTax() {
+    const { subtotal } = cartTotals();
+    const method = state.shipping.method;
+    const destZip =
+      method === "pickup"
+        ? TAX_CONFIG.originZip
+        : (state.shipping.estimate && state.shipping.estimate.destZip) || state.shipping.zip;
+    const signedIn = currentAccount();
+    return computeTax({
+      subtotal,
+      shippingAmount: shippingReady() ? shippingAmount() : null,
+      method,
+      destZip,
+      account: signedIn,
+    });
+  }
+
+  function isClearance(p) {
+    if (!p) return false;
+    const bits = [p.name, p.displayName, p.category].concat(p.badges || []);
+    return bits.some((s) => String(s || "").toLowerCase().includes("clearance"));
+  }
+  function warrantyBadgeHtml(p) {
+    if (!p || isClearance(p)) return "";
+    return '<span class="warranty-badge">' + escapeHtml(WARRANTY_BADGE_TEXT) + "</span>";
+  }
+  function guaranteeBannerHtml() {
+    return (
+      '<div class="guarantee-banner" role="region" aria-label="Replacement guarantee">' +
+      '<svg class="shield" viewBox="0 0 24 24" aria-hidden="true" fill="none">' +
+      '<path d="M12 2.5 4.5 5.5v6.2c0 5 3.3 8.6 7.5 9.8 4.2-1.2 7.5-4.8 7.5-9.8V5.5L12 2.5z" stroke="currentColor" stroke-width="1.7" fill="rgba(201,162,74,0.18)"/>' +
+      '<path d="M8.2 12.1 11 15l4.8-6" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>' +
+      "</svg>" +
+      "<div><strong>Premium Quality · 1-Year In-Store Replacement Guarantee</strong>" +
+      "<p>Defective within 1 year? We replace it — bring it to our Dallas location or contact us.</p></div></div>"
+    );
+  }
+
+  function updateAuthLinks() {
+    const acc = currentAccount();
+    document.querySelectorAll("[data-auth-link]").forEach((a) => {
+      if (acc) {
+        a.setAttribute("href", "#/account");
+        a.textContent = "My account";
+      } else {
+        a.setAttribute("href", "#/signin");
+        a.textContent = "Sign in";
+      }
+    });
+  }
+
+  function formErrorHtml(msg) {
+    return msg ? '<p class="checkout-error" data-form-error>' + escapeHtml(msg) + "</p>" : "";
+  }
+
+  function emailPreviewHtml(mail) {
+    if (!mail) return "";
+    return (
+      '<div class="email-preview" data-email-preview>' +
+      "<h3>" +
+      escapeHtml(mail.title || "Email preview (demo — not sent)") +
+      "</h3>" +
+      '<div class="mail-meta"><strong>To:</strong> ' +
+      escapeHtml(mail.to) +
+      "<br><strong>Subject:</strong> " +
+      escapeHtml(mail.subject) +
+      "</div>" +
+      "<pre>" +
+      escapeHtml(mail.body) +
+      "</pre></div>"
+    );
+  }
+
+  function lastMail() {
+    return loadJson("nal-demo-last-mail", null);
+  }
+  function setLastMail(mail) {
+    saveJson("nal-demo-last-mail", mail);
+  }
+
+  function validTexasPermit(num) {
+    return /^\d{11}$/.test(String(num || "").replace(/\s+/g, ""));
+  }
+
+  async function registerAccount({ email, password, company, name, phone, address }) {
+    const key = String(email || "").trim().toLowerCase();
+    if (!key || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(key)) throw new Error("Enter a valid email address.");
+    if (!password || String(password).length < 8) throw new Error("Password must be at least 8 characters.");
+    if (findAccountByEmail(key)) throw new Error("An account with this email already exists. Sign in instead.");
+    if (apiEnabled()) {
+      await apiFetch("/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: key, password, company, name, phone, address }),
+      });
+      setSession(key);
+      return findAccountByEmail(key) || { email: key, company, name, phone, address };
+    }
+    const passwordRecord = await hashPassword(password);
+    const account = {
+      id: newId("ACC"),
+      email: key,
+      password: passwordRecord,
+      company: (company || "").trim(),
+      name: (name || "").trim(),
+      phone: (phone || "").trim(),
+      address: (address || "").trim(),
+      createdAt: new Date().toISOString(),
+      exemption: null,
+    };
+    upsertAccount(account);
+    setSession(key);
+    return account;
+  }
+
+  async function signIn(email, password) {
+    const key = String(email || "").trim().toLowerCase();
+    if (apiEnabled()) {
+      await apiFetch("/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: key, password }),
+      });
+      setSession(key);
+      return true;
+    }
+    const acc = findAccountByEmail(key);
+    if (!acc) throw new Error("No account found for that email.");
+    const ok = await verifyPassword(password, acc.password);
+    if (!ok) throw new Error("That password is not correct.");
+    setSession(key);
+    return acc;
+  }
+
+  function signOut() {
+    setSession("");
+  }
+
+  function approveApplication(appId) {
+    const apps = loadApplications();
+    const app = apps.find((a) => a.id === appId);
+    if (!app) return { error: "Application not found." };
+    app.status = "approved";
+    app.approvedAt = new Date().toISOString();
+    saveApplications(apps);
+    const acc = findAccountByEmail(app.email);
+    if (acc) {
+      acc.exemption = {
+        status: "approved",
+        permitNumber: app.permitNumber,
+        permitState: app.permitState,
+        legalName: app.legalName,
+        applicationId: app.id,
+        approvedAt: app.approvedAt,
+      };
+      upsertAccount(acc);
+    }
+    const mail = {
+      title: "Customer approval email (demo — not sent)",
+      to: app.email,
+      subject: "Your NAL resale tax exemption was approved",
+      body:
+        "Hello " +
+        (app.contactName || app.legalName || "") +
+        ",\n\n" +
+        "Your resale tax exemption application has been approved.\n" +
+        "Permit / resale ID: " +
+        app.permitNumber +
+        " (" +
+        app.permitState +
+        ")\n\n" +
+        "Sign in to the NAL site and check out — sales tax will show as $0.00 with your permit number.\n\n" +
+        "North America Lighting LLC\n(214) 631-6666",
+    };
+    setLastMail(mail);
+    return { app, mail };
+  }
+
 
   function updateCartCounts() {
     const n = state.cart.reduce((s, l) => s + (l.qty || 0), 0);
@@ -146,6 +518,7 @@
       '<a class="product-card" href="#/product/' +
       encodeURIComponent(p.slug) +
       '">' +
+      warrantyBadgeHtml(p) +
       '<div class="thumb">' +
       thumbHtml(p) +
       "</div>" +
@@ -215,6 +588,7 @@
 
     return (
       '<section class="hero"><div class="hero-inner">' +
+      guaranteeBannerHtml() +
       "<div>" +
       '<div class="hero-kicker">Dallas, Texas · Wholesale · Commercial only</div>' +
       "<h1>Commercial LED lighting, built for trade.</h1>" +
@@ -480,6 +854,7 @@
         : placeholderSvg()) +
       "</div></div>" +
       '<div class="product-info">' +
+      warrantyBadgeHtml(p) +
       badgesHtml(p.badges) +
       "<h1>" +
       escapeHtml(p.displayName) +
@@ -713,8 +1088,14 @@
         ? "FREE"
         : money(shipAmt)
       : "Select a method";
-    const canTotal = shipReady && !(hasQuote && subtotal === 0);
-    const total = canTotal && shipAmt != null ? subtotal + shipAmt : null;
+    const tax = currentTax();
+    const taxReady = shipReady && tax && !tax.pending && tax.amount != null;
+    const canTotal = shipReady && !(hasQuote && subtotal === 0) && taxReady;
+    const total = canTotal && shipAmt != null ? subtotal + shipAmt + tax.amount : null;
+    const taxAmountLabel = !shipReady || tax.pending
+      ? "Select a method"
+      : money(tax.amount);
+    const taxClass = "summary-row tax" + (tax.exempt ? " tax-exempt" : "");
     return (
       '<div class="summary-row"><span>Subtotal</span><span>' +
       (hasQuote && subtotal === 0
@@ -726,13 +1107,22 @@
       "</span><span>" +
       escapeHtml(shipLine) +
       "</span></div>" +
+      '<div class="' +
+      taxClass +
+      '"><span>' +
+      escapeHtml(tax.label || "Sales tax") +
+      "</span><span>" +
+      escapeHtml(taxAmountLabel) +
+      "</span></div>" +
+      '<p class="resale-link"><a href="#/exemption">Resale tax exemption</a></p>' +
       (total != null
-        ? '<div class="summary-row total"><span>Estimated total</span><span>' +
+        ? '<div class="summary-row total"><span>Total</span><span>' +
           money(total) +
           (hasQuote ? " + items to quote" : "") +
           "</span></div>"
         : "") +
-      '<p class="form-note">Taxes and final freight are confirmed on the invoice. ' +
+      (tax.note ? '<p class="form-note">' + escapeHtml(tax.note) + "</p>" : "") +
+      '<p class="form-note">Final freight is confirmed on the invoice. ' +
       escapeHtml(ESTIMATE_NOTE) +
       ".</p>"
     );
@@ -872,15 +1262,27 @@
       ? '<button class="btn btn-pay btn-block" type="button" data-pay-square>Pay with card (Square)</button>' +
         '<p class="form-note">Card payments are taken on Square’s secure checkout page. Quote-only items cannot be charged online.</p>'
       : "";
+    const acc = currentAccount();
+    const v = (s) => escapeHtml(s || "");
+    const registerBox = acc
+      ? '<p class="form-note">Signed in as <strong>' +
+        escapeHtml(acc.email) +
+        '</strong>. <a href="#/account">My account</a></p>'
+      : '<div class="register-box">' +
+        '<label class="chk"><input type="checkbox" name="createAccount" data-create-account>' +
+        "<span>Create an account with this info" +
+        '<span class="hint">Only a password is needed. An account makes after-sales service easier.</span></span></label>' +
+        '<label data-reg-pass hidden>Password *<input type="password" name="newPassword" minlength="8" autocomplete="new-password"></label>' +
+        "</div>";
     return (
       '<section class="wrap"><h1>Checkout</h1>' +
       '<p class="form-note">This is a demo checkout. Submitting opens an email to North America Lighting with your order. You will also get an on-page confirmation with an order number. Invoice and payment instructions follow by email. No payment is taken on this page unless you use Pay with card and a payment proxy has been configured.</p>' +
       '<div class="checkout-grid">' +
       '<form class="form" data-checkout-form novalidate>' +
-      "<label>Company name *<input name='company' required autocomplete='organization'></label>" +
-      "<label>Your name *<input name='name' required autocomplete='name'></label>" +
-      "<label>Email *<input name='email' type='email' required autocomplete='email'></label>" +
-      "<label>Phone *<input name='phone' type='tel' required autocomplete='tel'></label>" +
+      "<label>Company name *<input name='company' required autocomplete='organization' value='" + v(acc && acc.company) + "'></label>" +
+      "<label>Your name *<input name='name' required autocomplete='name' value='" + v(acc && acc.name) + "'></label>" +
+      "<label>Email *<input name='email' type='email' required autocomplete='email' value='" + v(acc && acc.email) + "'></label>" +
+      "<label>Phone *<input name='phone' type='tel' required autocomplete='tel' value='" + v(acc && acc.phone) + "'></label>" +
       (pickup
         ? "<p class='form-note'><strong>Pickup at Dallas warehouse — FREE.</strong> " +
           escapeHtml(PICKUP_NOTE) +
@@ -891,6 +1293,8 @@
           escapeHtml(shipPlaceholder) +
           "'></textarea></label>") +
       "<label>PO number / notes<span class='hint'>Purchase order, job name, or delivery notes</span><textarea name='notes' placeholder='Optional'></textarea></label>" +
+      registerBox +
+      '<p class="checkout-error" data-reg-error hidden></p>' +
       '<button class="btn btn-gold btn-block" type="submit" name="submitEmail">Submit order request</button>' +
       payBtn +
       '<p class="checkout-error" data-pay-error hidden></p>' +
@@ -921,7 +1325,12 @@
     const order = orders.find((o) => o.orderNumber === orderNo);
     if (!order) {
       return (
-        '<section class="wrap"><h1>Order not found</h1><p>This confirmation is stored only in this browser. <a href="#/admin">View local orders</a>.</p></section>'
+        '<section class="wrap"><div class="confirm"><h1>Thanks — we have your order number</h1>' +
+        '<div class="order-no">' +
+        escapeHtml(orderNo || "") +
+        "</div>" +
+        "<p>If you just finished Square checkout, the payment was processed in Square Sandbox or live Square, depending on the link you used. Full line-item details appear here when you start checkout from this site in the same browser.</p>" +
+        '<p><a class="btn btn-navy" href="#/catalog">Continue browsing</a></p></div></section>'
       );
     }
     return (
@@ -930,18 +1339,17 @@
       '<div class="order-no">' +
       escapeHtml(order.orderNumber) +
       "</div>" +
-      "<p>Your request has been prepared for <strong>naltx75247@gmail.com</strong>. If your email app opened, send that message so we receive the order. If it did not, copy the details below and email them to us, or call (214) 631-6666.</p>" +
-      "<p>An invoice and payment instructions will follow. No payment was taken on this website.</p>" +
+      "<p>Your request has been prepared for <strong>naltx75247@gmail.com</strong>. If you paid with card, Square has the payment. If you sent an email request, we will follow up with an invoice.</p>" +
       '<div class="order-block">' +
       escapeHtml(formatOrderText(order)) +
       "</div>" +
       '<p style="margin-top:1.2rem"><a class="btn btn-navy" href="#/catalog">Continue browsing</a> ' +
-      '<a class="btn btn-outline" href="#/admin">View orders in this browser</a></p>' +
+      '<a class="btn btn-outline" href="#/account">View orders in this browser</a></p>' +
       "</div></section>"
     );
   }
 
-  function renderAdmin() {
+  function renderLocalOrders() {
     const orders = loadOrders();
     return (
       '<section class="wrap"><h1>Orders in this browser</h1>' +
@@ -969,6 +1377,235 @@
             .join("")
         : '<div class="empty">No orders have been placed in this browser yet.</div>') +
       "</section>"
+    );
+  }
+
+  function renderSignIn(err) {
+    if (isSignedIn()) {
+      location.hash = "#/account";
+      return renderAccount();
+    }
+    return (
+      '<section class="wrap"><h1>Sign in</h1>' +
+      '<p class="demo-callout">This is a browser-only demo. Accounts and passwords stay on this device. Passwords are hashed with PBKDF2 in your browser, but this is not a secure production system.</p>' +
+      '<form class="form" data-signin-form style="max-width:28rem">' +
+      formErrorHtml(err) +
+      "<label>Email *<input name='email' type='email' required autocomplete='username'></label>" +
+      "<label>Password *<input name='password' type='password' required autocomplete='current-password'></label>" +
+      '<button class="btn btn-navy" type="submit">Sign in</button></form>' +
+      '<p class="form-note">Regular customers can check out as guests. You can also create an account at checkout with one click. Need a resale tax exemption? <a href="#/exemption">Apply here</a> — exemption requires a registered, signed-in account.</p>' +
+      "</section>"
+    );
+  }
+
+  function renderAccount() {
+    const acc = currentAccount();
+    if (!acc) {
+      location.hash = "#/signin";
+      return renderSignIn();
+    }
+    const ex = acc.exemption;
+    let exHtml = '<p>No resale exemption is on this account. <a href="#/exemption">Apply for a resale tax exemption</a>.</p>';
+    if (ex && ex.status === "pending") {
+      exHtml = "<p>Your exemption application is pending review.</p>";
+    } else if (ex && ex.status === "approved") {
+      exHtml =
+        '<p class="tax-exempt"><strong>Tax exempt</strong> — permit #' +
+        escapeHtml(ex.permitNumber || "on file") +
+        (ex.permitState ? " (" + escapeHtml(ex.permitState) + ")" : "") +
+        ".</p>";
+    }
+    const mine = loadOrders().filter((o) => o.accountEmail && o.accountEmail.toLowerCase() === acc.email);
+    const alsoLocal = loadOrders();
+    return (
+      '<section class="wrap"><h1>My account</h1>' +
+      '<p class="demo-callout">Demo account stored only in this browser.</p>' +
+      "<p><strong>" +
+      escapeHtml(acc.name || acc.email) +
+      "</strong><br>" +
+      escapeHtml(acc.email) +
+      (acc.company ? "<br>" + escapeHtml(acc.company) : "") +
+      '</p>' +
+      "<h2>Tax exemption</h2>" +
+      exHtml +
+      '<p><button type="button" class="btn btn-outline" data-sign-out>Sign out</button></p>' +
+      "<h2>Orders on this account</h2>" +
+      (mine.length
+        ? mine
+            .slice()
+            .reverse()
+            .map(
+              (o) =>
+                '<article class="order-card"><h3><a href="#/order/' +
+                encodeURIComponent(o.orderNumber) +
+                '">' +
+                escapeHtml(o.orderNumber) +
+                "</a></h3>" +
+                '<div class="muted">' +
+                escapeHtml(formatLocal(o.createdAt)) +
+                " · " +
+                o.items.length +
+                (o.items.length === 1 ? " item" : " items") +
+                "</div></article>"
+            )
+            .join("")
+        : '<div class="empty">No orders on this account yet.</div>') +
+      (alsoLocal.length && alsoLocal.length !== mine.length
+        ? '<p class="form-note">Other demo orders placed as a guest in this browser are listed below.</p>' +
+          alsoLocal
+            .filter((o) => !o.accountEmail || o.accountEmail.toLowerCase() !== acc.email)
+            .reverse()
+            .map(
+              (o) =>
+                '<article class="order-card"><h3><a href="#/order/' +
+                encodeURIComponent(o.orderNumber) +
+                '">' +
+                escapeHtml(o.orderNumber) +
+                "</a></h3>" +
+                '<div class="muted">' +
+                escapeHtml(formatLocal(o.createdAt)) +
+                " · guest</div></article>"
+            )
+            .join("")
+        : "") +
+      "</section>"
+    );
+  }
+
+  function renderExemption(err, notice) {
+    const acc = currentAccount();
+    if (acc && isTaxExemptAccount(acc)) {
+      return (
+        '<section class="wrap"><h1>Resale tax exemption</h1>' +
+        '<p class="tax-exempt">This signed-in account is already tax exempt — permit #' +
+        escapeHtml(acc.exemption.permitNumber || "on file") +
+        ".</p>" +
+        '<p><a href="#/account">My account</a></p></section>'
+      );
+    }
+    const pending = acc && loadApplications().find((a) => a.email === acc.email && a.status === "pending");
+    const pre = acc || {};
+    return (
+      '<section class="wrap"><h1>Resale tax exemption</h1>' +
+      '<p class="demo-callout">This is a demo application. It is stored only in this browser and is not sent to NAL. Tax-exempt checkout requires a registered account, and you must be signed in for the exemption to apply. Passwords are hashed in the browser (PBKDF2) but this is not secure for production.</p>' +
+      (notice ? '<p class="form-note">' + escapeHtml(notice) + "</p>" : "") +
+      (pending
+        ? "<p>You already have a pending application (" +
+          escapeHtml(pending.id) +
+          "). The demo admin can approve it at <a href=\"#/admin\">Admin (demo)</a>.</p>"
+        : "") +
+      '<form class="form" data-exemption-form style="max-width:36rem">' +
+      formErrorHtml(err) +
+      (acc
+        ? "<p>Signed in as <strong>" + escapeHtml(acc.email) + "</strong>. Your exemption will be attached to this account.</p>"
+        : "<p><strong>Create an account</strong> (required for exemption). Email and password will be your sign-in.</p>") +
+      "<label>Business legal name *<input name='legalName' required value='" +
+      escapeHtml(pre.company || "") +
+      "'></label>" +
+      "<label>DBA (if different)<input name='dba'></label>" +
+      "<label>Contact name *<input name='contactName' required autocomplete='name' value='" +
+      escapeHtml(pre.name || "") +
+      "'></label>" +
+      "<label>Email *<input name='email' type='email' required autocomplete='email' value='" +
+      escapeHtml(pre.email || "") +
+      "'" +
+      (acc ? " readonly" : "") +
+      "></label>" +
+      (acc
+        ? ""
+        : "<label>Password *<span class='hint'>At least 8 characters. Required to register this account.</span><input name='password' type='password' required minlength='8' autocomplete='new-password'></label>") +
+      "<label>Phone *<input name='phone' type='tel' required autocomplete='tel' value='" +
+      escapeHtml(pre.phone || "") +
+      "'></label>" +
+      "<label>Business address *<textarea name='address' required>" +
+      escapeHtml(pre.address || "") +
+      "</textarea></label>" +
+      "<label>State of resale permit *<input name='permitState' required maxlength='2' placeholder='TX' value='TX' style='text-transform:uppercase'></label>" +
+      "<label>Texas Sales and Use Tax Permit number (11 digits) or other state resale ID *<input name='permitNumber' required placeholder='11-digit Texas permit or other state ID'></label>" +
+      "<label>Texas Form 01-339 resale certificate (upload)<span class='hint'>Demo stores only the file name, not the file. In production the certificate is kept on file.</span><input name='certificate' type='file' accept='.pdf,.jpg,.jpeg,.png'></label>" +
+      "<p class='file-name' data-file-name></p>" +
+      "<label class='chk'><input type='checkbox' name='attest' required> <span>I certify that I am authorized to sign, that the merchandise will be resold or incorporated into taxable services for resale, and that this information is true. I understand a valid resale certificate must be kept on file.</span></label>" +
+      '<button class="btn btn-gold" type="submit">Submit application</button></form>' +
+      (lastMail() && lastMail().kind === "apply" ? emailPreviewHtml(lastMail()) : "") +
+      "</section>"
+    );
+  }
+
+  function renderAdminDemo() {
+    const apps = loadApplications().slice().reverse();
+    const mail = lastMail();
+    return (
+      '<section class="wrap"><h1>Admin (demo)</h1>' +
+      '<p class="demo-callout">Hidden demo page for reviewing resale exemption applications stored in this browser. Approving marks the account tax-exempt and shows a customer email preview — no real email is sent.</p>' +
+      (mail ? emailPreviewHtml(mail) : "") +
+      (apps.length
+        ? apps
+            .map((a) => {
+              const pending = a.status === "pending";
+              return (
+                '<article class="app-card" data-app="' +
+                escapeHtml(a.id) +
+                '"><span class="status-pill ' +
+                escapeHtml(a.status) +
+                '">' +
+                escapeHtml(a.status) +
+                "</span>" +
+                "<h3>" +
+                escapeHtml(a.legalName) +
+                (a.dba ? " (DBA " + escapeHtml(a.dba) + ")" : "") +
+                "</h3>" +
+                "<p>" +
+                escapeHtml(a.contactName) +
+                " · " +
+                escapeHtml(a.email) +
+                " · " +
+                escapeHtml(a.phone) +
+                "<br>" +
+                escapeHtml(a.address) +
+                "<br>Permit: " +
+                escapeHtml(a.permitNumber) +
+                " (" +
+                escapeHtml(a.permitState) +
+                ")" +
+                (a.certificateFileName ? "<br>Certificate on file (name only): " + escapeHtml(a.certificateFileName) : "") +
+                "<br>Submitted " +
+                escapeHtml(formatLocal(a.submittedAt)) +
+                "</p>" +
+                (pending
+                  ? '<p><button type="button" class="btn btn-navy" data-approve-app="' +
+                    escapeHtml(a.id) +
+                    '">Approve</button> <a class="btn btn-outline" href="#/approve/' +
+                    encodeURIComponent(a.id) +
+                    '">Approve link</a></p>'
+                  : "<p>Approved " + escapeHtml(formatLocal(a.approvedAt || "")) + ".</p>") +
+                "</article>"
+              );
+            })
+            .join("")
+        : '<div class="empty">No exemption applications in this browser yet.</div>') +
+      "</section>"
+    );
+  }
+
+  function renderApprove(appId) {
+    const result = approveApplication(decodeURIComponent(appId || ""));
+    if (result.error) {
+      return (
+        '<section class="wrap"><h1>Approve exemption</h1>' +
+        "<p>" +
+        escapeHtml(result.error) +
+        '</p><p><a href="#/admin">Admin (demo)</a></p></section>'
+      );
+    }
+    return (
+      '<section class="wrap"><h1>Exemption approved</h1>' +
+      "<p>The account <strong>" +
+      escapeHtml(result.app.email) +
+      "</strong> is now tax exempt (permit #" +
+      escapeHtml(result.app.permitNumber) +
+      "). The customer would be emailed automatically in production.</p>" +
+      emailPreviewHtml(result.mail) +
+      '<p><a class="btn btn-navy" href="#/admin">Back to Admin (demo)</a></p></section>'
     );
   }
 
@@ -1053,12 +1690,38 @@
     } else if (shipAmt != null) {
       lines.push("SHIPPING: " + money(shipAmt) + (ship && ship.source === "estimate" ? " (estimate)" : ""));
     }
-    if (shipAmt != null && !(hasQuote && subtotal === 0)) {
+    const tax = order.tax || null;
+    if (tax) {
       lines.push(
-        "ESTIMATED TOTAL: " +
+        "SALES TAX: " +
+          (tax.amount == null ? "TBD" : money(tax.amount)) +
+          (tax.label ? " — " + tax.label : "") +
+          (tax.estimated ? " (estimate)" : "")
+      );
+      if (tax.exempt && tax.label) {
+        /* already in the label */
+      } else if (tax.appliesToShipping) {
+        lines.push("Tax applies to merchandise and to shipping (Texas rule for delivery charges on taxable items).");
+      } else if (tax.jurisdiction === "none") {
+        lines.push("No sales tax collected (shipment outside Texas; no nexus assumed outside TX).");
+      }
+    }
+    const taxAmt = tax && tax.amount != null ? tax.amount : 0;
+    if (shipAmt != null && !(hasQuote && subtotal === 0) && tax && tax.amount != null) {
+      lines.push(
+        "TOTAL: " +
+          money(subtotal + shipAmt + taxAmt) +
+          (hasQuote ? " + items to quote" : "")
+      );
+    } else if (shipAmt != null && !(hasQuote && subtotal === 0)) {
+      lines.push(
+        "ESTIMATED TOTAL (before tax): " +
           money(subtotal + shipAmt) +
           (hasQuote ? " + items to quote" : "")
       );
+    }
+    if (order.accountEmail) {
+      lines.push("Account: " + order.accountEmail);
     }
     lines.push("");
     if (order.payment && order.payment === "square-pending") {
@@ -1143,11 +1806,16 @@
     else if (root === "cart") html = renderCart();
     else if (root === "checkout") html = renderCheckout();
     else if (root === "order") html = renderConfirmation(decodeURIComponent(parts[1] || ""));
-    else if (root === "admin") html = renderAdmin();
+    else if (root === "admin") html = renderAdminDemo();
+    else if (root === "signin") html = renderSignIn();
+    else if (root === "account") html = renderAccount();
+    else if (root === "exemption") html = renderExemption();
+    else if (root === "approve") html = renderApprove(parts[1] || "");
     else if (root === "about") html = renderAbout();
     else html = '<section class="wrap"><h1>Page not found</h1><p><a href="#/">Home</a></p></section>';
     $app().innerHTML = html;
     updateCartCounts();
+    updateAuthLinks();
     closeMenu();
     window.scrollTo(0, 0);
   }
@@ -1259,6 +1927,24 @@
       e.preventDefault();
       const form = document.querySelector("[data-checkout-form]");
       if (form) startSquarePayment(form);
+      return;
+    }
+
+    const out = e.target.closest("[data-sign-out]");
+    if (out) {
+      e.preventDefault();
+      signOut();
+      updateAuthLinks();
+      location.hash = "#/signin";
+      render();
+      return;
+    }
+
+    const approveBtn = e.target.closest("[data-approve-app]");
+    if (approveBtn) {
+      e.preventDefault();
+      const id = approveBtn.getAttribute("data-approve-app");
+      location.hash = "#/approve/" + encodeURIComponent(id);
     }
   });
 
@@ -1274,6 +1960,21 @@
       } else {
         render();
       }
+      return;
+    }
+    if (e.target.matches("[data-create-account]")) {
+      const wrap = document.querySelector("[data-reg-pass]");
+      if (wrap) {
+        wrap.hidden = !e.target.checked;
+        const input = wrap.querySelector("input");
+        if (input) input.required = e.target.checked;
+      }
+      return;
+    }
+    if (e.target.matches("input[name='certificate']")) {
+      const el = document.querySelector("[data-file-name]");
+      const file = e.target.files && e.target.files[0];
+      if (el) el.textContent = file ? "Selected: " + file.name : "";
       return;
     }
     if (e.target.matches("input[name='ship-method']")) {
@@ -1324,8 +2025,128 @@
     if (checkout) {
       e.preventDefault();
       submitEmailOrder(checkout);
+      return;
+    }
+
+    const signin = e.target.closest("[data-signin-form]");
+    if (signin) {
+      e.preventDefault();
+      handleSignIn(signin);
+      return;
+    }
+
+    const apply = e.target.closest("[data-exemption-form]");
+    if (apply) {
+      e.preventDefault();
+      handleExemption(apply);
     }
   });
+
+  async function handleSignIn(form) {
+    if (!form.reportValidity()) return;
+    try {
+      await signIn(form.email.value.trim(), form.password.value);
+      updateAuthLinks();
+      location.hash = "#/account";
+    } catch (err) {
+      $app().innerHTML = renderSignIn(err.message || "Could not sign in.");
+    }
+  }
+
+  async function handleExemption(form) {
+    if (!form.reportValidity()) return;
+    const permitState = (form.permitState.value || "").trim().toUpperCase();
+    const rawPermit = (form.permitNumber.value || "").trim();
+    const permitNumber = permitState === "TX" ? rawPermit.replace(/\D/g, "") : rawPermit.replace(/\s+/g, "");
+    if (permitState === "TX" && !validTexasPermit(permitNumber)) {
+      $app().innerHTML = renderExemption("A Texas Sales and Use Tax Permit number must be 11 digits.");
+      return;
+    }
+    if (!form.attest.checked) {
+      $app().innerHTML = renderExemption("You must attest that the information is true.");
+      return;
+    }
+    try {
+      if (!isSignedIn()) {
+        await registerAccount({
+          email: form.email.value.trim(),
+          password: form.password.value,
+          company: form.legalName.value.trim(),
+          name: form.contactName.value.trim(),
+          phone: form.phone.value.trim(),
+          address: form.address.value.trim(),
+        });
+      }
+      const acc = currentAccount();
+      const file = form.certificate && form.certificate.files && form.certificate.files[0];
+      const application = {
+        id: newId("APP"),
+        accountId: acc && acc.id,
+        email: acc ? acc.email : form.email.value.trim().toLowerCase(),
+        legalName: form.legalName.value.trim(),
+        dba: form.dba.value.trim(),
+        contactName: form.contactName.value.trim(),
+        phone: form.phone.value.trim(),
+        address: form.address.value.trim(),
+        permitState,
+        permitNumber,
+        certificateFileName: file ? file.name : "",
+        submittedAt: new Date().toISOString(),
+        status: "pending",
+      };
+      if (apiEnabled()) {
+        await apiFetch("/apply", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(application),
+        });
+      }
+      const apps = loadApplications();
+      apps.push(application);
+      saveApplications(apps);
+      if (acc) {
+        acc.exemption = {
+          status: "pending",
+          permitNumber,
+          permitState,
+          legalName: application.legalName,
+          applicationId: application.id,
+        };
+        upsertAccount(acc);
+      }
+      const approveUrl = location.origin + location.pathname + "#/approve/" + encodeURIComponent(application.id);
+      const mail = {
+        kind: "apply",
+        title: "Admin notification (demo — not sent)",
+        to: "naltx75247@gmail.com",
+        subject: "Resale tax exemption application — " + application.legalName,
+        body:
+          "A resale tax exemption application was submitted.\n\n" +
+          "Application ID: " + application.id + "\n" +
+          "Business legal name: " + application.legalName + "\n" +
+          "DBA: " + (application.dba || "(none)") + "\n" +
+          "Contact: " + application.contactName + "\n" +
+          "Email: " + application.email + "\n" +
+          "Phone: " + application.phone + "\n" +
+          "Address: " + application.address + "\n" +
+          "Permit / resale ID: " + application.permitNumber + " (" + application.permitState + ")\n" +
+          "Certificate file name: " + (application.certificateFileName || "(not uploaded)") + "\n" +
+          "Attestation: signed\n\n" +
+          "Approve this application:\n" +
+          approveUrl + "\n",
+      };
+      setLastMail(mail);
+      updateAuthLinks();
+      $app().innerHTML =
+        '<section class="wrap"><h1>Application submitted</h1>' +
+        '<p class="demo-callout">Demo only — this email was not sent. In production, NAL would receive this message with an Approve link.</p>' +
+        "<p>Your account is registered and signed in. Exemption will apply at checkout after approval, while you are signed in.</p>" +
+        emailPreviewHtml(mail) +
+        '<p><a class="btn btn-navy" href="#/admin">Open Admin (demo)</a> <a class="btn btn-outline" href="#/account">My account</a></p></section>';
+    } catch (err) {
+      $app().innerHTML = renderExemption(err.message || "Could not submit the application.");
+    }
+  }
 
   function collectOrder(form, payment) {
     return {
@@ -1341,6 +2162,8 @@
       },
       items: state.cart.map((l) => Object.assign({}, l)),
       shipping: orderShippingSnapshot(),
+      tax: currentTax(),
+      accountEmail: isSignedIn() ? currentAccount().email : "",
       payment: payment || "email",
     };
   }
@@ -1352,11 +2175,45 @@
     saveShipping();
   }
 
-  function submitEmailOrder(form) {
+  function showRegError(msg) {
+    const el = document.querySelector("[data-reg-error]");
+    if (el) {
+      el.hidden = !msg;
+      el.textContent = msg || "";
+    }
+  }
+
+  async function maybeCreateAccountFromCheckout(form) {
+    showRegError("");
+    if (!form.createAccount || !form.createAccount.checked) return;
+    if (isSignedIn()) return;
+    const pw = (form.newPassword && form.newPassword.value) || "";
+    try {
+      await registerAccount({
+        email: form.email.value.trim(),
+        password: pw,
+        company: form.company.value.trim(),
+        name: form.name.value.trim(),
+        phone: form.phone.value.trim(),
+        address: (form.shipTo && form.shipTo.value.trim()) || "",
+      });
+      updateAuthLinks();
+    } catch (err) {
+      showRegError(err.message || "Could not create an account.");
+      throw err;
+    }
+  }
+
+  async function submitEmailOrder(form) {
     if (!form.reportValidity()) return;
     if (!state.cart.length) return;
     if (!shippingReady()) {
       location.hash = "#/cart";
+      return;
+    }
+    try {
+      await maybeCreateAccountFromCheckout(form);
+    } catch {
       return;
     }
     const order = collectOrder(form, "email");
@@ -1400,6 +2257,12 @@
       showErr("This cart has items that need a quote. Submit an order request by email instead.");
       return;
     }
+    try {
+      await maybeCreateAccountFromCheckout(form);
+    } catch (err) {
+      showErr(err.message || "Could not create an account.");
+      return;
+    }
     const order = collectOrder(form, "square-pending");
     const btn = form.querySelector("[data-pay-square]");
     if (btn) {
@@ -1409,12 +2272,15 @@
     try {
       const res = await fetch(PAYMENT_PROXY_URL, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           orderNumber: order.orderNumber,
           customer: order.customer,
           items: order.items,
           shipping: order.shipping,
+          tax: order.tax,
+          accountEmail: order.accountEmail,
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -1485,6 +2351,7 @@
   window.addEventListener("hashchange", render);
 
   updateCartCounts();
+  updateAuthLinks();
   fillWatermark();
   loadZip3().catch(() => {});
 
