@@ -60,14 +60,31 @@
     },
   };
   function browserLang() {
-    var l = (navigator.language || "en").toLowerCase();
-    return l.indexOf("zh") === 0 ? "zh" : l.indexOf("es") === 0 ? "es" : "en";
+    var list = [];
+    try {
+      if (navigator.languages && navigator.languages.length) {
+        for (var i = 0; i < navigator.languages.length; i++) list.push(navigator.languages[i]);
+      }
+    } catch (e) {}
+    if (navigator.language) list.push(navigator.language);
+    if (navigator.userLanguage) list.push(navigator.userLanguage);
+    for (var i = 0; i < list.length; i++) {
+      var l = String(list[i] || "").toLowerCase().replace(/_/g, "-");
+      if (!l) continue;
+      // First preferred language wins: zh* Chinese, es* Spanish, otherwise English.
+      if (l.indexOf("zh") === 0) return "zh";
+      if (l.indexOf("es") === 0) return "es";
+      return "en";
+    }
+    return "en";
   }
 
-  var state = load() || { sessionId: newId(), messages: [], lang: browserLang(), open: false, handedOff: false, mode: "ai", lastId: 0 };
+  var state = load() || { sessionId: newId(), messages: [], lang: "en", open: false, handedOff: false, mode: "ai", lastId: 0 };
   if (!state.mode) state.mode = "ai";
   if (!state.lastId) state.lastId = 0;
-  if (!L[state.lang]) state.lang = "en";
+  // Always follow the current browser/system language for widget chrome (button, title, placeholder, greeting, forms).
+  // Do not keep a previous session's lang, and do not let message-detected language lock the UI on Chinese.
+  state.lang = browserLang();
   function t(k) { return (L[state.lang] || L.en)[k]; }
   function newId() {
     var a = new Uint8Array(12);
@@ -224,7 +241,7 @@
     return fetch(BASE + path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) })
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { d.__status = r.status; return d; }); });
   }
-  function setLang(l) { if (l && L[l] && l !== state.lang) { state.lang = l; applyLabels(); } }
+  // UI language stays on the visitor's browser/system language; AI replies may still use a detected language.
   function setMode(m) {
     if (!m || m === state.mode) return;
     state.mode = m; save(); applyLabels();
@@ -242,7 +259,6 @@
     if (!agentMode) setBusy(true);
     post("/chat", {}).then(function (d) {
       if (!agentMode) setBusy(false);
-      setLang(d.lang);
       if (d.status) setMode(d.status === "closed" ? "ai" : d.status);
       if (d.mode === "agent" || d.reply === null) return; // a team member will answer
       push("assistant", d.reply || d.error || t("err"));
@@ -254,7 +270,7 @@
     if (busy) return;
     setBusy(true);
     post("/chat/handoff", { lang: state.lang }).then(function (d) {
-      setBusy(false); setLang(d.lang);
+      setBusy(false);
       push("assistant", d.reply || d.error || t("err"));
       if (d.status) setMode(d.status);
     }).catch(function () { setBusy(false); addMsg("assistant", t("err")); });
