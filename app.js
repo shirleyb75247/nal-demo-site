@@ -861,6 +861,326 @@
     );
   }
 
+  const SUPPORT_MAX_BYTES = 5 * 1024 * 1024;
+  const SUPPORT_ACCEPT = ".jpg,.jpeg,.png,.pdf,.heic,.heif,image/jpeg,image/png,application/pdf,image/heic,image/heif";
+  const SUPPORT_I18N = {
+    en: {
+      title: "Customer Service",
+      kicker: "Support",
+      crumbsHome: "Home",
+      intro: "Send a complaint or suggestion, or start a warranty return. We read these at the company email and will follow up with you.",
+      tabFeedback: "Complaint & Feedback",
+      tabWarranty: "Warranty Return",
+      name: "Name",
+      email: "Email",
+      phone: "Phone",
+      phoneOptional: "Phone (optional)",
+      orderNo: "Order number",
+      orderOptional: "Order number (optional)",
+      category: "Category",
+      catComplaint: "Complaint",
+      catSuggestion: "Suggestion",
+      catOther: "Other",
+      message: "Message",
+      attachment: "Attachment (optional)",
+      attachHint: "One file, up to 5 MB. JPG, PNG, PDF, or HEIC.",
+      photo: "Photo of the issue",
+      photoHint: "One photo, up to 5 MB. JPG, PNG, PDF, or HEIC.",
+      model: "Product model",
+      qty: "Quantity",
+      purchaseDate: "Purchase date",
+      issue: "Description of the issue",
+      submit: "Submit",
+      sending: "Sending…",
+      successFeedback: "Thank you. Your message has been sent. We will follow up by email.",
+      successWarranty: "Thank you. Your warranty return request has been sent. We will follow up by email.",
+      errRequired: "Please fill in the required fields.",
+      errEmail: "Enter a valid email address.",
+      errFileType: "File type must be JPG, PNG, PDF, or HEIC.",
+      errFileSize: "File is too large (max 5 MB).",
+      errFileCount: "Please attach only one file.",
+      errFileRequired: "Please attach one photo of the issue (max 5 MB).",
+      errNetwork: "Could not send. Please try again or email naltx75247@gmail.com.",
+      errRate: "Too many submissions. Please try again later.",
+      footer: "Customer Service",
+    },
+    zh: {
+      title: "客户服务",
+      kicker: "支持",
+      crumbsHome: "首页",
+      intro: "您可以提交投诉或建议，或申请保修退货。我们会在公司邮箱查收，并尽快与您联系。",
+      tabFeedback: "投诉与意见",
+      tabWarranty: "保修退货",
+      name: "姓名",
+      email: "电子邮箱",
+      phone: "电话",
+      phoneOptional: "电话（选填）",
+      orderNo: "订单号",
+      orderOptional: "订单号（选填）",
+      category: "类别",
+      catComplaint: "投诉",
+      catSuggestion: "建议",
+      catOther: "其他",
+      message: "留言内容",
+      attachment: "附件（选填）",
+      attachHint: "仅限 1 个文件，不超过 5 MB。支持 JPG、PNG、PDF 或 HEIC。",
+      photo: "故障照片",
+      photoHint: "请上传 1 张照片，不超过 5 MB。支持 JPG、PNG、PDF 或 HEIC。",
+      model: "产品型号",
+      qty: "数量",
+      purchaseDate: "购买日期",
+      issue: "问题描述",
+      submit: "提交",
+      sending: "提交中…",
+      successFeedback: "感谢您的反馈，我们已收到您的留言，会通过邮件与您联系。",
+      successWarranty: "感谢您的申请，我们已收到您的保修退货请求，会通过邮件与您联系。",
+      errRequired: "请填写必填项。",
+      errEmail: "请输入有效的电子邮箱。",
+      errFileType: "附件仅限 JPG、PNG、PDF 或 HEIC。",
+      errFileSize: "文件过大（上限 5 MB）。",
+      errFileCount: "只能上传 1 个附件。",
+      errFileRequired: "请上传 1 张故障照片（不超过 5 MB）。",
+      errNetwork: "发送失败。请重试，或直接发邮件至 naltx75247@gmail.com。",
+      errRate: "提交过于频繁，请稍后再试。",
+      footer: "客户服务",
+    },
+    es: {
+      title: "Servicio al cliente",
+      kicker: "Soporte",
+      crumbsHome: "Inicio",
+      intro: "Envíe una queja o sugerencia, o inicie una devolución por garantía. Leemos estos mensajes en el correo de la empresa y le responderemos.",
+      tabFeedback: "Quejas y comentarios",
+      tabWarranty: "Devolución por garantía",
+      name: "Nombre",
+      email: "Correo electrónico",
+      phone: "Teléfono",
+      phoneOptional: "Teléfono (opcional)",
+      orderNo: "Número de pedido",
+      orderOptional: "Número de pedido (opcional)",
+      category: "Categoría",
+      catComplaint: "Queja",
+      catSuggestion: "Sugerencia",
+      catOther: "Otro",
+      message: "Mensaje",
+      attachment: "Archivo adjunto (opcional)",
+      attachHint: "Un solo archivo, de hasta 5 MB. JPG, PNG, PDF o HEIC.",
+      photo: "Foto del problema",
+      photoHint: "Una foto, de hasta 5 MB. JPG, PNG, PDF o HEIC.",
+      model: "Modelo del producto",
+      qty: "Cantidad",
+      purchaseDate: "Fecha de compra",
+      issue: "Descripción del problema",
+      submit: "Enviar",
+      sending: "Enviando…",
+      successFeedback: "Gracias. Hemos recibido su mensaje y le contactaremos por correo.",
+      successWarranty: "Gracias. Hemos recibido su solicitud de garantía y le contactaremos por correo.",
+      errRequired: "Complete los campos obligatorios.",
+      errEmail: "Introduzca un correo electrónico válido.",
+      errFileType: "El archivo debe ser JPG, PNG, PDF o HEIC.",
+      errFileSize: "El archivo es demasiado grande (máximo 5 MB).",
+      errFileCount: "Adjunte solo un archivo.",
+      errFileRequired: "Adjunte una foto del problema (máximo 5 MB).",
+      errNetwork: "No se pudo enviar. Inténtelo de nuevo o escriba a naltx75247@gmail.com.",
+      errRate: "Demasiados envíos. Inténtelo más tarde.",
+      footer: "Servicio al cliente",
+    },
+  };
+
+  function supportCopy() {
+    return SUPPORT_I18N[siteLang()] || SUPPORT_I18N.en;
+  }
+
+  function updateSupportFooter() {
+    const t = supportCopy().footer;
+    document.querySelectorAll("[data-support-link]").forEach(function (a) {
+      a.textContent = t;
+    });
+  }
+
+  function supportTabFromRoute(parts) {
+    const root = (parts[0] || "").toLowerCase();
+    const sub = (parts[1] || "").toLowerCase();
+    if (root === "warranty" || sub === "warranty" || sub === "return") return "warranty";
+    return "feedback";
+  }
+
+  function isAllowedSupportFile(file) {
+    if (!file) return { ok: true };
+    if (file.size > SUPPORT_MAX_BYTES) return { ok: false, code: "file_size" };
+    var name = String(file.name || "").toLowerCase();
+    var ext = "";
+    var m = name.match(/(\.[a-z0-9]+)$/);
+    if (m) ext = m[1];
+    var type = String(file.type || "").toLowerCase();
+    var typeOk = /^(image\/(jpeg|jpg|pjpeg|png|x-png|heic|heif|heic-sequence|heif-sequence)|application\/pdf)$/.test(type);
+    var extOk = /^\.(jpe?g|png|pdf|heic|heif)$/.test(ext);
+    if (typeOk || extOk) return { ok: true };
+    return { ok: false, code: "file_type" };
+  }
+
+  function supportErrorText(t, code, fallback) {
+    if (code === "file_size") return t.errFileSize;
+    if (code === "file_type") return t.errFileType;
+    if (code === "file_count") return t.errFileCount;
+    if (code === "file_required") return t.errFileRequired;
+    if (code === "email") return t.errEmail;
+    if (code === "required") return t.errRequired;
+    if (code === "rate_limit") return t.errRate;
+    return fallback || t.errNetwork;
+  }
+
+  function renderSupport() {
+    const t = supportCopy();
+    const { parts } = parseRoute();
+    const tab = supportTabFromRoute(parts);
+    const isWarranty = tab === "warranty";
+    const notice = state.supportNotice;
+    const err = state.supportError;
+    let body;
+    if (notice && notice.tab === tab) {
+      body =
+        '<p class="support-success">' +
+        escapeHtml(isWarranty ? t.successWarranty : t.successFeedback) +
+        "</p>";
+    } else if (isWarranty) {
+      body =
+        '<form class="form support-form" data-support-form="warranty" novalidate>' +
+        formErrorHtml(err && err.tab === "warranty" ? err.message : "") +
+        "<label>" + escapeHtml(t.name) + " *<input name='name' required autocomplete='name'></label>" +
+        "<label>" + escapeHtml(t.email) + " *<input name='email' type='email' required autocomplete='email'></label>" +
+        "<label>" + escapeHtml(t.phone) + " *<input name='phone' type='tel' required autocomplete='tel'></label>" +
+        "<label>" + escapeHtml(t.orderNo) + " *<input name='orderNumber' required></label>" +
+        "<label>" + escapeHtml(t.model) + " *<input name='model' required></label>" +
+        "<label>" + escapeHtml(t.qty) + " *<input name='quantity' type='number' min='1' max='10000' step='1' value='1' required></label>" +
+        "<label>" + escapeHtml(t.purchaseDate) + " *<input name='purchaseDate' type='date' required></label>" +
+        "<label>" + escapeHtml(t.issue) + " *<textarea name='issue' required></textarea></label>" +
+        "<label>" + escapeHtml(t.photo) + " *<span class='hint'>" + escapeHtml(t.photoHint) + "</span>" +
+        "<input name='attachment' type='file' required accept='" + SUPPORT_ACCEPT + "' data-support-file></label>" +
+        '<p class="support-file-name" data-file-name></p>' +
+        '<div class="hp-field" aria-hidden="true"><label>Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>' +
+        '<input type="hidden" name="lang" value="' + escapeHtml(siteLang()) + '">' +
+        '<button class="btn btn-gold" type="submit">' + escapeHtml(t.submit) + "</button></form>";
+    } else {
+      body =
+        '<form class="form support-form" data-support-form="feedback" novalidate>' +
+        formErrorHtml(err && err.tab === "feedback" ? err.message : "") +
+        "<label>" + escapeHtml(t.name) + " *<input name='name' required autocomplete='name'></label>" +
+        "<label>" + escapeHtml(t.email) + " *<input name='email' type='email' required autocomplete='email'></label>" +
+        "<label>" + escapeHtml(t.phoneOptional) + "<input name='phone' type='tel' autocomplete='tel'></label>" +
+        "<label>" + escapeHtml(t.orderOptional) + "<input name='orderNumber'></label>" +
+        "<label>" + escapeHtml(t.category) + " *<select name='category' required>" +
+        "<option value='complaint'>" + escapeHtml(t.catComplaint) + "</option>" +
+        "<option value='suggestion'>" + escapeHtml(t.catSuggestion) + "</option>" +
+        "<option value='other'>" + escapeHtml(t.catOther) + "</option>" +
+        "</select></label>" +
+        "<label>" + escapeHtml(t.message) + " *<textarea name='message' required></textarea></label>" +
+        "<label>" + escapeHtml(t.attachment) + "<span class='hint'>" + escapeHtml(t.attachHint) + "</span>" +
+        "<input name='attachment' type='file' accept='" + SUPPORT_ACCEPT + "' data-support-file></label>" +
+        '<p class="support-file-name" data-file-name></p>' +
+        '<div class="hp-field" aria-hidden="true"><label>Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>' +
+        '<input type="hidden" name="lang" value="' + escapeHtml(siteLang()) + '">' +
+        '<button class="btn btn-gold" type="submit">' + escapeHtml(t.submit) + "</button></form>";
+    }
+    return (
+      '<section class="wrap support-page">' +
+      '<div class="crumbs"><a href="#/">' + escapeHtml(t.crumbsHome) + "</a> / " + escapeHtml(t.title) + "</div>" +
+      '<div class="section-kicker">' + escapeHtml(t.kicker) + "</div>" +
+      "<h1>" + escapeHtml(t.title) + "</h1>" +
+      '<p class="support-intro">' + escapeHtml(t.intro) + "</p>" +
+      '<div class="support-tabs" role="tablist">' +
+      '<button type="button" role="tab" data-support-tab="feedback" aria-selected="' +
+      (isWarranty ? "false" : "true") +
+      '"' +
+      (isWarranty ? "" : ' class="active"') +
+      ">" +
+      escapeHtml(t.tabFeedback) +
+      "</button>" +
+      '<button type="button" role="tab" data-support-tab="warranty" aria-selected="' +
+      (isWarranty ? "true" : "false") +
+      '"' +
+      (isWarranty ? ' class="active"' : "") +
+      ">" +
+      escapeHtml(t.tabWarranty) +
+      "</button>" +
+      "</div>" +
+      body +
+      "</section>"
+    );
+  }
+
+  async function submitSupportForm(form) {
+    const t = supportCopy();
+    const tab = form.getAttribute("data-support-form") === "warranty" ? "warranty" : "feedback";
+    const fileInput = form.querySelector("[data-support-file]");
+    const files = fileInput && fileInput.files ? Array.from(fileInput.files) : [];
+    if (files.length > 1) {
+      state.supportError = { tab: tab, message: t.errFileCount };
+      state.supportNotice = null;
+      $app().innerHTML = renderSupport();
+      return;
+    }
+    if (files.length === 1) {
+      const allowed = isAllowedSupportFile(files[0]);
+      if (!allowed.ok) {
+        state.supportError = { tab: tab, message: supportErrorText(t, allowed.code) };
+        state.supportNotice = null;
+        $app().innerHTML = renderSupport();
+        return;
+      }
+    }
+    if (tab === "warranty" && files.length !== 1) {
+      state.supportError = { tab: tab, message: t.errFileRequired };
+      state.supportNotice = null;
+      $app().innerHTML = renderSupport();
+      return;
+    }
+    if (!form.reportValidity()) {
+      state.supportError = { tab: tab, message: t.errRequired };
+      state.supportNotice = null;
+      const errEl = form.querySelector("[data-form-error]");
+      if (errEl) errEl.textContent = t.errRequired;
+      else $app().innerHTML = renderSupport();
+      return;
+    }
+    const btn = form.querySelector('button[type="submit"]');
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = t.sending;
+    }
+    try {
+      const fd = new FormData(form);
+      if (fd.get("lang")) fd.set("lang", siteLang());
+      else fd.append("lang", siteLang());
+      const path = tab === "warranty" ? "/warranty" : "/feedback";
+      const res = await fetch(String(API_BASE_URL).replace(/\/$/, "") + path, {
+        method: "POST",
+        body: fd,
+      });
+      let data = {};
+      try {
+        data = await res.json();
+      } catch (e) {
+        data = {};
+      }
+      if (!res.ok || !data.ok) {
+        state.supportNotice = null;
+        state.supportError = {
+          tab: tab,
+          message: supportErrorText(t, data.code, data.error || t.errNetwork),
+        };
+        $app().innerHTML = renderSupport();
+        return;
+      }
+      state.supportError = null;
+      state.supportNotice = { tab: tab };
+      $app().innerHTML = renderSupport();
+    } catch (err) {
+      state.supportNotice = null;
+      state.supportError = { tab: tab, message: t.errNetwork };
+      $app().innerHTML = renderSupport();
+    }
+  }
+
   function parseRoute() {
     const raw = (location.hash || "#/").replace(/^#/, "") || "/";
     const qIndex = raw.indexOf("?");
@@ -2748,10 +3068,12 @@
     else if (root === "approve") html = renderApprove(parts[1] || "");
     else if (root === "about") html = renderAbout();
     else if (root === "installation" || root === "installation-instructions") html = renderInstallation();
+    else if (root === "support" || root === "feedback" || root === "warranty") html = renderSupport();
     else html = '<section class="wrap"><h1>Page not found</h1><p><a href="#/">Home</a></p></section>';
     $app().innerHTML = html;
     updateCartCounts();
     updateAuthLinks();
+    updateSupportFooter();
     closeMenu();
     window.scrollTo(0, 0);
     initPromoCarousel();
@@ -2813,6 +3135,13 @@
       closeMenu();
     } else if (isMenuOpen() && !e.target.closest("#menu-wrap")) {
       closeMenu();
+    }
+
+    const supportTab = e.target.closest("[data-support-tab]");
+    if (supportTab) {
+      const next = supportTab.getAttribute("data-support-tab") === "warranty" ? "warranty" : "feedback";
+      location.hash = "#/support/" + next;
+      return;
     }
 
     const optBtn = e.target.closest("[data-option]");
@@ -2895,6 +3224,28 @@
   });
 
   document.addEventListener("change", (e) => {
+    if (e.target.matches("[data-support-file]")) {
+      const t = supportCopy();
+      const form = e.target.closest("form");
+      const nameEl = form && form.querySelector("[data-file-name]");
+      const files = e.target.files ? Array.from(e.target.files) : [];
+      if (nameEl && files.length === 0) nameEl.textContent = "";
+      if (files.length > 1) {
+        e.target.value = "";
+        if (nameEl) nameEl.textContent = t.errFileCount;
+        return;
+      }
+      if (files.length === 1) {
+        const allowed = isAllowedSupportFile(files[0]);
+        if (!allowed.ok) {
+          e.target.value = "";
+          if (nameEl) nameEl.textContent = supportErrorText(t, allowed.code);
+          return;
+        }
+        if (nameEl) nameEl.textContent = files[0].name;
+      }
+      return;
+    }
     if (e.target.matches("[data-qty]")) {
       const row = e.target.closest("[data-line]");
       const idx = Number(row.getAttribute("data-line"));
@@ -2985,6 +3336,13 @@
     if (apply) {
       e.preventDefault();
       handleExemption(apply);
+      return;
+    }
+
+    const supportForm = e.target.closest("[data-support-form]");
+    if (supportForm) {
+      e.preventDefault();
+      submitSupportForm(supportForm);
     }
   });
 
@@ -3324,6 +3682,7 @@
 
   updateCartCounts();
   updateAuthLinks();
+  updateSupportFooter();
   fillWatermark();
   loadZip3().catch(() => {});
   hydrateApiSession().then(() => updateAuthLinks()).catch(() => {});
