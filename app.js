@@ -2038,7 +2038,7 @@
     p.options.forEach((opt) => {
       optionsHtml +=
         '<div class="option-group"><span class="opt-label">' +
-        escapeHtml(opt.name) +
+        escapeHtml(opt.name === "Brand" ? "Series" : opt.name) +
         "</span><div class=\"opt-values\">";
       opt.values.forEach((val) => {
         const active = selected[opt.name] === val;
