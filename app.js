@@ -1226,15 +1226,6 @@
       '<a class="btn btn-gold" href="#/catalog">Browse the catalog</a>' +
       '<a class="btn btn-ghost" href="#/about">About NAL</a>' +
       "</div>" +
-      '<div class="hero-meta">Call <a href="tel:' +
-      escapeHtml(c.phoneTel) +
-      '">' +
-      escapeHtml(c.phone) +
-      '</a> &nbsp;·&nbsp; <a href="mailto:' +
-      escapeHtml(c.email) +
-      '">' +
-      escapeHtml(c.email) +
-      "</a></div>" +
       "</div>" +
       promoCarouselHtml(promos) +
       "</div></section>" +
