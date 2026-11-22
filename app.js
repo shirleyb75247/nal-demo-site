@@ -1218,7 +1218,7 @@
       guaranteeBannerHtml() +
       "<div>" +
       '<div class="hero-kicker">Dallas, Texas · Wholesale · Commercial only</div>' +
-      "<h1>Commercial LED lighting, built for trade.</h1>" +
+      "<h1>Commercial LED lighting, built to last.</h1>" +
       '<p class="hero-lead">' +
       escapeHtml(c.name) +
       " supplies contractors, sign shops, and facilities across the central United States. We ship nationwide.</p>" +
