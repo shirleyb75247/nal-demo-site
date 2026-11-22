@@ -3038,6 +3038,59 @@
     }
   }
 
+
+  function setPageTitle(root) {
+    const c = state.catalog && state.catalog.company;
+    const name = (c && c.name) || "North America Lighting";
+    if (root === "contact") document.title = "Contact Us — " + name;
+    else document.title = name + " — Commercial LED Wholesale";
+  }
+
+  /* Contact page. Address + map stay hidden until company.address is set
+     in the catalog (optional company.mapEmbedUrl for an embed iframe src). */
+  function renderContact() {
+    const c = company();
+    const address = String((c && c.address) || "").trim();
+    const mapEmbedUrl = String((c && c.mapEmbedUrl) || "").trim();
+    let locationHtml = "";
+    if (address) {
+      locationHtml =
+        '<section class="contact-location">' +
+        "<h2>Address</h2>" +
+        '<p class="contact-address">' +
+        escapeHtml(address) +
+        "</p>" +
+        (mapEmbedUrl
+          ? '<div class="contact-map"><iframe title="Map" src="' +
+            escapeHtml(mapEmbedUrl) +
+            '" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>'
+          : "") +
+        "</section>";
+    }
+    return (
+      '<section class="wrap contact-page">' +
+      '<div class="crumbs"><a href="#/">Home</a> / Contact Us</div>' +
+      '<div class="section-kicker">Get in touch</div>' +
+      "<h1>Contact Us</h1>" +
+      '<p class="contact-intro">Call or email us. We are a Dallas wholesale supplier serving the central United States, and we ship nationwide.</p>' +
+      '<div class="contact-cards">' +
+      '<a class="contact-card" href="tel:' +
+      escapeHtml(c.phoneTel) +
+      '"><div class="contact-card-label">Phone</div><div class="contact-card-value">' +
+      escapeHtml(c.phone) +
+      "</div></a>" +
+      '<a class="contact-card" href="mailto:' +
+      escapeHtml(c.email) +
+      '"><div class="contact-card-label">Email</div><div class="contact-card-value">' +
+      escapeHtml(c.email) +
+      "</div></a>" +
+      "</div>" +
+      locationHtml +
+      '<p class="contact-note muted">For a complaint or warranty return, use <a href="#/support">Customer Service</a>. You can also message us with the chat button on this site.</p>' +
+      "</section>"
+    );
+  }
+
   /* ---------- router & events ---------- */
 
   function render() {
@@ -3060,8 +3113,10 @@
     else if (root === "about") html = renderAbout();
     else if (root === "installation" || root === "installation-instructions") html = renderInstallation();
     else if (root === "support" || root === "feedback" || root === "warranty") html = renderSupport();
+    else if (root === "contact") html = renderContact();
     else html = '<section class="wrap"><h1>Page not found</h1><p><a href="#/">Home</a></p></section>';
     $app().innerHTML = html;
+    setPageTitle(root);
     updateCartCounts();
     updateAuthLinks();
     updateSupportFooter();
