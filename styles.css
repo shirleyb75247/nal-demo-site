@@ -183,10 +183,21 @@ p { margin: 0 0 1rem; }
   margin-bottom: 0.9rem;
 }
 .hero h1 {
-  font-family: var(--font);
-  font-size: clamp(2.1rem, 5vw, 3.6rem);
-  font-weight: 700;
+  font-family: "Montserrat", var(--font);
+  font-size: clamp(1.5rem, 6.5vw, 1.95rem);
+  font-weight: 900;
   margin-bottom: 1rem;
+}
+.hero-emphasis {
+  display: block;
+  color: var(--gold-2);
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
+@media (min-width: 720px) {
+  .hero h1 {
+    font-size: clamp(1.5rem, 3.5vw, 2.9rem);
+  }
 }
 .hero-lead {
   font-size: 1.05rem;
