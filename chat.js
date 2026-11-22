@@ -26,6 +26,7 @@
       cbTimes: ["As soon as possible", "Morning (9am–12pm CT)", "Afternoon (12–5pm CT)", "Evening (5–7pm CT)"], cbSubmit: "Request callback",
       badPhone: "Please enter a valid phone number (10 digits, or + and country code).", joined: "A team member has joined the chat.",
       left: "The team member has left. The AI assistant is back to help.", closed: "This chat was closed by our team. Thank you!",
+      idleClosed: "This chat ended due to inactivity. Send a new message anytime to start again.",
       team: "NAL team", waitingSub: "Waiting for a team member…", agentSub: "Chatting with NAL team",
     },
     zh: {
@@ -41,6 +42,7 @@
       cbTimes: ["尽快", "上午（9–12 点，美中时间）", "下午（12–5 点，美中时间）", "傍晚（5–7 点，美中时间）"], cbSubmit: "提交回拨申请",
       badPhone: "请输入有效的电话号码（10 位数字，或 + 国家代码）。", joined: "工作人员已加入对话。",
       left: "工作人员已离开，AI 助手将继续为您服务。", closed: "本次对话已由工作人员结束，谢谢！",
+      idleClosed: "由于3分钟无活动，对话已自动结束。如需帮助，可随时发送新消息。",
       team: "NAL 团队", waitingSub: "正在等待工作人员…", agentSub: "正在与 NAL 团队对话",
     },
     es: {
@@ -56,6 +58,7 @@
       cbTimes: ["Lo antes posible", "Mañana (9–12, hora del centro)", "Tarde (12–5, hora del centro)", "Noche (5–7, hora del centro)"], cbSubmit: "Solicitar llamada",
       badPhone: "Ingrese un teléfono válido (10 dígitos, o + y código de país).", joined: "Un miembro del equipo se unió al chat.",
       left: "El miembro del equipo salió. El asistente de IA sigue aquí para ayudarle.", closed: "Nuestro equipo cerró este chat. ¡Gracias!",
+      idleClosed: "Este chat terminó por inactividad. Envíe un mensaje nuevo cuando quiera para empezar de nuevo.",
       team: "Equipo NAL", waitingSub: "Esperando a un miembro del equipo…", agentSub: "Chateando con el equipo NAL",
     },
   };
@@ -216,10 +219,20 @@
     addMsg("assistant", t("hello"));
     state.messages.forEach(function (m) { addMsg(m.role, m.content); });
   }
+  var lastAct = Date.now();
+  var IDLE_MS = 3 * 60 * 1000;
+  function touchAct() { lastAct = Date.now(); }
   function push(role, content) {
     state.messages.push({ role: role, content: content });
     if (state.messages.length > 60) state.messages = state.messages.slice(-60);
+    if (role === "user" || role === "assistant" || role === "agent") touchAct();
     addMsg(role, content); save();
+  }
+  function showIdleNotice(text) {
+    var msg = text || t("idleClosed");
+    if (state.idleNoted) return;
+    state.idleNoted = true;
+    push("notice", msg);
   }
 
   var busy = false, typingRow = null;
@@ -260,6 +273,7 @@
     if (!agentMode) setBusy(true);
     post("/chat", {}).then(function (d) {
       if (!agentMode) setBusy(false);
+      if (d.idleClosed) showIdleNotice(d.idleNotice);
       if (d.status) setMode(d.status === "closed" ? "ai" : d.status);
       if (d.mode === "agent" || d.reply === null) return; // a team member will answer
       push("assistant", d.reply || d.error || t("err"));
@@ -357,15 +371,21 @@
 
   /* ---------- live polling (team replies) ---------- */
   var pollTimer = null, polling = false;
-  var SYS = { agent_joined: "joined", agent_left: "left", chat_closed: "closed" };
+  var SYS = { agent_joined: "joined", agent_left: "left", chat_closed: "closed", chat_idle_closed: "idleClosed" };
   function schedulePoll(now) {
     clearTimeout(pollTimer);
-    if (state.mode !== "waiting" && state.mode !== "agent") return;
-    var delay = now ? 300 : (document.visibilityState === "visible" ? (state.open ? 3000 : 6000) : 15000);
-    pollTimer = setTimeout(poll, delay);
+    if (state.mode === "waiting" || state.mode === "agent") {
+      var delay = now ? 300 : (document.visibilityState === "visible" ? (state.open ? 3000 : 6000) : 15000);
+      pollTimer = setTimeout(poll, delay);
+      return;
+    }
+    var remain = IDLE_MS + 800 - (Date.now() - lastAct);
+    if (remain < 800) remain = now ? 400 : 800;
+    if (state.idleNoted) return;
+    pollTimer = setTimeout(poll, remain);
   }
   function poll() {
-    if (polling) return;
+    if (polling || !state.sessionId) return;
     polling = true;
     fetch(BASE + "/chat/poll?sessionId=" + encodeURIComponent(state.sessionId) + "&after=" + (state.lastId || 0))
       .then(function (r) { return r.json(); })
@@ -374,8 +394,13 @@
         (d.messages || []).forEach(function (m) {
           state.lastId = Math.max(state.lastId || 0, m.id);
           if (m.role === "agent") { push("agent", m.content); notifyUnread(); }
-          else if (m.role === "system" && SYS[m.content]) push("notice", t(SYS[m.content]));
+          else if (m.role === "system") {
+            var code = m.code || m.content;
+            if (code === "chat_idle_closed") showIdleNotice(m.content && m.content !== "chat_idle_closed" ? m.content : (d.idleNotice || t("idleClosed")));
+            else if (SYS[m.content]) push("notice", t(SYS[m.content]));
+          }
         });
+        if (d.status === "closed" && d.close_reason === "idle 3 min") showIdleNotice(d.idleNotice);
         save();
         if (d.status) setMode(d.status === "closed" ? "ai" : d.status);
         schedulePoll(false);
@@ -401,7 +426,7 @@
   menuItem("callback", function () { showCallbackForm(); });
   menuItem("leave", function () { showContactForm(""); });
   menuItem("clear", function () {
-    state = { sessionId: newId(), messages: [], lang: state.lang, open: true, handedOff: false, mode: "ai", lastId: 0 };
+    state = { sessionId: newId(), messages: [], lang: state.lang, open: true, handedOff: false, mode: "ai", lastId: 0, idleNoted: false }; touchAct();
     formWrap.innerHTML = ""; save(); renderLog(); renderChips(""); applyLabels(); schedulePoll();
   });
   menuBtn.onclick = function () { menu.hidden = !menu.hidden; menuBtn.setAttribute("aria-expanded", menu.hidden ? "false" : "true"); };
