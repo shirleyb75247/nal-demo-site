@@ -1664,8 +1664,8 @@
       '<section class="facts"><div class="facts-inner">' +
       '<div class="fact"><h3>Wholesale and Retail to Suit Your Needs</h3><p>Volume pricing for contractors, property managers, and sign shops, and single units for any customer.</p></div>' +
       '<div class="fact"><h3>Commercial Grade Built to Last</h3><p>Durable LED fixtures and sign lighting made for demanding commercial use, backed by a 1-year replacement guarantee.</p></div>' +
-      '<div class="fact"><h3>Dallas based</h3><p>North America Lighting is based in Dallas, Texas, and serves the central region.</p></div>' +
-      '<div class="fact"><h3>Ships nationwide</h3><p>We ship across the United States. Call or email for lead times and freight.</p></div>' +
+      '<div class="fact"><h3>Dallas Based</h3><p>North America Lighting is based in Dallas, Texas, and serves the central region.</p></div>' +
+      '<div class="fact"><h3>Ships Nationwide</h3><p>We ship across the United States. Call or email for lead times and freight.</p></div>' +
       "</div></section>"
     );
   }
