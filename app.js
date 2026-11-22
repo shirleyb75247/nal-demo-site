@@ -1217,7 +1217,7 @@
       '<section class="hero"><div class="hero-inner">' +
       guaranteeBannerHtml() +
       "<div>" +
-      '<div class="hero-kicker">Dallas, Texas · Wholesale · Commercial only</div>' +
+      '<div class="hero-kicker">Dallas, Texas · Wholesale &amp; Retail · Commercial Grade</div>' +
       "<h1>Commercial LED Lighting<br><span class=\"hero-emphasis\">BUILT TO LAST</span></h1>" +
       '<p class="hero-lead">' +
       escapeHtml(c.name) +
