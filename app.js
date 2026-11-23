@@ -348,6 +348,13 @@
     const bits = [p.name, p.displayName, p.category].concat(p.badges || []);
     return bits.some((s) => String(s || "").toLowerCase().includes("clearance"));
   }
+  const CLEARANCE_NOTE_TEXT = "Clearance — sold AS IS, no warranty, no returns.";
+  function clearanceNoteHtml(p, compact) {
+    if (!isClearance(p)) return "";
+    return compact
+      ? '<div class="clearance-note compact">Sold AS IS · No warranty</div>'
+      : '<p class="clearance-note">' + escapeHtml(CLEARANCE_NOTE_TEXT) + ' <a href="#/warranty-returns">Details</a></p>';
+  }
   function warrantyBadgeHtml(p) {
     if (!p || isClearance(p)) return "";
     return '<span class="warranty-badge">' + escapeHtml(WARRANTY_BADGE_TEXT) + "</span>";
@@ -393,7 +400,7 @@
       '<path d="M8.2 12.1 11 15l4.8-6" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>' +
       "</svg>" +
       "<div><strong>Premium Quality · 1-Year In-Store Replacement Guarantee</strong>" +
-      "<p>Defective within 1 year? We replace it — bring it to our Dallas location or contact us.</p></div></div>"
+      "<p>Defective within 1 year? We replace it — bring it to our Dallas location or contact us. Clearance items are sold AS IS and are not covered.</p></div></div>"
     );
   }
 
@@ -839,7 +846,10 @@
       const hit = allVars.find((x) => x.v.id === line.variationId || (line.sku && x.v.sku === line.sku));
       if (!hit) return;
       if (hit.v.price != null) line.price = hit.v.price;
-      if (line.extendedWarranty && ewUnitPrice(hit.v) != null) line.ewUnitPrice = ewUnitPrice(hit.v);
+      if (line.extendedWarranty && isClearance(hit.p)) {
+        line.extendedWarranty = false;
+        line.ewUnitPrice = null;
+      } else if (line.extendedWarranty && ewUnitPrice(hit.v) != null) line.ewUnitPrice = ewUnitPrice(hit.v);
       if (hit.v.sku) line.sku = hit.v.sku;
       line.outOfStock = isVariationOos(hit.v);
     });
@@ -894,6 +904,7 @@
       '">' +
       escapeHtml(priceLabel(p)) +
       "</div>" +
+      clearanceNoteHtml(p, true) +
       (productHasStock(p) ? "" : outOfStockLabel()) +
       "</div></a>"
     );
@@ -1698,7 +1709,7 @@
   function factsBand() {
     return (
       '<section class="facts"><div class="facts-inner">' +
-      '<div class="fact"><h3>Wholesale and Retail to Suit Your Needs</h3><p>Volume pricing for contractors, property managers, and sign shops, and single units for any customer.</p></div>' +
+      '<div class="fact"><h3>Quality Lights to Suit Your Needs</h3><p>Volume pricing for contractors, property managers, and sign shops, and single units for any customer.</p></div>' +
       '<div class="fact"><h3>Commercial Grade Built to Last</h3><p>Durable LED fixtures and sign lighting made for demanding commercial use, backed by a 1-year replacement guarantee.</p></div>' +
       '<div class="fact"><h3>Dallas Based</h3><p>North America Lighting is based in Dallas, Texas, and serves the central region.</p></div>' +
       '<div class="fact"><h3>Ships Nationwide</h3><p>We ship across the United States. Call or email for lead times and freight.</p></div>' +
@@ -1711,26 +1722,26 @@
     if (!p || p.slug !== INSTALL_PRODUCT_SLUG) return "";
     const type = (getSelectedOptions(p) || {}).Type || "";
     let href = "#/installation";
-    let title = "Installation instructions";
+    let title = "Installation Guide";
     let body =
       "Guides for Compatible (Type A) plug-and-play, single-ended Type B, and double-ended Type B 4 ft retrofit tubes.";
     if (type === "Compatible") {
       href = "#/installation/compatible";
-      title = "Installation instructions — Compatible (Type A)";
+      title = "Installation Guide — Compatible (Type A)";
       body =
         "Plug-and-play: no rewiring. Uses about 40–50% less energy than fluorescent. These tubes run on the existing ballast, so if that ballast fails the tube stops working too, like a fluorescent lamp. A ballast-bypass upgrade is an option at that point.";
     } else if (type === "Bypass") {
       href = "#/installation/single-ended";
-      title = "Installation instructions — Single-ended Type B";
+      title = "Installation Guide — Single-ended Type B";
       body =
         "Ballast-bypass, single-ended. UL certified, with a high level of safety. Line and neutral land on one end; the far end has no line voltage, which makes relamping simpler and safer. Requires bypass wiring and non-shunted tombstones on the powered end.";
     } else if (type === "Double End") {
       href = "#/installation/double-ended";
-      title = "Installation instructions — Double-ended Type B";
+      title = "Installation Guide — Double-ended Type B";
       body =
         "Ballast-bypass, double-ended. Fast for electricians: the tube can go in either way. Typically no tombstone replacement — remove the ballast, run line to one end and neutral to the other.";
     } else if (type === "B/C") {
-      title = "Installation instructions";
+      title = "Installation Guide";
       body =
         "This lamp can be installed as plug-and-play (Compatible) or as ballast-bypass. See both methods in the installation guide.";
     }
@@ -1872,9 +1883,9 @@
     const videos = INSTALL_VIDEOS;
     return (
       '<section class="wrap install-page">' +
-      '<div class="crumbs"><a href="#/">Home</a> / Installation Instructions</div>' +
+      '<div class="crumbs"><a href="#/">Home</a> / Installation Guide</div>' +
       '<div class="section-kicker">Installation</div>' +
-      "<h1>Installation Instructions</h1>" +
+      "<h1>Installation Guide</h1>" +
       '<p class="install-lead">4-foot T8/T10 fluorescent retrofit LED tubes. Use the section that matches the Type marked on your tube: Compatible (Type A, plug-and-play), single-ended Type B (ballast bypass), or double-ended Type B.</p>' +
       '<nav class="install-jump" aria-label="Tube types">' +
       '<a href="#/installation/compatible">Compatible (Type A)</a>' +
@@ -2121,6 +2132,7 @@
       (p.description
         ? '<p class="product-desc">' + escapeHtml(p.description) + "</p>"
         : "") +
+      clearanceNoteHtml(p) +
       optionsHtml +
       (comboOk
         ? '<div class="price-lg' +
@@ -2133,7 +2145,7 @@
       (comboOk && match && isVariationOos(match) ? outOfStockLabel() : "") +
       (comboOk
         ? '<form data-add-form>' +
-          (hasFixed && ewUnitPrice(match) != null && !(match && isVariationOos(match))
+          (hasFixed && !isClearance(p) && ewUnitPrice(match) != null && !(match && isVariationOos(match))
             ? '<label class="ew-option"><input type="checkbox" name="extendedWarranty" data-ew-toggle' +
               (ewMemory[p.slug] ? " checked" : "") +
               '><span>' + EW_LABEL + ' (+' + escapeHtml(money(ewUnitPrice(match))) + ')</span></label>'
@@ -3076,7 +3088,7 @@
   function addToCart(product, variation, qty, withWarranty) {
     if (isVariationOos(variation)) return false;
     const key = variation.id;
-    const ew = !!withWarranty && ewUnitPrice(variation) != null;
+    const ew = !!withWarranty && !isClearance(product) && ewUnitPrice(variation) != null;
     const existing = state.cart.find((l) => l.variationId === key && !!l.extendedWarranty === ew);
     if (existing) existing.qty += qty;
     else {
@@ -3114,6 +3126,8 @@
       "warranty-returns": "Warranty and Return Policy",
       privacy: "Privacy Policy",
       "data-sharing": "Data Sharing",
+      installation: "Installation Guide",
+      "installation-instructions": "Installation Guide",
     };
     if (pageTitles[root]) document.title = pageTitles[root] + " — " + name;
     else document.title = SITE_TITLE;
@@ -3225,7 +3239,7 @@
 <p>We will not be liable to you or to any third party for any modification, price change, suspension, or discontinuance of the Service.</p>
 
 <h2>Section 5 – Products or Services</h2>
-<p>Certain products or services may be available only online through the website. These products or services may be available in limited quantities and may be returned or exchanged only under our <a href="#/warranty-returns">Warranty and Return Policy</a>.</p>
+<p>Certain products or services may be available only online through the website. These products or services may be available in limited quantities and may be returned or exchanged only under our <a href="#/warranty-returns">Warranty and Return Policy</a>. Clearance items are sold AS IS, carry no warranty, and cannot be returned or exchanged.</p>
 <p>We have made every effort to display the colors and images of our products in the store as accurately as possible. We cannot guarantee that your computer monitor will display any color accurately.</p>
 <p>We reserve the right, but are not obligated, to limit sales of our products or Services to any person, geographic region, or jurisdiction, and we may exercise this right case by case. We reserve the right to limit the quantities of any products or services we offer. All product descriptions and pricing may change at any time without notice, at our sole discretion. We reserve the right to discontinue any product at any time. Any offer for any product or service made on this site is void where prohibited.</p>
 <p>We do not warrant that the quality of any products, services, information, or other material you purchase or obtain will meet your expectations, or that any errors in the Service will be corrected.</p>
@@ -3308,6 +3322,7 @@
 <li>In-stock items that are in new condition, in their original box, and complete with all packing material, manuals, and accessories are subject to a 25% restocking fee.</li>
 <li>Custom and built-to-order products cannot be returned.</li>
 <li>Orders for which a project sample was originally purchased are not eligible.</li>
+<li>Clearance items are sold AS IS and cannot be returned or exchanged.</li>
 </ul>
 
 <h3>How Do I Request a Sample Order Return?</h3>
@@ -3323,6 +3338,7 @@
 
 <h3>Who Pays for Return Shipping?</h3>
 <p>When a product is determined to be non-defective, the customer pays the return shipping costs. We recommend that every customer ship returns with an insured ground carrier and keep the tracking information. Lost or stolen packages will not be counted as completed returns.</p>
+<p><strong>Store drop-off:</strong> Instead of shipping, you may drop off a return or warranty item at our Dallas store for inspection, so you do not have to pay return shipping. Returns dropped off at the store follow the same 30-day and restocking-fee terms above; please contact customer service before you visit.</p>
 
 <h3>Cancellation Policy</h3>
 <p>If you want to cancel an order that has not shipped yet, please let your sales representative know as soon as possible. Special orders and custom-made orders marked as shipped cannot be canceled once the order has been processed.</p>
@@ -3330,8 +3346,9 @@
 <h2>Warranties</h2>
 <p>Warranty terms differ from product to product, but we stand behind everything we sell and are glad to work directly with our customers to resolve any issue with product performance. We have the right to inspect returned items to confirm that the problem is a product failure and was not caused by faulty installation.</p>
 <p>This limited warranty is provided by ${N}, referred to here as “NAL,” to you as the original purchaser of the LED lighting product. It may be transferred to later purchasers of the Product, as long as the Product is resold in new condition and in its original packaging. The seller warrants that the Product, when delivered in new condition and in its original packaging, will be free of defects in material and workmanship for the warranty period identified for the specific product(s) purchased, starting from the date of original purchase. NAL decides, in its sole discretion and with consideration of the Product’s overall performance, whether the Product is defective. A luminaire may be considered defective under this warranty only if more than 20% of its LEDs show defects, including burnout, loosening, or a broken PC board, or technical and material defects, or defects in workmanship. Driver defects, including functional problems with the IP system, power factor, and similar issues that affect how the LED fixture works, will be treated as defects under this warranty.</p>
+<p><strong>Clearance Items — Sold AS IS:</strong> The 5-year warranty on lights and the 3-year warranty on drivers do not apply to clearance items. Any product sold as clearance, including any item labeled “Clearance” or listed in a clearance sale, is sold AS IS, with no warranty of any kind, and is not eligible for return, exchange, or the Extended Warranty. All clearance sales are final.</p>
 <p>This warranty does not cover any product or part that has been subject to misuse, negligence, accidents, Acts of God, use outside the product’s design intent, or attempted repair or modification by anyone other than NAL. NAL’s sole liability for defects or breach of warranty is replacement of the parts involved, and NAL will in no case be liable for special or consequential damages or losses, including property damage or any other loss related directly or indirectly to the use of NAL luminaires. NAL is never liable for consequential damages or personal injury caused by installation, or by negligence during installation or adjustment of the LED lighting fixture. NAL accepts no liability for installation costs or any other costs incurred while using products supplied by NAL. No representative is authorized to take on additional liability on behalf of NAL.</p>
-<p><strong>Factory Return Warranty:</strong> Every return must be factory authorized, and NAL must issue a Return Material Authorization (RMA) before anything is shipped. Returns are shipped at the buyer’s expense.</p>
+<p><strong>Factory Return Warranty:</strong> Every return must be factory authorized, and NAL must issue a Return Material Authorization (RMA) before anything is shipped. Returns are shipped at the buyer’s expense, or you may drop off the item at our Dallas store for inspection at no shipping cost.</p>
 <p>NAL reserves the right to use new, reconditioned, refurbished, repaired, or re-manufactured products or parts in the warranty repair or replacement process. These products and parts will be comparable in function and performance to an original product or part, as NAL determines in its sole discretion, and will be warranted for the rest of the original warranty period. To make a warranty claim, you must notify NAL in writing within fifteen (15) days of discovering the defect and provide proof of purchase, such as the invoice.</p>
 <p>If NAL finds that the product is working properly, the buyer may be billed for testing, repackaging, and shipping. If the warranty has expired, NAL will provide a repair quote before doing any repairs. If the product was under warranty and NAL repairs or replaces it, NAL will cover the return shipping to the customer. NAL will in no case be liable for any cost of removing or installing the product, even if the product failed under a covered warranty.</p>
 <p class="policy-caps">THE WARRANTY PROVISIONS ABOVE ARE EXCLUSIVE AND ARE GIVEN AND ACCEPTED IN PLACE OF ANY AND ALL OTHER WARRANTIES, EXPRESS OR IMPLIED, INCLUDING, WITHOUT LIMITATION, ANY WARRANTY AGAINST INFRINGEMENT AND ANY IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE. NAL WILL IN NO EVENT BE LIABLE FOR INCIDENTAL DAMAGES.</p>
@@ -3340,7 +3357,7 @@
 <h3>How is the Extended Warranty different from the standard product warranty?</h3>
 <p>The Extended Warranty adds one (1) more year of warranty coverage for your product.</p>
 <h3>How long are products covered under your standard warranty?</h3>
-<p>Every light we sell carries a warranty of at least 5 years from the date of purchase. Drivers carry a 3-year warranty.</p>
+<p>Every light we sell carries a warranty of at least 5 years from the date of purchase. Drivers carry a 3-year warranty. Clearance items are sold AS IS and are not covered.</p>
 <h3>How can I find out whether my product is still under warranty?</h3>
 <p>Check your order confirmation or invoice, or ask your sales representative. ${N} reserves the right to verify the purchase date for warranty claims.</p>
 <h3>What protection does the Extended Warranty include?</h3>
@@ -3348,7 +3365,7 @@
 <h3>What does the Extended Warranty not cover?</h3>
 <p>We do not cover product damage other than damage that occurred before delivery or was caused by product failure; damage from abuse, maintenance, acts of God, and other issues outside normal operating conditions is not covered.</p>
 <h3>When must the Extended Warranty be purchased?</h3>
-<p>The Extended Warranty has to be purchased when you place your order.</p>
+<p>The Extended Warranty has to be purchased when you place your order. It is not available for clearance items.</p>
 <h3>Is the warranty coverage transferable?</h3>
 <p>The coverage applies to the purchased product.</p>
 <h3>Will my covered product be repaired or replaced?</h3>
