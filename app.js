@@ -33,7 +33,7 @@
     },
   };
 
-  const WARRANTY_BADGE_TEXT = "1 Year Replacement Warranty";
+  const WARRANTY_BADGE_TEXT = "1 Year Free Replacement";
 
   // Homepage Promotion area. Swap, add, or remove entries to change
   // currently promoted products. `image` and `label` override the catalog
@@ -2381,7 +2381,7 @@
       "</span><span>" +
       escapeHtml(taxAmountLabel) +
       "</span></div>" +
-      '<p class="resale-link"><a href="#/exemption">Resale tax exemption</a></p>' +
+      '<p class="resale-link"><a href="#/exemption">Tax Exemption</a></p>' +
       (total != null
         ? '<div class="summary-row total"><span>Total</span><span>' +
           money(total) +
@@ -2576,6 +2576,11 @@
       "<label>PO number / notes<span class='hint'>Purchase order, job name, or delivery notes</span><textarea name='notes' placeholder='Optional'></textarea></label>" +
       registerBox +
       '<p class="checkout-error" data-reg-error hidden></p>' +
+      '<label class="chk terms-agree"><input type="checkbox" name="agreeTerms" required data-agree-terms' +
+      (state.termsAccepted ? " checked" : "") +
+      '><span>I have read and agree to the <a href="#/terms" data-open-agreements>Terms &amp; Conditions</a> *' +
+      '<span class="hint">Includes our Warranty and Return Policy, Privacy Policy, and Data Sharing terms.</span></span></label>' +
+      '<p class="checkout-error" data-terms-error hidden>Please read and acknowledge the Terms &amp; Conditions before placing your order.</p>' +
       '<button class="btn btn-gold btn-block" type="submit" name="submitEmail">Submit order request</button>' +
       payBtn +
       '<p class="checkout-error" data-pay-error hidden></p>' +
@@ -2760,7 +2765,7 @@
     const acc = currentAccount();
     if (acc && isTaxExemptAccount(acc)) {
       return (
-        '<section class="wrap"><h1>Resale tax exemption</h1>' +
+        '<section class="wrap"><h1>Tax Exemption</h1>' +
         '<p class="tax-exempt">This signed-in account is already tax exempt — permit #' +
         escapeHtml(acc.exemption.permitNumber || "on file") +
         ".</p>" +
@@ -2770,7 +2775,7 @@
     const pending = acc && loadApplications().find((a) => a.email === acc.email && a.status === "pending");
     const pre = acc || {};
     return (
-      '<section class="wrap"><h1>Resale tax exemption</h1>' +
+      '<section class="wrap"><h1>Tax Exemption</h1>' +
       '<p class="demo-callout">This is a demo application. It is stored only in this browser and is not sent to NAL. Tax-exempt checkout requires a registered account, and you must be signed in for the exemption to apply. Passwords are hashed in the browser (PBKDF2) but this is not secure for production.</p>' +
       (notice ? '<p class="form-note">' + escapeHtml(notice) + "</p>" : "") +
       (pending
@@ -2944,6 +2949,11 @@
         if (ship.note) lines.push(ship.note);
         lines.push("");
       }
+    }
+    if (termsAcceptanceLine(order)) {
+      lines.push("TERMS");
+      lines.push(termsAcceptanceLine(order));
+      lines.push("");
     }
     if (order.customer.notes) {
       lines.push("PO / NOTES");
@@ -3503,6 +3513,113 @@
     return policyShell("Data Sharing", "Policies", "Data Sharing", "Last updated", body);
   }
 
+  /* ---------- checkout agreements (Terms acknowledgement) ---------- */
+
+  const TERMS_VERSION = "v2026-11-22";
+
+  function termsAcceptanceLine(order) {
+    const t = order && order.termsAcceptance;
+    if (!t || !t.at) return "";
+    let ct = "";
+    try {
+      ct = new Date(t.at).toLocaleString("en-US", { timeZone: "America/Chicago", dateStyle: "medium", timeStyle: "short" }) + " CT";
+    } catch (e) { ct = ""; }
+    return "Agreed to Terms " + (t.version || TERMS_VERSION) + " — " + t.at + (ct ? " (" + ct + ")" : "");
+  }
+
+  function agreementsPlainText() {
+    const box = document.createElement("div");
+    box.innerHTML = renderTerms() + renderWarrantyReturns() + renderPrivacy() + renderDataSharing();
+    const out = [];
+    box.querySelectorAll("h1, h2, h3, p, li, tr").forEach((el) => {
+      if (el.closest("li") && el.tagName !== "LI") return;
+      let t = el.tagName === "TR"
+        ? Array.from(el.children).map((c) => c.textContent.trim()).join(" | ")
+        : el.textContent.replace(/\s+/g, " ").trim();
+      if (!t) return;
+      if (el.tagName === "H1") out.push((out.length ? "\n\n" : "") + t.toUpperCase() + "\n" + "=".repeat(Math.min(t.length, 40)));
+      else if (el.tagName === "H2") out.push("\n" + t.toUpperCase());
+      else if (el.tagName === "H3") out.push("\n" + t);
+      else if (el.tagName === "LI") out.push("  • " + t);
+      else out.push(t);
+    });
+    return out.join("\n");
+  }
+
+  function agreementsDialog() {
+    let dlg = document.getElementById("agreements-dialog");
+    if (dlg) return dlg;
+    dlg = document.createElement("dialog");
+    dlg.id = "agreements-dialog";
+    dlg.className = "agreements-dialog";
+    dlg.setAttribute("aria-labelledby", "agreements-title");
+    dlg.setAttribute("aria-describedby", "agreements-hint");
+    dlg.innerHTML =
+      '<div class="agreements-head"><h2 id="agreements-title">Terms &amp; Conditions</h2>' +
+      '<button type="button" class="agreements-close" data-agreements-close aria-label="Close without agreeing">×</button></div>' +
+      '<p class="agreements-hint" id="agreements-hint">Please scroll to the end to continue. Terms &amp; Conditions · Warranty and Return Policy · Privacy Policy · Data Sharing</p>' +
+      '<div class="agreements-body" tabindex="0" data-agreements-body role="document" aria-label="Agreement text"></div>' +
+      '<div class="agreements-foot">' +
+      '<button type="button" class="btn btn-gold btn-block" data-agreements-confirm disabled>I have read and acknowledge the above agreements</button>' +
+      "</div>";
+    document.body.appendChild(dlg);
+    const body = dlg.querySelector("[data-agreements-body]");
+    const btn = dlg.querySelector("[data-agreements-confirm]");
+    const check = () => {
+      if (body.scrollTop + body.clientHeight >= body.scrollHeight - 4) btn.disabled = false;
+    };
+    body.addEventListener("scroll", check, { passive: true });
+    dlg._check = check;
+    btn.addEventListener("click", () => {
+      if (btn.disabled) return;
+      state.termsAccepted = { at: new Date().toISOString(), version: TERMS_VERSION };
+      dlg._confirmed = true;
+      dlg.close();
+    });
+    dlg.querySelector("[data-agreements-close]").addEventListener("click", () => dlg.close());
+    dlg.addEventListener("click", (e) => { if (e.target === dlg) dlg.close(); });
+    dlg.addEventListener("close", () => {
+      const box = document.querySelector("[data-agree-terms]");
+      if (!dlg._confirmed) state.termsAccepted = null;
+      if (box) {
+        box.checked = !!state.termsAccepted;
+        box.focus();
+      }
+      const err = document.querySelector("[data-terms-error]");
+      if (err && state.termsAccepted) err.hidden = true;
+      document.body.classList.remove("agreements-open");
+    });
+    return dlg;
+  }
+
+  function openAgreements() {
+    const dlg = agreementsDialog();
+    const body = dlg.querySelector("[data-agreements-body]");
+    const btn = dlg.querySelector("[data-agreements-confirm]");
+    body.textContent = agreementsPlainText();
+    body.scrollTop = 0;
+    btn.disabled = true;
+    dlg._confirmed = false;
+    document.body.classList.add("agreements-open");
+    if (typeof dlg.showModal === "function") dlg.showModal();
+    else dlg.setAttribute("open", "");
+    body.focus();
+    requestAnimationFrame(dlg._check);
+  }
+
+  function termsGate(form) {
+    const box = form.querySelector("[data-agree-terms]");
+    const err = form.querySelector("[data-terms-error]");
+    const ok = !!(state.termsAccepted && box && box.checked);
+    if (err) err.hidden = ok;
+    if (!ok) {
+      if (box) box.checked = false;
+      if (err) err.scrollIntoView({ block: "center" });
+      if (box) box.focus();
+    }
+    return ok;
+  }
+
   /* ---------- router & events ---------- */
 
   function render() {
@@ -3658,6 +3775,15 @@
       return;
     }
 
+    const agreeLink = e.target.closest("[data-open-agreements]");
+    if (agreeLink) {
+      e.preventDefault();
+      const box = document.querySelector("[data-agree-terms]");
+      if (box && !box.checked) box.checked = true;
+      openAgreements();
+      return;
+    }
+
     const payBtn = e.target.closest("[data-pay-square]");
     if (payBtn) {
       e.preventDefault();
@@ -3686,6 +3812,11 @@
   });
 
   document.addEventListener("change", (e) => {
+    if (e.target.matches("[data-agree-terms]")) {
+      if (e.target.checked) openAgreements();
+      else state.termsAccepted = null;
+      return;
+    }
     if (e.target.matches("[data-ew-toggle]")) {
       const page = document.querySelector("[data-product-page]");
       if (page) ewMemory[page.getAttribute("data-slug")] = e.target.checked;
@@ -3891,7 +4022,7 @@
         kind: "apply",
         title: "Admin notification (demo — not sent)",
         to: "naltx75247@gmail.com",
-        subject: "Resale tax exemption application — " + application.legalName,
+        subject: "Tax exemption application — " + application.legalName,
         body:
           "A resale tax exemption application was submitted.\n\n" +
           "Application ID: " + application.id + "\n" +
@@ -3937,10 +4068,12 @@
       tax: currentTax(),
       accountEmail: isSignedIn() ? currentAccount().email : "",
       payment: payment || "email",
+      termsAcceptance: state.termsAccepted ? Object.assign({}, state.termsAccepted) : null,
     };
   }
 
   function clearCartAndShipping() {
+    state.termsAccepted = null;
     state.cart = [];
     saveCart();
     state.shipping = defaultShipping();
@@ -3981,13 +4114,19 @@
   function customerWithWarrantyNote(order) {
     const ew = warrantySummaryLines(order.items);
     const c = Object.assign({}, order.customer);
-    if (!ew.length) return c;
-    const ewTotal = order.items.reduce((s, l) => s + lineWarrantyTotal(l), 0);
-    const note =
-      "EXTENDED WARRANTY ADD-ONS (add to invoice; not in the item subtotal below)\n" +
-      ew.join("\n") +
-      "\nExtended warranty total: " + money(ewTotal);
-    c.notes = note + (c.notes ? "\n\nCustomer notes: " + c.notes : "");
+    const parts = [];
+    const terms = termsAcceptanceLine(order);
+    if (terms) parts.push(terms);
+    if (ew.length) {
+      const ewTotal = order.items.reduce((s, l) => s + lineWarrantyTotal(l), 0);
+      parts.push(
+        "EXTENDED WARRANTY ADD-ONS (add to invoice; not in the item subtotal below)\n" +
+        ew.join("\n") +
+        "\nExtended warranty total: " + money(ewTotal)
+      );
+    }
+    if (!parts.length) return c;
+    c.notes = parts.join("\n\n") + (c.notes ? "\n\nCustomer notes: " + c.notes : "");
     return c;
   }
 
@@ -4017,6 +4156,7 @@
   }
 
   async function submitEmailOrder(form) {
+    if (!termsGate(form)) return;
     if (!form.reportValidity()) return;
     if (!state.cart.length) return;
     if (!shippingReady() || cartHasOutOfStock()) {
@@ -4061,6 +4201,7 @@
       showErr("Card payment is not configured on this demo.");
       return;
     }
+    if (!termsGate(form)) return;
     if (!form.reportValidity()) return;
     if (!state.cart.length || !shippingReady() || cartHasOutOfStock()) {
       location.hash = "#/cart";
@@ -4093,7 +4234,7 @@
         headers: authHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify({
           orderNumber: order.orderNumber,
-          customer: order.customer,
+          customer: customerWithWarrantyNote(order),
           items: order.items,
           shipping: order.shipping,
           tax: order.tax,
