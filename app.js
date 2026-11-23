@@ -568,13 +568,14 @@
     });
   }
 
-  /* Optional 1-year extended warranty add-on (per unit, rounded to the cent). */
-  const EW_RATE = 0.05;
+  /* Optional 1-year extended warranty add-on. The per-unit price comes from the
+     nal-api Worker (/catalog -> extendedWarranty.prices); the Worker also prices
+     it again at checkout, so the server is the source of truth. */
   const EW_LABEL = "1-Year Extended Warranty";
   const EW_LINE_LABEL = "Extended Warranty (1 yr)";
-  function ewUnitPrice(unitCents) {
-    if (unitCents == null || !(unitCents > 0)) return null;
-    return Math.round(unitCents * EW_RATE);
+  function ewUnitPrice(variation) {
+    const p = variation && variation.ewPrice;
+    return typeof p === "number" && p > 0 ? p : null;
   }
   function lineWarrantyTotal(l) {
     return l && l.extendedWarranty && l.ewUnitPrice != null ? l.ewUnitPrice * l.qty : 0;
@@ -820,6 +821,13 @@
         catalog.categories.push({ name: product.category, slug: product.categorySlug });
       }
     });
+    const ewPrices = (snap.extendedWarranty && snap.extendedWarranty.prices) || {};
+    catalog.products.forEach((p) =>
+      (p.variations || []).forEach((v) => {
+        const ew = v.id && ewPrices[v.id];
+        if (typeof ew === "number" && ew > 0) v.ewPrice = ew;
+      })
+    );
     return catalog;
   }
 
@@ -831,7 +839,7 @@
       const hit = allVars.find((x) => x.v.id === line.variationId || (line.sku && x.v.sku === line.sku));
       if (!hit) return;
       if (hit.v.price != null) line.price = hit.v.price;
-      if (line.extendedWarranty) line.ewUnitPrice = ewUnitPrice(line.price);
+      if (line.extendedWarranty && ewUnitPrice(hit.v) != null) line.ewUnitPrice = ewUnitPrice(hit.v);
       if (hit.v.sku) line.sku = hit.v.sku;
       line.outOfStock = isVariationOos(hit.v);
     });
@@ -2125,10 +2133,10 @@
       (comboOk && match && isVariationOos(match) ? outOfStockLabel() : "") +
       (comboOk
         ? '<form data-add-form>' +
-          (hasFixed && ewUnitPrice(price) != null && !(match && isVariationOos(match))
+          (hasFixed && ewUnitPrice(match) != null && !(match && isVariationOos(match))
             ? '<label class="ew-option"><input type="checkbox" name="extendedWarranty" data-ew-toggle' +
               (ewMemory[p.slug] ? " checked" : "") +
-              '><span>' + EW_LABEL + ' (+' + escapeHtml(money(ewUnitPrice(price))) + ')</span></label>'
+              '><span>' + EW_LABEL + ' (+' + escapeHtml(money(ewUnitPrice(match))) + ')</span></label>'
             : "") +
           '<div class="qty-row"><label for="qty">Qty</label>' +
           '<input id="qty" name="qty" type="number" min="1" step="1" value="1"' +
@@ -2541,7 +2549,7 @@
       : "Street, city, state, " + (zip || "ZIP");
     const payBtn = PAYMENT_PROXY_URL
       ? '<button class="btn btn-pay btn-block" type="button" data-pay-square>Pay with card (Square)</button>' +
-        '<p class="form-note">Card payments are taken on Square’s secure checkout page. Quote-only items and Extended Warranty add-ons cannot be charged online.</p>'
+        '<p class="form-note">Card payments are taken on Square’s secure checkout page. Quote-only items cannot be charged online.</p>'
       : "";
     const acc = currentAccount();
     const v = (s) => escapeHtml(s || "");
@@ -3068,13 +3076,13 @@
   function addToCart(product, variation, qty, withWarranty) {
     if (isVariationOos(variation)) return false;
     const key = variation.id;
-    const ew = !!withWarranty && ewUnitPrice(variation.price) != null;
+    const ew = !!withWarranty && ewUnitPrice(variation) != null;
     const existing = state.cart.find((l) => l.variationId === key && !!l.extendedWarranty === ew);
     if (existing) existing.qty += qty;
     else {
       state.cart.push({
         extendedWarranty: ew,
-        ewUnitPrice: ew ? ewUnitPrice(variation.price) : null,
+        ewUnitPrice: ew ? ewUnitPrice(variation) : null,
         productId: product.id,
         variationId: variation.id,
         slug: product.slug,
@@ -4109,24 +4117,13 @@
     }
   }
 
-  // The nal-api Worker rebuilds line items from the catalog and ignores unknown
-  // fields, so extended-warranty add-ons travel in the order notes it keeps.
+  // Order notes sent to the nal-api Worker: the Terms acceptance line first.
+  // (The Worker adds the Extended Warranty as its own priced line item.)
   function customerWithWarrantyNote(order) {
-    const ew = warrantySummaryLines(order.items);
     const c = Object.assign({}, order.customer);
-    const parts = [];
     const terms = termsAcceptanceLine(order);
-    if (terms) parts.push(terms);
-    if (ew.length) {
-      const ewTotal = order.items.reduce((s, l) => s + lineWarrantyTotal(l), 0);
-      parts.push(
-        "EXTENDED WARRANTY ADD-ONS (add to invoice; not in the item subtotal below)\n" +
-        ew.join("\n") +
-        "\nExtended warranty total: " + money(ewTotal)
-      );
-    }
-    if (!parts.length) return c;
-    c.notes = parts.join("\n\n") + (c.notes ? "\n\nCustomer notes: " + c.notes : "");
+    if (!terms) return c;
+    c.notes = terms + (c.notes ? "\n\nCustomer notes: " + c.notes : "");
     return c;
   }
 
@@ -4209,10 +4206,6 @@
     }
     if (state.cart.some((l) => l.price == null)) {
       showErr("This cart has items that need a quote. Submit an order request by email instead.");
-      return;
-    }
-    if (state.cart.some((l) => l.extendedWarranty)) {
-      showErr("Orders with an Extended Warranty are invoiced. Please use Submit order request.");
       return;
     }
     try {
