@@ -3,6 +3,7 @@
   const ORDER_KEY = "nal-demo-orders";
   const SHIPPING_KEY = "nal-demo-shipping";
   const ORDER_EMAIL = "naltx75247@gmail.com";
+  const SITE_TITLE = "NAL-Commercial LED Wholesaler";
   const ORIGIN_ZIP = "75247";
   // Empty keeps the email-only order flow. Set to a Cloudflare Worker URL
   // (see /worker) to show "Pay with card (Square)". Never put a Square token here.
@@ -825,7 +826,7 @@
       .then(([local, snap]) => {
         state.catalog = mergeLiveCatalog(local, snap && snap.ok === false ? null : snap);
         state.catalogSource = snap && snap.updatedAt ? "square" : "bundle";
-        document.title = local.company.name + " — Commercial LED Wholesale";
+        document.title = SITE_TITLE;
         refreshCartFromCatalog();
         render();
       });
@@ -1217,11 +1218,9 @@
       '<section class="hero"><div class="hero-inner">' +
       guaranteeBannerHtml() +
       "<div>" +
-      '<div class="hero-kicker">Dallas, Texas · Wholesale &amp; Retail · Commercial Grade</div>' +
+      '<div class="hero-kicker">Dallas, Texas · Wholesale · Commercial Grade</div>' +
       "<h1>Commercial LED Lighting<br><span class=\"hero-emphasis\">BUILT TO LAST</span></h1>" +
-      '<p class="hero-lead">' +
-      escapeHtml(c.name) +
-      " supplies contractors, sign shops, and facilities across the central United States. We ship nationwide.</p>" +
+      '<p class="hero-lead">Our LED lights are designed with the highest industry standards to save up to 65% energy costs with hassle-free maintenance and a five-year warranty.</p>' +
       '<div class="hero-actions">' +
       '<a class="btn btn-gold" href="#/catalog">Browse the catalog</a>' +
       '<a class="btn btn-ghost" href="#/about">About NAL</a>' +
@@ -3042,8 +3041,15 @@
   function setPageTitle(root) {
     const c = state.catalog && state.catalog.company;
     const name = (c && c.name) || "North America Lighting";
-    if (root === "contact") document.title = "Contact Us — " + name;
-    else document.title = name + " — Commercial LED Wholesale";
+    const pageTitles = {
+      contact: "Contact Us",
+      terms: "Terms & Conditions",
+      "warranty-returns": "Warranty and Return Policy",
+      privacy: "Privacy Policy",
+      "data-sharing": "Data Sharing",
+    };
+    if (pageTitles[root]) document.title = pageTitles[root] + " — " + name;
+    else document.title = SITE_TITLE;
   }
 
   /* Contact page. Address + map stay hidden until company.address is set
@@ -3091,6 +3097,363 @@
     );
   }
 
+  /* ---------- policy pages (round 32) ---------- */
+
+  const POLICY_UPDATED = "November 22, 2026";
+
+  function policyShell(crumb, kicker, title, dateLabel, body) {
+    return (
+      '<section class="wrap policy-page">' +
+      '<div class="crumbs"><a href="#/">Home</a> / ' + crumb + "</div>" +
+      '<div class="section-kicker">' + kicker + "</div>" +
+      "<h1>" + title + "</h1>" +
+      '<p class="policy-updated">' + dateLabel + ": " + POLICY_UPDATED + "</p>" +
+      body +
+      "</section>"
+    );
+  }
+
+  function policyContact() {
+    const c = company();
+    return {
+      name: escapeHtml(c.name),
+      phone: escapeHtml(c.phone),
+      tel: escapeHtml(c.phoneTel),
+      email: escapeHtml(c.email),
+      site: "naltx.com",
+      city: "Dallas, Texas",
+    };
+  }
+
+  function renderTerms() {
+    const k = policyContact();
+    const N = k.name;
+    const body = `
+<h2>Overview</h2>
+<p>${N} operates this website. Wherever the words “we,” “us,” and “our” appear on this site, they mean ${N}. We make this website, together with all of the information, tools, and services on it, available to you, the user, on the condition that you accept every term, condition, policy, and notice set out here.</p>
+<p>When you visit our site or buy something from us, you are using our “Service,” and you agree to be bound by these terms and conditions (“Terms of Service” or “Terms”), including any additional terms, conditions, and policies referred to here or linked from here. These Terms of Service apply to every user of the site, including, without limitation, browsers, vendors, customers, merchants, and anyone who contributes content.</p>
+<p>Please read these Terms of Service carefully before you access or use our website. By accessing or using any part of the site, you agree to be bound by them. If you do not agree with all of the terms and conditions of this agreement, you may not access the website or use any of our services. If these Terms of Service are considered an offer, acceptance is expressly limited to these Terms of Service.</p>
+<p>Any new features or tools added to the current store will also be subject to these Terms of Service. You can review the most current version at any time on this page. We reserve the right to update, change, or replace any part of these Terms of Service by posting updates or changes on our website. It is your responsibility to check this page from time to time for changes. If you continue to use or access the website after changes are posted, you accept those changes.</p>
+<p>Our store is hosted by third-party service providers. They supply the online e-commerce platform that allows us to sell our products and services to you.</p>
+
+<h2>Section 1 – Online Store Terms</h2>
+<p>By agreeing to these Terms of Service, you confirm that you are at least the age of majority in your state or province of residence, or that you are the age of majority in your state or province of residence and have given us your consent to let any of your minor dependents use this site.</p>
+<p>You may not use our products for any illegal or unauthorized purpose, and in using the Service you may not violate any laws in your jurisdiction (including, but not limited to, copyright laws).</p>
+<p>You must not transmit any worms, viruses, or other code of a destructive nature.</p>
+<p>Any breach or violation of these Terms will result in the immediate termination of your Services.</p>
+
+<h2>Section 2 – General Conditions</h2>
+<p>We reserve the right to refuse service to anyone, for any reason, at any time.</p>
+<p>You understand that your content (not including credit card information) may be transferred unencrypted and may involve (a) transmission over various networks and (b) changes made to conform and adapt to the technical requirements of connecting networks or devices. Credit card information is always encrypted when it is transferred over networks.</p>
+<p>You agree not to reproduce, duplicate, copy, sell, resell, or exploit any portion of the Service, use of the Service, or access to the Service or any contact on the website through which the Service is provided, without our express written permission.</p>
+<p>The headings in this agreement are included only for convenience and do not limit or otherwise affect these Terms.</p>
+
+<h2>Section 3 – Accuracy, Completeness and Timeliness of Information</h2>
+<p>We are not responsible if information made available on this site is not accurate, complete, or current. Material on this site is provided for general information only and should not be relied on or used as the sole basis for decisions without consulting primary, more accurate, more complete, or more timely sources of information. You rely on the material on this site at your own risk.</p>
+<p>This site may contain certain historical information. Historical information is, by its nature, not current and is provided for your reference only. We reserve the right to modify the contents of this site at any time, but we have no obligation to update any information on it. You agree that it is your responsibility to monitor changes to our site.</p>
+
+<h2>Section 4 – Modifications to the Service and Prices</h2>
+<p>Prices for our products may change without notice.</p>
+<p>We reserve the right, at any time, to modify or discontinue the Service (or any part or content of it) without notice.</p>
+<p>We will not be liable to you or to any third party for any modification, price change, suspension, or discontinuance of the Service.</p>
+
+<h2>Section 5 – Products or Services</h2>
+<p>Certain products or services may be available only online through the website. These products or services may be available in limited quantities and may be returned or exchanged only under our <a href="#/warranty-returns">Warranty and Return Policy</a>.</p>
+<p>We have made every effort to display the colors and images of our products in the store as accurately as possible. We cannot guarantee that your computer monitor will display any color accurately.</p>
+<p>We reserve the right, but are not obligated, to limit sales of our products or Services to any person, geographic region, or jurisdiction, and we may exercise this right case by case. We reserve the right to limit the quantities of any products or services we offer. All product descriptions and pricing may change at any time without notice, at our sole discretion. We reserve the right to discontinue any product at any time. Any offer for any product or service made on this site is void where prohibited.</p>
+<p>We do not warrant that the quality of any products, services, information, or other material you purchase or obtain will meet your expectations, or that any errors in the Service will be corrected.</p>
+
+<h2>Section 6 – Accuracy of Billing and Account Information</h2>
+<p>We reserve the right to refuse any order you place with us. We may, in our sole discretion, limit or cancel quantities purchased per person, per household, or per order. These restrictions may include orders placed by or under the same customer account, the same credit card, and/or orders that use the same billing and/or shipping address. If we change or cancel an order, we may try to notify you by contacting the email and/or billing address/phone number provided when the order was placed. We reserve the right to limit or prohibit orders that, in our sole judgment, appear to be placed by dealers, resellers, or distributors.</p>
+<p>You agree to provide current, complete, and accurate purchase and account information for every purchase made at our store. You agree to promptly update your account and other information, including your email address, credit card numbers, and expiration dates, so that we can complete your transactions and contact you as needed.</p>
+<p>For more detail, please review our <a href="#/warranty-returns">Warranty and Return Policy</a>.</p>
+
+<h2>Section 7 – Optional Tools</h2>
+<p>We may give you access to third-party tools that we do not monitor and over which we have no control or input.</p>
+<p>You acknowledge and agree that we provide access to such tools “as is” and “as available,” without any warranties, representations, or conditions of any kind and without any endorsement. We have no liability whatsoever arising from or relating to your use of optional third-party tools.</p>
+<p>Any use you make of optional tools offered through the site is entirely at your own risk and discretion, and you should make sure you are familiar with and approve of the terms on which the relevant third-party provider(s) supply those tools.</p>
+<p>The purchaser assigns to ${N} the rights to offer any electric demand savings achieved through this project into the PJM Capacity Market.</p>
+<p>We may also offer new services and/or features through the website in the future (including new tools and resources). Those new features and/or services will also be subject to these Terms of Service.</p>
+
+<h2>Section 8 – Third-Party Links</h2>
+<p>Certain content, products, and services available through our Service may include material from third parties.</p>
+<p>Third-party links on this site may take you to third-party websites that are not affiliated with us. We are not responsible for examining or evaluating their content or accuracy, and we do not warrant, and will have no liability or responsibility for, any third-party materials or websites, or any other materials, products, or services of third parties.</p>
+<p>We are not liable for any harm or damages related to the purchase or use of goods, services, resources, content, or any other transactions made in connection with any third-party website. Please review the third party’s policies and practices carefully and make sure you understand them before you engage in any transaction. Complaints, claims, concerns, or questions about third-party products should be directed to the third party.</p>
+
+<h2>Section 9 – User Comments, Feedback and Other Submissions</h2>
+<p>If, at our request, you send certain specific submissions (for example, contest entries), or if without a request from us you send creative ideas, suggestions, proposals, plans, or other materials, whether online, by email, by postal mail, or otherwise (collectively, “comments”), you agree that we may, at any time and without restriction, edit, copy, publish, distribute, translate, and otherwise use in any medium any comments you send us. We are and will be under no obligation (1) to keep any comments confidential; (2) to pay compensation for any comments; or (3) to respond to any comments.</p>
+<p>We may, but have no obligation to, monitor, edit, or remove content that we determine in our sole discretion is unlawful, offensive, threatening, libelous, defamatory, pornographic, obscene, or otherwise objectionable, or that violates any party’s intellectual property or these Terms of Service.</p>
+<p>You agree that your comments will not violate any right of any third party, including copyright, trademark, privacy, personality, or other personal or proprietary rights. You further agree that your comments will not contain libelous or otherwise unlawful, abusive, or obscene material, or any computer virus or other malware that could in any way affect the operation of the Service or any related website. You may not use a false email address, pretend to be someone other than yourself, or otherwise mislead us or third parties about the origin of any comments. You are solely responsible for any comments you make and for their accuracy. We take no responsibility and assume no liability for any comments posted by you or any third party.</p>
+
+<h2>Section 10 – Personal Information</h2>
+<p>Your submission of personal information through the store is governed by our <a href="#/privacy">Privacy Policy</a>.</p>
+
+<h2>Section 11 – Errors, Inaccuracies and Omissions</h2>
+<p>From time to time, information on our site or in the Service may contain typographical errors, inaccuracies, or omissions relating to product descriptions, pricing, promotions, offers, product shipping charges, transit times, and availability. We reserve the right to correct any errors, inaccuracies, or omissions, and to change or update information or cancel orders if any information in the Service or on any related website is inaccurate at any time, without prior notice (including after you have submitted your order).</p>
+<p>We have no obligation to update, amend, or clarify information in the Service or on any related website, including, without limitation, pricing information, except as required by law. No specified update or refresh date applied in the Service or on any related website should be taken to mean that all information in the Service or on any related website has been modified or updated.</p>
+
+<h2>Section 12 – Prohibited Uses</h2>
+<p>In addition to the other prohibitions in these Terms of Service, you may not use the site or its content: (a) for any unlawful purpose; (b) to solicit others to perform or take part in any unlawful acts; (c) to violate any international, federal, provincial, or state regulations, rules, laws, or local ordinances; (d) to infringe or violate our intellectual property rights or the intellectual property rights of others; (e) to harass, abuse, insult, harm, defame, slander, disparage, intimidate, or discriminate based on gender, sexual orientation, religion, ethnicity, race, age, national origin, or disability; (f) to submit false or misleading information; (g) to upload or transmit viruses or any other malicious code that will or may be used in any way that affects the functionality or operation of the Service, any related website, other websites, or the Internet; (h) to collect or track the personal information of others; (i) to spam, phish, pharm, pretext, spider, crawl, or scrape; (j) for any obscene or immoral purpose; or (k) to interfere with or circumvent the security features of the Service, any related website, other websites, or the Internet. We reserve the right to end your use of the Service or any related website for violating any of these prohibited uses.</p>
+
+<h2>Section 13 – Disclaimer of Warranties; Limitation of Liability</h2>
+<p>We do not guarantee, represent, or warrant that your use of our service will be uninterrupted, timely, secure, or error-free.</p>
+<p>We do not warrant that the results that may be obtained from using the service will be accurate or reliable.</p>
+<p>You agree that we may remove the service for indefinite periods of time, or cancel the service at any time, without notice to you.</p>
+<p>You expressly agree that your use of, or inability to use, the service is at your sole risk. The service and all products and services delivered to you through it are (except as we expressly state) provided “as is” and “as available” for your use, without any representation, warranties, or conditions of any kind, express or implied, including all implied warranties or conditions of merchantability, merchantable quality, fitness for a particular purpose, durability, title, and non-infringement.</p>
+<p>In no case will ${N}, or our directors, officers, employees, affiliates, agents, contractors, interns, suppliers, service providers, or licensors, be liable for any injury, loss, claim, or any direct, indirect, incidental, punitive, special, or consequential damages of any kind, including, without limitation, lost profits, lost revenue, lost savings, loss of data, replacement costs, or any similar damages, whether based in contract, tort (including negligence), strict liability, or otherwise, arising from your use of the service or of any products obtained through the service, or for any other claim related in any way to your use of the service or any product, including, but not limited to, any errors or omissions in any content, or any loss or damage of any kind incurred as a result of using the service or any content (or product) posted, transmitted, or otherwise made available through the service, even if advised of their possibility. Because some states or jurisdictions do not allow the exclusion or limitation of liability for consequential or incidental damages, in those states or jurisdictions our liability will be limited to the maximum extent permitted by law.</p>
+
+<h2>Section 14 – Indemnification</h2>
+<p>You agree to indemnify, defend, and hold harmless ${N} and our parent, subsidiaries, affiliates, partners, officers, directors, agents, contractors, licensors, service providers, subcontractors, suppliers, interns, and employees from any claim or demand, including reasonable attorneys’ fees, made by any third party because of or arising out of your breach of these Terms of Service or the documents they incorporate by reference, or your violation of any law or of the rights of a third party.</p>
+
+<h2>Section 15 – Severability</h2>
+<p>If any provision of these Terms of Service is found to be unlawful, void, or unenforceable, that provision will still be enforceable to the fullest extent permitted by applicable law, and the unenforceable portion will be treated as severed from these Terms of Service. Such a finding will not affect the validity and enforceability of any other remaining provisions.</p>
+
+<h2>Section 16 – Termination</h2>
+<p>The obligations and liabilities of the parties incurred before the termination date will survive the termination of this agreement for all purposes.</p>
+<p>These Terms of Service remain in effect unless and until either you or we terminate them. You may terminate these Terms of Service at any time by telling us you no longer wish to use our Services, or when you stop using our site.</p>
+<p>If, in our sole judgment, you fail, or we suspect that you have failed, to comply with any term or provision of these Terms of Service, we may also terminate this agreement at any time without notice. You will remain liable for all amounts due up to and including the date of termination, and/or we may deny you access to our Services (or any part of them).</p>
+
+<h2>Section 17 – Entire Agreement</h2>
+<p>Our failure to exercise or enforce any right or provision of these Terms of Service will not be a waiver of that right or provision.</p>
+<p>These Terms of Service, together with any policies or operating rules we post on this site or in respect of the Service, make up the entire agreement and understanding between you and us and govern your use of the Service. They supersede any prior or contemporaneous agreements, communications, and proposals, whether oral or written, between you and us (including, but not limited to, any earlier versions of the Terms of Service).</p>
+<p>Any ambiguities in interpreting these Terms of Service will not be construed against the drafting party.</p>
+
+<h2>Section 18 – Governing Law</h2>
+<p>These Terms of Service, and any separate agreements under which we provide you Services, are governed by and will be interpreted in accordance with the laws of the United States.</p>
+
+<h2>Section 19 – Changes to Terms of Service</h2>
+<p>You can review the most current version of the Terms of Service on this page at any time.</p>
+<p>We reserve the right, at our sole discretion, to update, change, or replace any part of these Terms of Service by posting updates and changes on our website. It is your responsibility to check our website from time to time for changes. If you continue to use or access our website or the Service after any changes to these Terms of Service are posted, you accept those changes.</p>
+
+<h2>Section 20 – Contact Information</h2>
+<p>Please send questions about the Terms of Service to us at <a href="mailto:${k.email}">${k.email}</a>, call <a href="tel:${k.tel}">${k.phone}</a>, or visit our <a href="#/contact">Contact Us</a> page. ${N}, ${k.city}.</p>
+<p class="policy-also">Also see: <a href="#/privacy">Privacy Policy</a> · <a href="#/warranty-returns">Warranty and Return Policy</a></p>`;
+    return policyShell("Terms &amp; Conditions", "Policies", "Terms &amp; Conditions", "Last updated", body);
+  }
+
+  function renderWarrantyReturns() {
+    const k = policyContact();
+    const N = k.name;
+    const body = `
+<h2>Returns</h2>
+<p>In some situations, we may be able to accept a return within 30 days of purchase that falls outside our standard terms. When we do, the following conditions apply:</p>
+<ul>
+<li>In-stock items that are in new condition, in their original box, and complete with all packing material, manuals, and accessories are subject to a 25% restocking fee.</li>
+<li>Custom and built-to-order products cannot be returned.</li>
+<li>Orders for which a project sample was originally purchased are not eligible.</li>
+</ul>
+
+<h3>How Do I Request a Sample Order Return?</h3>
+<ul>
+<li>Submit the form on our <a href="#/support/warranty">Customer Service</a> page.</li>
+<li>Our customer service team will contact you with the next steps.</li>
+</ul>
+
+<h3>7-Day Inspection for Damaged or Incorrect Shipments</h3>
+<p>If an item we shipped arrives damaged or is the wrong product, ${N} will replace it or refund it, along with any applicable shipping costs. The customer is responsible for documenting any error or damage at the time of delivery, before signing for the shipment. To be eligible for a refund, every claim must be reported within 7 days of delivery.</p>
+<p>Any damage that was not documented at delivery must be recorded right away and reported to customer service. We recommend that customers photograph any error or damage and keep all of the original packaging.</p>
+<p>${N} may, at any time, limit the number of delivery attempts based on an unfavorable delivery history caused by, but not limited to, damage, loss, or theft.</p>
+
+<h3>Who Pays for Return Shipping?</h3>
+<p>When a product is determined to be non-defective, the customer pays the return shipping costs. We recommend that every customer ship returns with an insured ground carrier and keep the tracking information. Lost or stolen packages will not be counted as completed returns.</p>
+
+<h3>Cancellation Policy</h3>
+<p>If you want to cancel an order that has not shipped yet, please let your sales representative know as soon as possible. Special orders and custom-made orders marked as shipped cannot be canceled once the order has been processed.</p>
+
+<h2>Warranties</h2>
+<p>Warranty terms differ from product to product, but we stand behind everything we sell and are glad to work directly with our customers to resolve any issue with product performance. We have the right to inspect returned items to confirm that the problem is a product failure and was not caused by faulty installation.</p>
+<p>This limited warranty is provided by ${N}, referred to here as “NAL,” to you as the original purchaser of the LED lighting product. It may be transferred to later purchasers of the Product, as long as the Product is resold in new condition and in its original packaging. The seller warrants that the Product, when delivered in new condition and in its original packaging, will be free of defects in material and workmanship for the warranty period identified for the specific product(s) purchased, starting from the date of original purchase. NAL decides, in its sole discretion and with consideration of the Product’s overall performance, whether the Product is defective. A luminaire may be considered defective under this warranty only if more than 20% of its LEDs show defects, including burnout, loosening, or a broken PC board, or technical and material defects, or defects in workmanship. Driver defects, including functional problems with the IP system, power factor, and similar issues that affect how the LED fixture works, will be treated as defects under this warranty.</p>
+<p>This warranty does not cover any product or part that has been subject to misuse, negligence, accidents, Acts of God, use outside the product’s design intent, or attempted repair or modification by anyone other than NAL. NAL’s sole liability for defects or breach of warranty is replacement of the parts involved, and NAL will in no case be liable for special or consequential damages or losses, including property damage or any other loss related directly or indirectly to the use of NAL luminaires. NAL is never liable for consequential damages or personal injury caused by installation, or by negligence during installation or adjustment of the LED lighting fixture. NAL accepts no liability for installation costs or any other costs incurred while using products supplied by NAL. No representative is authorized to take on additional liability on behalf of NAL.</p>
+<p><strong>Factory Return Warranty:</strong> Every return must be factory authorized, and NAL must issue a Return Material Authorization (RMA) before anything is shipped. Returns are shipped at the buyer’s expense.</p>
+<p>NAL reserves the right to use new, reconditioned, refurbished, repaired, or re-manufactured products or parts in the warranty repair or replacement process. These products and parts will be comparable in function and performance to an original product or part, as NAL determines in its sole discretion, and will be warranted for the rest of the original warranty period. To make a warranty claim, you must notify NAL in writing within fifteen (15) days of discovering the defect and provide proof of purchase, such as the invoice.</p>
+<p>If NAL finds that the product is working properly, the buyer may be billed for testing, repackaging, and shipping. If the warranty has expired, NAL will provide a repair quote before doing any repairs. If the product was under warranty and NAL repairs or replaces it, NAL will cover the return shipping to the customer. NAL will in no case be liable for any cost of removing or installing the product, even if the product failed under a covered warranty.</p>
+<p class="policy-caps">THE WARRANTY PROVISIONS ABOVE ARE EXCLUSIVE AND ARE GIVEN AND ACCEPTED IN PLACE OF ANY AND ALL OTHER WARRANTIES, EXPRESS OR IMPLIED, INCLUDING, WITHOUT LIMITATION, ANY WARRANTY AGAINST INFRINGEMENT AND ANY IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE. NAL WILL IN NO EVENT BE LIABLE FOR INCIDENTAL DAMAGES.</p>
+
+<h2>Frequently Asked Questions</h2>
+<h3>How is the Extended Warranty different from the standard product warranty?</h3>
+<p>The Extended Warranty adds one (1) more year of warranty coverage for your product.</p>
+<h3>How long are products covered under your standard warranty?</h3>
+<p>Every light we sell carries a warranty of at least 5 years from the date of purchase. Drivers carry a 3-year warranty.</p>
+<h3>How can I find out whether my product is still under warranty?</h3>
+<p>Check your order confirmation or invoice, or ask your sales representative. ${N} reserves the right to verify the purchase date for warranty claims.</p>
+<h3>What protection does the Extended Warranty include?</h3>
+<p>The coverage matches our standard warranty, including product failure.</p>
+<h3>What does the Extended Warranty not cover?</h3>
+<p>We do not cover product damage other than damage that occurred before delivery or was caused by product failure; damage from abuse, maintenance, acts of God, and other issues outside normal operating conditions is not covered.</p>
+<h3>When must the Extended Warranty be purchased?</h3>
+<p>The Extended Warranty has to be purchased when you place your order.</p>
+<h3>Is the warranty coverage transferable?</h3>
+<p>The coverage applies to the purchased product.</p>
+<h3>Will my covered product be repaired or replaced?</h3>
+<p>That depends on the issue we identify. Rest assured that we will do our best to get your product back up and running.</p>
+<h3>After my covered product is replaced, what coverage does the replacement have?</h3>
+<p>The warranty (and any extended warranty) continues from your original purchase date.</p>
+<h3>How many times can a product be repaired?</h3>
+<p>We will support the product until its warranty expires.</p>
+<p class="policy-also">Questions? Call <a href="tel:${k.tel}">${k.phone}</a>, email <a href="mailto:${k.email}">${k.email}</a>, or use our <a href="#/support/warranty">Customer Service</a> page.</p>`;
+    return policyShell("Warranty and Return Policy", "Policies", "Warranty and Return Policy", "Last updated", body);
+  }
+
+  function renderPrivacy() {
+    const k = policyContact();
+    const N = k.name;
+    const body = `
+<h2>Summary</h2>
+<ul>
+<li>We collect the information you provide when you place an order, call, chat, or complete a form, along with information gathered automatically through cookies and similar tools.</li>
+<li>Analytics and marketing tools wait for your choice on our cookie banner. You can change that choice at any time with the Cookie Preferences link in our footer.</li>
+<li>You can opt out of the sale or sharing of your information through the Your Privacy Choices link, the banner, or Global Privacy Control.</li>
+<li>For questions or requests, see “How to make a request” below or the contact details at the end of this policy.</li>
+</ul>
+<p><strong>Contents</strong></p>
+<ol class="policy-toc">
+<li>Introduction</li>
+<li>Information we collect</li>
+<li>How we use information</li>
+<li>Cookies, pixels, and your choices</li>
+<li>Who we share information with</li>
+<li>Sale, sharing, and targeted advertising</li>
+<li>Phone calls, chat, email, and forms</li>
+<li>Your privacy rights</li>
+<li>Retention, security, children, changes, and contact</li>
+</ol>
+
+<h2>1. Introduction</h2>
+<p>${N} (“NAL,” “we,” “us”) operates ${k.site} (the “Site”). This Privacy Policy describes the personal information we collect when you visit the Site, buy from us, call us, chat with us, or submit a form; how we use and share that information; and the choices and rights available to you.</p>
+<p>This policy covers the Site, our checkout, our phone lines, our live chat, and our marketing emails. It applies to visitors in the United States. If you have questions, reach us using the details in Section 9.</p>
+
+<h2>2. Information we collect</h2>
+<div class="policy-table-wrap"><table class="policy-table">
+<thead><tr><th>Category</th><th>Examples</th><th>Source</th></tr></thead>
+<tbody>
+<tr><td>Identifiers and contact details</td><td>Name, email, phone number, billing and shipping address, company name</td><td>You, when you place an order, create an account, submit a form, chat, or call</td></tr>
+<tr><td>Commercial information</td><td>Products viewed, added to the cart, and purchased; order history; quote requests</td><td>Your activity on the Site and at checkout</td></tr>
+<tr><td>Payment information</td><td>Card details</td><td>You, at checkout. Payments are handled by our payment processors; we do not keep full card numbers.</td></tr>
+<tr><td>Device and online identifiers</td><td>IP address, browser and device type, cookie IDs, advertising IDs</td><td>Automatically, through cookies, pixels, and similar tools (Section 4)</td></tr>
+<tr><td>Internet activity</td><td>Pages viewed, clicks, searches on the Site, the site or ad that referred you</td><td>Automatically, through cookies, pixels, and similar tools</td></tr>
+<tr><td>Approximate location</td><td>City, state, or region based on your IP address</td><td>Automatically</td></tr>
+<tr><td>Audio and communications</td><td>Phone call recordings; chat messages; emails you send us</td><td>You, when you call, chat with, or email us (Section 7)</td></tr>
+<tr><td>Business information</td><td>Your company name and related business details</td><td>You, and business data providers</td></tr>
+<tr><td>Inferences</td><td>Interests or product preferences based on your activity</td><td>Created by us or our advertising partners</td></tr>
+</tbody></table></div>
+<p>We do not intentionally collect sensitive personal information such as Social Security numbers, health data, or precise geolocation.</p>
+
+<h2>3. How we use information</h2>
+<p>We use personal information to:</p>
+<ul>
+<li>Process and deliver orders, send confirmations and invoices, and handle returns and warranty claims.</li>
+<li>Respond to questions and quote requests by phone, chat, email, and form.</li>
+<li>Train our staff and review service quality using call recordings.</li>
+<li>Send marketing emails to people who have subscribed (you may unsubscribe at any time).</li>
+<li>Learn how the Site is used and make it better.</li>
+<li>Measure and improve our advertising, and show you relevant ads on other sites, only where you have allowed this or have not opted out (Sections 4 and 6).</li>
+<li>Detect and prevent fraud, spam, and security threats.</li>
+<li>Comply with the law, respond to lawful requests, and protect our rights.</li>
+</ul>
+
+<h2>4. Cookies, pixels, and your choices</h2>
+<p>We and our partners use cookies, pixels, tags, and similar tools to operate the Site, understand how it is used, and measure and target advertising. We sort them into four categories:</p>
+<ul>
+<li><strong>Necessary:</strong> required for the Site, cart, checkout, security, and forms to work (including Google reCAPTCHA on our forms). These cannot be switched off.</li>
+<li><strong>Preferences:</strong> remember your settings.</li>
+<li><strong>Analytics:</strong> help us understand how visitors use the Site.</li>
+<li><strong>Marketing:</strong> measure and personalize advertising, identify visiting businesses, and track which ad or page led to a phone call.</li>
+</ul>
+<p><strong>Cookie banner.</strong> In states with consumer privacy laws, we display a cookie banner on your first visit. Analytics and marketing tools do not run until you click Accept or allow them under Preferences. If you click Reject, only necessary tools run. You can change your choice at any time with the Cookie Preferences link in our footer.</p>
+<p><strong>Your Privacy Choices.</strong> Visitors anywhere in the United States can opt out of the sale or sharing of personal information and of targeted advertising through the Your Privacy Choices link in our footer.</p>
+<p><strong>Global Privacy Control (GPC).</strong> We honor the GPC signal. If your browser sends it, we treat it as a request to opt out of the sale or sharing of your personal information and of targeted advertising for that browser. Because there is no agreed standard for other “Do Not Track” signals, we rely on GPC and the choices you make in the banner.</p>
+<p>You can also block or delete cookies in your browser settings. Some parts of the Site may not work properly if you block necessary cookies.</p>
+
+<h2>5. Who we share information with</h2>
+<p>We share personal information with the following kinds of companies, and only as needed for the purposes in this policy:</p>
+<ul>
+<li>Service providers that operate our store, checkout, and payments, and that provide our forms, live chat, phone service, and email.</li>
+<li>Consent management providers that operate our cookie banner and record your choices.</li>
+<li>Analytics providers that help us understand how the Site is used.</li>
+<li>Advertising partners that measure our ads and show you relevant ads on other websites.</li>
+<li>Business data providers that identify companies visiting the Site.</li>
+<li>Others when necessary: shipping carriers, professional advisors, a buyer if our business is sold, and authorities when required by law.</li>
+</ul>
+
+<h2>6. Sale, sharing, and targeted advertising</h2>
+<p>We do not sell personal information for money. However, when our advertising partners and business data providers collect information through our Site, some state laws may consider this a “sale,” “sharing,” or “targeted advertising.”</p>
+<p>The information involved may include identifiers (cookie IDs, IP address, and a hashed email for signed-in customers), internet activity, commercial information, and inferences. We use it to measure and improve our ads and to show you relevant ads on other sites.</p>
+<p>You can opt out at any time by:</p>
+<ul>
+<li>Clicking Reject on the cookie banner, or turning off marketing under Preferences.</li>
+<li>Using the Your Privacy Choices link in our footer (see also our <a href="#/data-sharing">Data Sharing</a> page).</li>
+<li>Turning on Global Privacy Control in your browser.</li>
+</ul>
+<p>You can also manage ad personalization directly with the major platforms and industry groups: <a href="https://adssettings.google.com" target="_blank" rel="noopener">Google</a>, <a href="https://www.facebook.com/adpreferences" target="_blank" rel="noopener">Meta</a>, <a href="https://account.microsoft.com/privacy/ad-settings" target="_blank" rel="noopener">Microsoft</a>, the <a href="https://optout.aboutads.info" target="_blank" rel="noopener">Digital Advertising Alliance</a>, and the <a href="https://optout.networkadvertising.org" target="_blank" rel="noopener">Network Advertising Initiative</a>. These tools apply to the browser or account in which you use them.</p>
+<p>We do not knowingly sell or share the personal information of anyone under 16.</p>
+
+<h2>7. Phone calls, chat, email, and forms</h2>
+<p><strong>Phone calls.</strong> Calls to our phone numbers are recorded for quality and training purposes. If you would rather not be recorded, you can email us instead. Our call provider processes your phone number, the time and length of the call, the recording, and, if you allowed marketing cookies, the page or ad that led to the call. If you have not allowed marketing cookies, the Site displays our standard phone number rather than a tracking number.</p>
+<p><strong>Live chat.</strong> When you use chat, your messages and any details you share are stored by our support provider so that our team can help you.</p>
+<p><strong>Marketing email.</strong> We send marketing emails only to subscribers. Our emails may use tracking pixels and links to measure opens and clicks. Every email includes an unsubscribe link.</p>
+<p><strong>Forms.</strong> Our contact, quote, and distributor forms are run by a form provider and protected by Google reCAPTCHA. reCAPTCHA collects device and usage information to tell people apart from bots, under Google’s <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy Policy</a> and <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Terms of Service</a>.</p>
+
+<h2 id="privacy-rights">8. Your privacy rights</h2>
+<p>Depending on your state, including California, Colorado, Connecticut, Virginia, Texas, Oregon, and other states with consumer privacy laws, you may have the right to:</p>
+<ul>
+<li>Know and access the personal information we hold about you, including a portable copy.</li>
+<li>Correct inaccurate personal information.</li>
+<li>Delete personal information we collected from you, subject to legal exceptions (for example, records we must keep for taxes or warranties).</li>
+<li>Opt out of the sale or sharing of your personal information, targeted advertising, and profiling (Section 6).</li>
+<li>Not be discriminated against for exercising these rights. We will not deny you service or charge you different prices because you used them.</li>
+</ul>
+<p><strong>How to make a request.</strong> Email <a href="mailto:${k.email}">${k.email}</a> or call <a href="tel:${k.tel}">${k.phone}</a>. For opt-outs, you can also use the Your Privacy Choices link or turn on GPC. We will confirm your request and respond within 45 days, or let you know if we need more time as the law permits. To protect your information, we may ask you to confirm details such as your email address and a recent order before we act on an access, correction, or deletion request.</p>
+<p><strong>Authorized agents.</strong> You may have an authorized agent make a request on your behalf. We may ask the agent for proof of your written permission and ask you to verify your identity with us.</p>
+<p><strong>Appeals.</strong> If we deny your request, you may appeal by emailing us with “Privacy Appeal” in the subject line. We will respond within the time required by your state’s law. If you are not satisfied with the outcome, you may contact your state attorney general.</p>
+
+<h3>Additional information for California residents</h3>
+<p>This section applies to California residents and adds to the rest of this policy, as required by the California Consumer Privacy Act (CCPA) and the California Online Privacy Protection Act (CalOPPA).</p>
+<p><strong>What we collected and disclosed in the past 12 months.</strong> Section 2 lists the categories of personal information we collect and their sources, and Section 3 lists the purposes for which we use them. The table below shows to whom we disclosed each category for business purposes, and whether it may have been “sold” or “shared” (for targeted advertising) as California defines those terms.</p>
+<div class="policy-table-wrap"><table class="policy-table">
+<thead><tr><th>Category (CCPA)</th><th>Disclosed for business purposes to</th><th>Sold or shared?</th></tr></thead>
+<tbody>
+<tr><td>Identifiers (name, email, phone, IP address, cookie and advertising IDs)</td><td>Service providers, consent management, analytics providers</td><td>Yes, with advertising partners and business data providers</td></tr>
+<tr><td>Customer records (name, address, phone, payment details)</td><td>Service providers</td><td>No</td></tr>
+<tr><td>Commercial information (products viewed and purchased)</td><td>Service providers, analytics providers</td><td>Yes, with advertising partners</td></tr>
+<tr><td>Internet activity (pages viewed, clicks, searches)</td><td>Service providers, analytics providers</td><td>Yes, with advertising partners and business data providers</td></tr>
+<tr><td>Approximate location (from IP address)</td><td>Service providers, analytics providers</td><td>Yes, with advertising partners and business data providers</td></tr>
+<tr><td>Audio and electronic information (call recordings, chat messages)</td><td>Service providers</td><td>No</td></tr>
+<tr><td>Professional information (company name, business details)</td><td>Service providers</td><td>No</td></tr>
+<tr><td>Inferences (interests and product preferences)</td><td>Analytics providers</td><td>Yes, with advertising partners</td></tr>
+</tbody></table></div>
+<p><strong>Sensitive personal information.</strong> We do not collect or use sensitive personal information to infer characteristics about you. Payment card details are handled only by our payment processors to complete your order.</p>
+<p><strong>Your California rights.</strong> Beyond the rights listed above, you have the right to know the categories of personal information we collected, where it came from, why we use it, the categories of third parties we disclose it to, and the specific pieces of personal information we hold about you. You can also opt out of the sale or sharing of your personal information through the Your Privacy Choices link, the cookie banner, or Global Privacy Control. We honor GPC as a valid opt-out request.</p>
+<p><strong>How to make a request.</strong> Use any of the methods under “How to make a request” above. Authorized agents may submit requests as described above.</p>
+<p><strong>Minors.</strong> We do not sell or share the personal information of consumers we know to be under 16.</p>
+<p><strong>Retention.</strong> We keep each category as described in Section 9.</p>
+<p><strong>Do Not Track.</strong> As explained in Section 4, we honor Global Privacy Control. We do not respond differently to other Do Not Track signals because there is no agreed standard for them.</p>
+<p><strong>Shine the Light.</strong> California residents may ask whether we disclosed personal information to third parties for those third parties’ own direct marketing purposes during the previous calendar year. Email us with “California Shine the Light” in the subject line.</p>
+
+<h2>9. Retention, security, children, changes, and contact</h2>
+<p><strong>How long we keep information.</strong> We keep personal information only for as long as we need it for the purposes in this policy. For example, we keep order and warranty records for as long as needed to meet tax, accounting, and warranty obligations; call recordings and chat and email conversations for as long as they are useful for customer service and training; analytics data according to our analytics provider’s retention settings; and marketing email information until you unsubscribe or ask us to delete it.</p>
+<p><strong>Security.</strong> We use reasonable safeguards to protect personal information. No method of transmission or storage is completely secure.</p>
+<p><strong>Children.</strong> The Site is not intended for children under 13, and we do not knowingly collect their personal information. If you believe a child has given us personal information, contact us and we will delete it.</p>
+<p><strong>Changes.</strong> We may update this policy. When we do, we will post the new version here and change the effective date at the top. For significant changes, we may also let you know by email or on the Site.</p>
+<p>Contact us with questions, requests, or complaints:</p>
+<ul>
+<li>Email: <a href="mailto:${k.email}">${k.email}</a></li>
+<li>Phone: <a href="tel:${k.tel}">${k.phone}</a></li>
+<li>Mail: ${N}, ${k.city}</li>
+</ul>`;
+    return policyShell("Privacy Policy", "Policies", "Privacy Policy", "Effective date", body);
+  }
+
+  function renderDataSharing() {
+    const k = policyContact();
+    const body = `
+<p>As explained in our <a href="#/privacy">Privacy Policy</a>, we collect personal information from your interactions with us and with our website, including through cookies and similar technologies. We may also share this personal information with third parties, including advertising partners. We do this so that the ads you see on other websites are more relevant to your interests, and for the other reasons described in our Privacy Policy.</p>
+<p>Under certain U.S. state privacy laws, sharing personal information for targeted advertising based on your activity across different websites may be considered a “sale,” “sharing,” or “targeted advertising.” Depending on where you live, you may have the right to opt out of these activities. If you want to use this opt-out right, please follow the instructions below.</p>
+<p>If you visit our website with the Global Privacy Control opt-out preference signal turned on, then, depending on your location, we will treat it as a request to opt out of activity that may be considered a “sale” or “sharing” of personal information, or of other uses that may be considered targeted advertising, for the device and browser you used to visit our website.</p>
+<h2>How to opt out</h2>
+<p>To ask us to stop selling or sharing your personal information, or using it for targeted advertising, email <a href="mailto:${k.email}?subject=Privacy%20Opt-Out%20Request">${k.email}</a> with the subject line “Privacy Opt-Out Request.” If applicable, please include the email address linked to your account or orders so that we can find your information and process your request.</p>`;
+    return policyShell("Data Sharing", "Policies", "Data Sharing", "Last updated", body);
+  }
+
   /* ---------- router & events ---------- */
 
   function render() {
@@ -3114,6 +3477,10 @@
     else if (root === "installation" || root === "installation-instructions") html = renderInstallation();
     else if (root === "support" || root === "feedback" || root === "warranty") html = renderSupport();
     else if (root === "contact") html = renderContact();
+    else if (root === "terms" || root === "terms-and-conditions") html = renderTerms();
+    else if (root === "warranty-returns" || root === "return-policy") html = renderWarrantyReturns();
+    else if (root === "privacy" || root === "privacy-policy") html = renderPrivacy();
+    else if (root === "data-sharing") html = renderDataSharing();
     else html = '<section class="wrap"><h1>Page not found</h1><p><a href="#/">Home</a></p></section>';
     $app().innerHTML = html;
     setPageTitle(root);

@@ -1218,3 +1218,20 @@ p { margin: 0 0 1rem; }
   border: 0;
   display: block;
 }
+
+/* Policy pages (Terms, Warranty & Returns, Privacy, Data Sharing) */
+.policy-page { max-width: 48rem; }
+.policy-page h1 { margin-bottom: 0.35rem; font-size: clamp(1.8rem, 3.5vw, 2.4rem); }
+.policy-updated { color: var(--ink-soft); font-size: 0.9rem; margin-bottom: 1.4rem; }
+.policy-page h2 { font-size: 1.3rem; margin: 2rem 0 0.6rem; }
+.policy-page h3 { font-size: 1.05rem; margin: 1.4rem 0 0.45rem; color: var(--navy); }
+.policy-page p, .policy-page li { line-height: 1.6; }
+.policy-page ul, .policy-page ol { padding-left: 1.3rem; margin: 0 0 1rem; }
+.policy-page li { margin-bottom: 0.35rem; }
+.policy-caps { font-size: 0.9rem; }
+.policy-also { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+.policy-table-wrap { overflow-x: auto; margin: 0 0 1rem; }
+.policy-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.policy-table th, .policy-table td { border: 1px solid var(--line); padding: 0.5rem 0.6rem; text-align: left; vertical-align: top; }
+.policy-table th { background: #f3f1ea; color: var(--navy); }
+@media (max-width: 719px) { .policy-table { font-size: 0.8rem; } .policy-table th, .policy-table td { padding: 0.4rem; } }
