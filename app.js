@@ -1911,7 +1911,11 @@
       "<p>If existing tombstones are shunted (typical of instant-start fluorescent fixtures), replace the powered-end holders with non-shunted tombstones. Multiple lamps in one fixture are typically wired in parallel to the same line and neutral.</p>" +
       "</figure>" +
       "<p>The video below is a third-party demonstration of converting a fluorescent fixture for single-ended, ballast-bypass LED tubes. Use it as a visual walkthrough. If anything in the video conflicts with the label or instructions on the tubes you received, follow the tube’s label.</p>" +
-      installVideoHtml(videos.singleEnded) +
+      '<div class="install-video-row">' +
+      '<div class="install-video-col">' + installVideoHtml(videos.singleEnded) + "</div>" +
+      '<aside class="install-notice" role="note">' +
+      "<p>For installation, follow the manufacturer’s instructions for your exact model and all applicable electrical codes. Installation must be performed by a qualified, licensed electrician; products not installed by a licensed electrician are not covered by our warranty. See our <a href=\"#/warranty-returns\">Warranty and Return Policy</a> for details.</p>" +
+      "</aside></div>" +
 
       '<h2 id="install-double-ended">Double-ended Type B</h2>' +
       "<p>Double-ended Type B tubes are fast for electricians: there is no orientation to worry about — the tube can go in either way. Installation still requires a ballast bypass and fixture rewiring, but the rewiring can be simpler. Typically no tombstone replacement is needed: remove the ballast, run line (hot) to one end of the fixture and neutral to the other. Always follow the tube’s label.</p>" +
@@ -1955,21 +1959,17 @@
     const c = company();
     return (
       '<section class="wrap about-page">' +
-      '<div class="section-kicker">About</div>' +
-      "<h1>North America Lighting LLC</h1>" +
-      "<p>NAL is a Dallas wholesale supplier of commercial LED lighting. We work with contractors, sign shops, and facilities teams across the central United States, and we ship nationwide.</p>" +
-      "<p>This website is a demo storefront so you can browse the catalog and send an order request. Submitting an order opens an email to us with your list. We then follow up with an invoice and payment instructions. No payment is collected on this site.</p>" +
-      "<p><strong>Phone:</strong> <a href='tel:" +
+      "<h1>About Us</h1>" +
+      "<p>Headquartered in Dallas, Texas, North America Lighting supplies commercial and industrial LED lighting to contractors, facility managers, and nonprofit organizations. We work with you to understand how your space is used and recommend fixtures that fit your project and budget.</p>" +
+      "<p>Our LED fixtures are designed for reliable performance, energy efficiency, and low maintenance at a fair price. We stock a large inventory in our Texas warehouse and ship directly to job sites nationwide to help you meet tight project deadlines.</p>" +
+      "<p>Before you order, we review your space and prepare a lighting plan at no additional cost, with recommended fixture locations and quantities.</p>" +
+      '<p>During installation, our team can help you find product specifications, mounting details, and installation instructions for your fixture model. You can also browse our <a href="#/installation">installation guides</a> and YouTube videos for general reference.</p>' +
+      "<p>After your purchase, we help troubleshoot product issues and guide you through the warranty process.</p>" +
+      '<p class="about-contact"><strong>Phone:</strong> <a href="tel:' +
       escapeHtml(c.phoneTel) +
-      "'>" +
+      '">' +
       escapeHtml(c.phone) +
-      "</a><br><strong>Email:</strong> <a href='mailto:" +
-      escapeHtml(c.email) +
-      "'>" +
-      escapeHtml(c.email) +
-      "</a></p>" +
-      '<p class="muted">Commercial fixtures only. Residential consumer sales are not offered.</p>' +
-      '<p><a class="btn btn-navy" href="#/catalog">Browse the catalog</a></p>' +
+      '</a><br><strong>Email:</strong> <a href="mailto:NALtx75247@gmail.com">NALtx75247@gmail.com</a></p>' +
       "</section>" +
       factsBand()
     );

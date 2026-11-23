@@ -1273,3 +1273,23 @@ body.agreements-open { overflow: hidden; }
   .agreements-dialog { width: calc(100vw - 1rem); max-height: calc(100dvh - 1rem); }
   .agreements-body { height: auto; min-height: 0; }
 }
+
+/* Installation: licensed-electrician notice beside the main video */
+.install-video-row { display: grid; gap: 0.9rem; margin: 1rem 0 0.4rem; }
+.install-video-row .install-video { margin-top: 0; }
+.install-notice {
+  background: #fff6d8;
+  border: 1px solid #e6c56a;
+  border-left: 4px solid var(--gold);
+  padding: 0.9rem 1rem;
+  font-size: 0.95rem;
+  color: var(--navy);
+  font-weight: 600;
+  align-self: start;
+}
+.install-notice p { margin: 0; line-height: 1.55; }
+.install-notice a { color: var(--navy); text-decoration: underline; }
+@media (min-width: 720px) {
+  .install-video-row { grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); align-items: start; }
+}
+.about-contact { margin-top: 1.2rem; }
