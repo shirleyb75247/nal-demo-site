@@ -568,6 +568,34 @@
     });
   }
 
+  /* Optional 1-year extended warranty add-on (per unit, rounded to the cent). */
+  const EW_RATE = 0.05;
+  const EW_LABEL = "1-Year Extended Warranty";
+  const EW_LINE_LABEL = "Extended Warranty (1 yr)";
+  function ewUnitPrice(unitCents) {
+    if (unitCents == null || !(unitCents > 0)) return null;
+    return Math.round(unitCents * EW_RATE);
+  }
+  function lineWarrantyTotal(l) {
+    return l && l.extendedWarranty && l.ewUnitPrice != null ? l.ewUnitPrice * l.qty : 0;
+  }
+  function lineTotal(l) {
+    return l.price == null ? null : l.price * l.qty + lineWarrantyTotal(l);
+  }
+  function warrantySummaryLines(items) {
+    const out = [];
+    (items || []).forEach((l) => {
+      if (!l.extendedWarranty || l.ewUnitPrice == null) return;
+      out.push(
+        EW_LINE_LABEL + " — " + l.name + (l.variationName ? " — " + l.variationName : "") +
+        (l.sku ? " (SKU " + l.sku + ")" : "") +
+        ": Qty " + l.qty + " x " + money(l.ewUnitPrice) + " = " + money(lineWarrantyTotal(l))
+      );
+    });
+    return out;
+  }
+  const ewMemory = {};
+
   function money(cents) {
     if (cents == null) return "Call for price / request quote";
     return (cents / 100).toLocaleString("en-US", {
@@ -803,6 +831,7 @@
       const hit = allVars.find((x) => x.v.id === line.variationId || (line.sku && x.v.sku === line.sku));
       if (!hit) return;
       if (hit.v.price != null) line.price = hit.v.price;
+      if (line.extendedWarranty) line.ewUnitPrice = ewUnitPrice(line.price);
       if (hit.v.sku) line.sku = hit.v.sku;
       line.outOfStock = isVariationOos(hit.v);
     });
@@ -2096,6 +2125,11 @@
       (comboOk && match && isVariationOos(match) ? outOfStockLabel() : "") +
       (comboOk
         ? '<form data-add-form>' +
+          (hasFixed && ewUnitPrice(price) != null && !(match && isVariationOos(match))
+            ? '<label class="ew-option"><input type="checkbox" name="extendedWarranty" data-ew-toggle' +
+              (ewMemory[p.slug] ? " checked" : "") +
+              '><span>' + EW_LABEL + ' (+' + escapeHtml(money(ewUnitPrice(price))) + ')</span></label>'
+            : "") +
           '<div class="qty-row"><label for="qty">Qty</label>' +
           '<input id="qty" name="qty" type="number" min="1" step="1" value="1"' +
           (match && isVariationOos(match) ? " disabled" : "") +
@@ -2461,13 +2495,17 @@
         ? '<div class="var">' + escapeHtml(line.variationName) + "</div>"
         : "") +
       (line.sku ? '<div class="line-sku">SKU ' + escapeHtml(line.sku) + "</div>" : "") +
+      (line.extendedWarranty && line.ewUnitPrice != null
+        ? '<div class="line-ew">+ ' + EW_LINE_LABEL + " · " + escapeHtml(money(line.ewUnitPrice)) + " each · " +
+          escapeHtml(money(lineWarrantyTotal(line))) + "</div>"
+        : "") +
       (line.outOfStock ? outOfStockLabel() : "") +
       '<div class="line-actions"><input type="number" min="1" step="1" value="' +
       line.qty +
       '" data-qty>' +
       '<button type="button" data-remove>Remove</button></div></div>' +
       '<div class="line-price">' +
-      (line.price == null ? "Quote" : money(line.price * line.qty)) +
+      (line.price == null ? "Quote" : money(lineTotal(line))) +
       "</div></div>"
     );
   }
@@ -2477,7 +2515,7 @@
     let hasQuote = false;
     state.cart.forEach((l) => {
       if (l.price == null) hasQuote = true;
-      else subtotal += l.price * l.qty;
+      else subtotal += lineTotal(l);
     });
     return { subtotal, hasQuote };
   }
@@ -2503,7 +2541,7 @@
       : "Street, city, state, " + (zip || "ZIP");
     const payBtn = PAYMENT_PROXY_URL
       ? '<button class="btn btn-pay btn-block" type="button" data-pay-square>Pay with card (Square)</button>' +
-        '<p class="form-note">Card payments are taken on Square’s secure checkout page. Quote-only items cannot be charged online.</p>'
+        '<p class="form-note">Card payments are taken on Square’s secure checkout page. Quote-only items and Extended Warranty add-ons cannot be charged online.</p>'
       : "";
     const acc = currentAccount();
     const v = (s) => escapeHtml(s || "");
@@ -2554,6 +2592,9 @@
             l.qty +
             " · " +
             (l.price == null ? "Call for price / request quote" : money(l.price * l.qty)) +
+            (l.extendedWarranty && l.ewUnitPrice != null
+              ? '<br><span class="line-ew">+ ' + EW_LINE_LABEL + " · " + escapeHtml(money(lineWarrantyTotal(l))) + "</span>"
+              : "") +
             "</p>"
         )
         .join("") +
@@ -2918,6 +2959,11 @@
       );
       if (l.sku) lines.push("   SKU: " + l.sku);
       lines.push("   Qty: " + l.qty + "  x  " + unit + "  =  " + lineTot);
+      if (l.extendedWarranty && l.ewUnitPrice != null) {
+        lines.push(
+          "   + " + EW_LINE_LABEL + ": Qty " + l.qty + "  x  " + money(l.ewUnitPrice) + "  =  " + money(lineWarrantyTotal(l))
+        );
+      }
     });
     lines.push("");
     const { subtotal, hasQuote } = totalsFromItems(order.items);
@@ -2981,7 +3027,7 @@
     let hasQuote = false;
     items.forEach((l) => {
       if (l.price == null) hasQuote = true;
-      else subtotal += l.price * l.qty;
+      else subtotal += lineTotal(l);
     });
     return { subtotal, hasQuote };
   }
@@ -3009,13 +3055,16 @@
 
   /* ---------- cart ops ---------- */
 
-  function addToCart(product, variation, qty) {
+  function addToCart(product, variation, qty, withWarranty) {
     if (isVariationOos(variation)) return false;
     const key = variation.id;
-    const existing = state.cart.find((l) => l.variationId === key);
+    const ew = !!withWarranty && ewUnitPrice(variation.price) != null;
+    const existing = state.cart.find((l) => l.variationId === key && !!l.extendedWarranty === ew);
     if (existing) existing.qty += qty;
     else {
       state.cart.push({
+        extendedWarranty: ew,
+        ewUnitPrice: ew ? ewUnitPrice(variation.price) : null,
         productId: product.id,
         variationId: variation.id,
         slug: product.slug,
@@ -3172,7 +3221,7 @@
 <p>We may give you access to third-party tools that we do not monitor and over which we have no control or input.</p>
 <p>You acknowledge and agree that we provide access to such tools “as is” and “as available,” without any warranties, representations, or conditions of any kind and without any endorsement. We have no liability whatsoever arising from or relating to your use of optional third-party tools.</p>
 <p>Any use you make of optional tools offered through the site is entirely at your own risk and discretion, and you should make sure you are familiar with and approve of the terms on which the relevant third-party provider(s) supply those tools.</p>
-<p>The purchaser assigns to ${N} the rights to offer any electric demand savings achieved through this project into the PJM Capacity Market.</p>
+<p>To the extent permitted by law, the purchaser assigns to ${N} the rights to offer any electric demand savings, energy-efficiency or demand-response capacity credits, and related capacity market rights achieved through the products purchased into any U.S. regional transmission organization, independent system operator, or utility program (for example, ERCOT, PJM, ISO-NE, MISO, or CAISO).</p>
 <p>We may also offer new services and/or features through the website in the future (including new tools and resources). Those new features and/or services will also be subject to these Terms of Service.</p>
 
 <h2>Section 8 – Third-Party Links</h2>
@@ -3219,7 +3268,7 @@
 <p>Any ambiguities in interpreting these Terms of Service will not be construed against the drafting party.</p>
 
 <h2>Section 18 – Governing Law</h2>
-<p>These Terms of Service, and any separate agreements under which we provide you Services, are governed by and will be interpreted in accordance with the laws of the United States.</p>
+<p>These Terms of Service, and any separate agreements under which we provide you Services, are governed by and will be interpreted in accordance with the laws of the State of Texas.</p>
 
 <h2>Section 19 – Changes to Terms of Service</h2>
 <p>You can review the most current version of the Terms of Service on this page at any time.</p>
@@ -3301,8 +3350,8 @@
 <h2>Summary</h2>
 <ul>
 <li>We collect the information you provide when you place an order, call, chat, or complete a form, along with information gathered automatically through cookies and similar tools.</li>
-<li>Analytics and marketing tools wait for your choice on our cookie banner. You can change that choice at any time with the Cookie Preferences link in our footer.</li>
-<li>You can opt out of the sale or sharing of your information through the Your Privacy Choices link, the banner, or Global Privacy Control.</li>
+<li>Where we use a cookie banner, analytics and marketing tools wait for your choice on it, and we may offer a Cookie Preferences link in our footer so you can change that choice at any time.</li>
+<li>You can opt out of the sale or sharing of your information by emailing us, through Global Privacy Control, or through a Your Privacy Choices link or cookie banner where we offer them.</li>
 <li>For questions or requests, see “How to make a request” below or the contact details at the end of this policy.</li>
 </ul>
 <p><strong>Contents</strong></p>
@@ -3332,7 +3381,7 @@
 <tr><td>Device and online identifiers</td><td>IP address, browser and device type, cookie IDs, advertising IDs</td><td>Automatically, through cookies, pixels, and similar tools (Section 4)</td></tr>
 <tr><td>Internet activity</td><td>Pages viewed, clicks, searches on the Site, the site or ad that referred you</td><td>Automatically, through cookies, pixels, and similar tools</td></tr>
 <tr><td>Approximate location</td><td>City, state, or region based on your IP address</td><td>Automatically</td></tr>
-<tr><td>Audio and communications</td><td>Phone call recordings; chat messages; emails you send us</td><td>You, when you call, chat with, or email us (Section 7)</td></tr>
+<tr><td>Audio and communications</td><td>Phone call recordings (where calls are recorded); chat messages; emails you send us</td><td>You, when you call, chat with, or email us (Section 7)</td></tr>
 <tr><td>Business information</td><td>Your company name and related business details</td><td>You, and business data providers</td></tr>
 <tr><td>Inferences</td><td>Interests or product preferences based on your activity</td><td>Created by us or our advertising partners</td></tr>
 </tbody></table></div>
@@ -3343,8 +3392,8 @@
 <ul>
 <li>Process and deliver orders, send confirmations and invoices, and handle returns and warranty claims.</li>
 <li>Respond to questions and quote requests by phone, chat, email, and form.</li>
-<li>Train our staff and review service quality using call recordings.</li>
-<li>Send marketing emails to people who have subscribed (you may unsubscribe at any time).</li>
+<li>Train our staff and review service quality using call recordings, where calls are recorded.</li>
+<li>Send marketing emails, if we offer them, only to people who have subscribed (you may unsubscribe at any time).</li>
 <li>Learn how the Site is used and make it better.</li>
 <li>Measure and improve our advertising, and show you relevant ads on other sites, only where you have allowed this or have not opted out (Sections 4 and 6).</li>
 <li>Detect and prevent fraud, spam, and security threats.</li>
@@ -3352,23 +3401,23 @@
 </ul>
 
 <h2>4. Cookies, pixels, and your choices</h2>
-<p>We and our partners use cookies, pixels, tags, and similar tools to operate the Site, understand how it is used, and measure and target advertising. We sort them into four categories:</p>
+<p>We and our partners use, or may use, cookies, pixels, tags, and similar tools to operate the Site, understand how it is used, and measure and target advertising. We sort them into four categories:</p>
 <ul>
-<li><strong>Necessary:</strong> required for the Site, cart, checkout, security, and forms to work (including Google reCAPTCHA on our forms). These cannot be switched off.</li>
+<li><strong>Necessary:</strong> required for the Site, cart, checkout, security, and forms to work (which may include Google reCAPTCHA on our forms). These cannot be switched off.</li>
 <li><strong>Preferences:</strong> remember your settings.</li>
 <li><strong>Analytics:</strong> help us understand how visitors use the Site.</li>
-<li><strong>Marketing:</strong> measure and personalize advertising, identify visiting businesses, and track which ad or page led to a phone call.</li>
+<li><strong>Marketing:</strong> measure and personalize advertising, identify visiting businesses, and, where we use call tracking, track which ad or page led to a phone call.</li>
 </ul>
-<p><strong>Cookie banner.</strong> In states with consumer privacy laws, we display a cookie banner on your first visit. Analytics and marketing tools do not run until you click Accept or allow them under Preferences. If you click Reject, only necessary tools run. You can change your choice at any time with the Cookie Preferences link in our footer.</p>
-<p><strong>Your Privacy Choices.</strong> Visitors anywhere in the United States can opt out of the sale or sharing of personal information and of targeted advertising through the Your Privacy Choices link in our footer.</p>
-<p><strong>Global Privacy Control (GPC).</strong> We honor the GPC signal. If your browser sends it, we treat it as a request to opt out of the sale or sharing of your personal information and of targeted advertising for that browser. Because there is no agreed standard for other “Do Not Track” signals, we rely on GPC and the choices you make in the banner.</p>
+<p><strong>Cookie banner.</strong> In states with consumer privacy laws, we may display a cookie banner on your first visit. Where we do, analytics and marketing tools do not run until you click Accept or allow them under Preferences, and if you click Reject, only necessary tools run. Where we offer a Cookie Preferences link in our footer, you can use it to change your choice at any time.</p>
+<p><strong>Your Privacy Choices.</strong> We may offer a Your Privacy Choices link in our footer. Visitors anywhere in the United States can opt out of the sale or sharing of personal information and of targeted advertising through that link where it is offered, or by contacting us as described on our <a href="#/data-sharing">Data Sharing</a> page.</p>
+<p><strong>Global Privacy Control (GPC).</strong> We honor the GPC signal. If your browser sends it, we treat it as a request to opt out of the sale or sharing of your personal information and of targeted advertising for that browser. Because there is no agreed standard for other “Do Not Track” signals, we rely on GPC and the choices you make with us (including in a cookie banner, where one is shown).</p>
 <p>You can also block or delete cookies in your browser settings. Some parts of the Site may not work properly if you block necessary cookies.</p>
 
 <h2>5. Who we share information with</h2>
 <p>We share personal information with the following kinds of companies, and only as needed for the purposes in this policy:</p>
 <ul>
 <li>Service providers that operate our store, checkout, and payments, and that provide our forms, live chat, phone service, and email.</li>
-<li>Consent management providers that operate our cookie banner and record your choices.</li>
+<li>Consent management providers that may operate a cookie banner for us and record your choices.</li>
 <li>Analytics providers that help us understand how the Site is used.</li>
 <li>Advertising partners that measure our ads and show you relevant ads on other websites.</li>
 <li>Business data providers that identify companies visiting the Site.</li>
@@ -3380,18 +3429,18 @@
 <p>The information involved may include identifiers (cookie IDs, IP address, and a hashed email for signed-in customers), internet activity, commercial information, and inferences. We use it to measure and improve our ads and to show you relevant ads on other sites.</p>
 <p>You can opt out at any time by:</p>
 <ul>
-<li>Clicking Reject on the cookie banner, or turning off marketing under Preferences.</li>
-<li>Using the Your Privacy Choices link in our footer (see also our <a href="#/data-sharing">Data Sharing</a> page).</li>
+<li>Clicking Reject on a cookie banner, or turning off marketing under Preferences, where a banner is shown.</li>
+<li>Using a Your Privacy Choices link in our footer, where offered, or following the steps on our <a href="#/data-sharing">Data Sharing</a> page.</li>
 <li>Turning on Global Privacy Control in your browser.</li>
 </ul>
 <p>You can also manage ad personalization directly with the major platforms and industry groups: <a href="https://adssettings.google.com" target="_blank" rel="noopener">Google</a>, <a href="https://www.facebook.com/adpreferences" target="_blank" rel="noopener">Meta</a>, <a href="https://account.microsoft.com/privacy/ad-settings" target="_blank" rel="noopener">Microsoft</a>, the <a href="https://optout.aboutads.info" target="_blank" rel="noopener">Digital Advertising Alliance</a>, and the <a href="https://optout.networkadvertising.org" target="_blank" rel="noopener">Network Advertising Initiative</a>. These tools apply to the browser or account in which you use them.</p>
 <p>We do not knowingly sell or share the personal information of anyone under 16.</p>
 
 <h2>7. Phone calls, chat, email, and forms</h2>
-<p><strong>Phone calls.</strong> Calls to our phone numbers are recorded for quality and training purposes. If you would rather not be recorded, you can email us instead. Our call provider processes your phone number, the time and length of the call, the recording, and, if you allowed marketing cookies, the page or ad that led to the call. If you have not allowed marketing cookies, the Site displays our standard phone number rather than a tracking number.</p>
+<p><strong>Phone calls.</strong> Calls to our phone numbers may be recorded for quality and training purposes. If you would rather not be recorded, you can email us instead. Our call provider processes your phone number and the time and length of the call, and may also process a recording and, if we use call tracking and you allowed marketing cookies, the page or ad that led to the call. If we use call-tracking numbers and you have not allowed marketing cookies, the Site displays our standard phone number rather than a tracking number.</p>
 <p><strong>Live chat.</strong> When you use chat, your messages and any details you share are stored by our support provider so that our team can help you.</p>
-<p><strong>Marketing email.</strong> We send marketing emails only to subscribers. Our emails may use tracking pixels and links to measure opens and clicks. Every email includes an unsubscribe link.</p>
-<p><strong>Forms.</strong> Our contact, quote, and distributor forms are run by a form provider and protected by Google reCAPTCHA. reCAPTCHA collects device and usage information to tell people apart from bots, under Google’s <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy Policy</a> and <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Terms of Service</a>.</p>
+<p><strong>Marketing email.</strong> We may send marketing emails, and if we do, we send them only to subscribers. Our emails may use tracking pixels and links to measure opens and clicks. Every marketing email will include an unsubscribe link.</p>
+<p><strong>Forms.</strong> Our contact and quote forms, and any distributor form we may offer, may be run by a form provider and protected by Google reCAPTCHA. Where used, reCAPTCHA collects device and usage information to tell people apart from bots, under Google’s <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy Policy</a> and <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Terms of Service</a>.</p>
 
 <h2 id="privacy-rights">8. Your privacy rights</h2>
 <p>Depending on your state, including California, Colorado, Connecticut, Virginia, Texas, Oregon, and other states with consumer privacy laws, you may have the right to:</p>
@@ -3402,7 +3451,7 @@
 <li>Opt out of the sale or sharing of your personal information, targeted advertising, and profiling (Section 6).</li>
 <li>Not be discriminated against for exercising these rights. We will not deny you service or charge you different prices because you used them.</li>
 </ul>
-<p><strong>How to make a request.</strong> Email <a href="mailto:${k.email}">${k.email}</a> or call <a href="tel:${k.tel}">${k.phone}</a>. For opt-outs, you can also use the Your Privacy Choices link or turn on GPC. We will confirm your request and respond within 45 days, or let you know if we need more time as the law permits. To protect your information, we may ask you to confirm details such as your email address and a recent order before we act on an access, correction, or deletion request.</p>
+<p><strong>How to make a request.</strong> Email <a href="mailto:${k.email}">${k.email}</a> or call <a href="tel:${k.tel}">${k.phone}</a>. For opt-outs, you can also turn on GPC or use a Your Privacy Choices link where we offer one. We will confirm your request and respond within 45 days, or let you know if we need more time as the law permits. To protect your information, we may ask you to confirm details such as your email address and a recent order before we act on an access, correction, or deletion request.</p>
 <p><strong>Authorized agents.</strong> You may have an authorized agent make a request on your behalf. We may ask the agent for proof of your written permission and ask you to verify your identity with us.</p>
 <p><strong>Appeals.</strong> If we deny your request, you may appeal by emailing us with “Privacy Appeal” in the subject line. We will respond within the time required by your state’s law. If you are not satisfied with the outcome, you may contact your state attorney general.</p>
 
@@ -3417,12 +3466,12 @@
 <tr><td>Commercial information (products viewed and purchased)</td><td>Service providers, analytics providers</td><td>Yes, with advertising partners</td></tr>
 <tr><td>Internet activity (pages viewed, clicks, searches)</td><td>Service providers, analytics providers</td><td>Yes, with advertising partners and business data providers</td></tr>
 <tr><td>Approximate location (from IP address)</td><td>Service providers, analytics providers</td><td>Yes, with advertising partners and business data providers</td></tr>
-<tr><td>Audio and electronic information (call recordings, chat messages)</td><td>Service providers</td><td>No</td></tr>
+<tr><td>Audio and electronic information (call recordings where calls are recorded, chat messages)</td><td>Service providers</td><td>No</td></tr>
 <tr><td>Professional information (company name, business details)</td><td>Service providers</td><td>No</td></tr>
 <tr><td>Inferences (interests and product preferences)</td><td>Analytics providers</td><td>Yes, with advertising partners</td></tr>
 </tbody></table></div>
 <p><strong>Sensitive personal information.</strong> We do not collect or use sensitive personal information to infer characteristics about you. Payment card details are handled only by our payment processors to complete your order.</p>
-<p><strong>Your California rights.</strong> Beyond the rights listed above, you have the right to know the categories of personal information we collected, where it came from, why we use it, the categories of third parties we disclose it to, and the specific pieces of personal information we hold about you. You can also opt out of the sale or sharing of your personal information through the Your Privacy Choices link, the cookie banner, or Global Privacy Control. We honor GPC as a valid opt-out request.</p>
+<p><strong>Your California rights.</strong> Beyond the rights listed above, you have the right to know the categories of personal information we collected, where it came from, why we use it, the categories of third parties we disclose it to, and the specific pieces of personal information we hold about you. You can also opt out of the sale or sharing of your personal information by contacting us, through Global Privacy Control, or through a Your Privacy Choices link or cookie banner where we offer them. We honor GPC as a valid opt-out request.</p>
 <p><strong>How to make a request.</strong> Use any of the methods under “How to make a request” above. Authorized agents may submit requests as described above.</p>
 <p><strong>Minors.</strong> We do not sell or share the personal information of consumers we know to be under 16.</p>
 <p><strong>Retention.</strong> We keep each category as described in Section 9.</p>
@@ -3430,7 +3479,7 @@
 <p><strong>Shine the Light.</strong> California residents may ask whether we disclosed personal information to third parties for those third parties’ own direct marketing purposes during the previous calendar year. Email us with “California Shine the Light” in the subject line.</p>
 
 <h2>9. Retention, security, children, changes, and contact</h2>
-<p><strong>How long we keep information.</strong> We keep personal information only for as long as we need it for the purposes in this policy. For example, we keep order and warranty records for as long as needed to meet tax, accounting, and warranty obligations; call recordings and chat and email conversations for as long as they are useful for customer service and training; analytics data according to our analytics provider’s retention settings; and marketing email information until you unsubscribe or ask us to delete it.</p>
+<p><strong>How long we keep information.</strong> We keep personal information only for as long as we need it for the purposes in this policy. For example, we keep order and warranty records for as long as needed to meet tax, accounting, and warranty obligations; any call recordings and chat and email conversations for as long as they are useful for customer service and training; analytics data according to our analytics provider’s retention settings; and any marketing email information until you unsubscribe or ask us to delete it.</p>
 <p><strong>Security.</strong> We use reasonable safeguards to protect personal information. No method of transmission or storage is completely secure.</p>
 <p><strong>Children.</strong> The Site is not intended for children under 13, and we do not knowingly collect their personal information. If you believe a child has given us personal information, contact us and we will delete it.</p>
 <p><strong>Changes.</strong> We may update this policy. When we do, we will post the new version here and change the effective date at the top. For significant changes, we may also let you know by email or on the Site.</p>
@@ -3637,6 +3686,11 @@
   });
 
   document.addEventListener("change", (e) => {
+    if (e.target.matches("[data-ew-toggle]")) {
+      const page = document.querySelector("[data-product-page]");
+      if (page) ewMemory[page.getAttribute("data-slug")] = e.target.checked;
+      return;
+    }
     if (e.target.matches("[data-support-file]")) {
       const t = supportCopy();
       const form = e.target.closest("form");
@@ -3721,7 +3775,8 @@
       const match = p.variations.find((v) => variationMatches(v, selected));
       if (!match || isVariationOos(match)) return;
       const qty = Math.max(1, parseInt(add.qty.value, 10) || 1);
-      addToCart(p, match, qty);
+      const ewBox = add.querySelector("[data-ew-toggle]");
+      addToCart(p, match, qty, !!(ewBox && ewBox.checked));
       const btn = add.querySelector("button[type=submit]");
       const prev = btn.textContent;
       btn.textContent = "Added to cart";
@@ -3921,6 +3976,21 @@
     }
   }
 
+  // The nal-api Worker rebuilds line items from the catalog and ignores unknown
+  // fields, so extended-warranty add-ons travel in the order notes it keeps.
+  function customerWithWarrantyNote(order) {
+    const ew = warrantySummaryLines(order.items);
+    const c = Object.assign({}, order.customer);
+    if (!ew.length) return c;
+    const ewTotal = order.items.reduce((s, l) => s + lineWarrantyTotal(l), 0);
+    const note =
+      "EXTENDED WARRANTY ADD-ONS (add to invoice; not in the item subtotal below)\n" +
+      ew.join("\n") +
+      "\nExtended warranty total: " + money(ewTotal);
+    c.notes = note + (c.notes ? "\n\nCustomer notes: " + c.notes : "");
+    return c;
+  }
+
   // Records email order requests on the server (Google Sheet, Quo/Square contacts, admin email).
   // Fire-and-forget: the mailto still opens even if this fails.
   function notifyOrderRequest(order) {
@@ -3933,8 +4003,9 @@
         headers: authHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify({
           orderNumber: order.orderNumber,
-          customer: order.customer,
+          customer: customerWithWarrantyNote(order),
           items: order.items,
+          extendedWarranty: warrantySummaryLines(order.items),
           shipping: order.shipping,
           accountEmail: order.accountEmail,
           lang: siteLang(),
@@ -3997,6 +4068,10 @@
     }
     if (state.cart.some((l) => l.price == null)) {
       showErr("This cart has items that need a quote. Submit an order request by email instead.");
+      return;
+    }
+    if (state.cart.some((l) => l.extendedWarranty)) {
+      showErr("Orders with an Extended Warranty are invoiced. Please use Submit order request.");
       return;
     }
     try {
