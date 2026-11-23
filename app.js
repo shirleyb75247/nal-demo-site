@@ -343,9 +343,13 @@
     });
   }
 
+  // Sold AS IS (no warranty, no returns, no Extended Warranty). The two [SALE] items count as
+  // clearance per Shirley (2026-11-23). Keep in step with isClearanceVariation() in the nal-api Worker.
+  const CLEARANCE_SLUGS = ["flood-light", "parking-street-decorative-hg"];
   function isClearance(p) {
     if (!p) return false;
-    const bits = [p.name, p.displayName, p.category].concat(p.badges || []);
+    if (CLEARANCE_SLUGS.indexOf(p.slug) >= 0) return true;
+    const bits = [p.name, p.displayName, p.category, p.description].concat(p.badges || []);
     return bits.some((s) => String(s || "").toLowerCase().includes("clearance"));
   }
   const CLEARANCE_NOTE_TEXT = "Clearance — sold AS IS, no warranty, no returns.";
@@ -354,6 +358,15 @@
     return compact
       ? '<div class="clearance-note compact">Sold AS IS · No warranty</div>'
       : '<p class="clearance-note">' + escapeHtml(CLEARANCE_NOTE_TEXT) + ' <a href="#/warranty-returns">Details</a></p>';
+  }
+  // Square text on some clearance items still says "1 yr exchange warranty"; clearance is AS IS, so hide that phrase.
+  function productDescription(p) {
+    const d = String((p && p.description) || "");
+    if (!isClearance(p)) return d;
+    return d
+      .replace(/,?\s*\b(1|one)[ -]?(yr|year)\.?\s+(exchange\s+|replacement\s+)?warranty\b/gi, "")
+      .replace(/[ \t]+$/gm, "")
+      .trim();
   }
   function warrantyBadgeHtml(p) {
     if (!p || isClearance(p)) return "";
@@ -2129,8 +2142,8 @@
       "<h1>" +
       escapeHtml(p.displayName) +
       "</h1>" +
-      (p.description
-        ? '<p class="product-desc">' + escapeHtml(p.description) + "</p>"
+      (productDescription(p)
+        ? '<p class="product-desc">' + escapeHtml(productDescription(p)) + "</p>"
         : "") +
       clearanceNoteHtml(p) +
       optionsHtml +
