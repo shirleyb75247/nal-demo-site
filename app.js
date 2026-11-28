@@ -1355,7 +1355,7 @@
   function savingsTeaserHtml() {
     return (
       '<section class="savings-teaser-wrap">' +
-      '<a class="savings-teaser" href="#/energy-savings">' +
+      '<a class="savings-teaser" href="/savings/">' +
       '<div class="savings-teaser-copy">' +
       '<div class="savings-teaser-kicker">Energy savings</div>' +
       "<h2>LED Savings Calculator</h2>" +
@@ -3759,7 +3759,10 @@
     else if (root === "exemption") html = renderExemption();
     else if (root === "approve") html = renderApprove(parts[1] || "");
     else if (root === "about") html = renderAbout();
-    else if (root === "energy-savings" || root === "savings-calculator") html = renderEnergySavings();
+    else if (root === "energy-savings" || root === "savings-calculator") {
+      location.replace("/savings/");
+      html = '<section class="wrap"><p>Opening the <a href="/savings/">LED Savings Calculator</a>…</p></section>';
+    }
     else if (root === "installation" || root === "installation-instructions") html = renderInstallation();
     else if (root === "support" || root === "feedback" || root === "warranty") html = renderSupport();
     else if (root === "contact") html = renderContact();
@@ -3776,9 +3779,6 @@
     closeMenu();
     window.scrollTo(0, 0);
     initPromoCarousel();
-    if (root === "energy-savings" || root === "savings-calculator") {
-      if (typeof initLedSavingsCalculator === "function") initLedSavingsCalculator();
-    }
     if ((root === "installation" || root === "installation-instructions") && parts[1]) {
       const el = document.getElementById("install-" + parts[1]);
       if (el) requestAnimationFrame(function () { el.scrollIntoView({ block: "start" }); });

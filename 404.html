@@ -3,7 +3,7 @@
 <meta name="robots" content="noindex">
 <script>
 (function(){var p=location.pathname.replace(/^\/+|\/+$/g,'').replace(/\.html?$/,'');
-var map={'savings':'energy-savings','calculator':'energy-savings','savings-calculator':'energy-savings','led-savings-calculator':'energy-savings'};
-if(map[p])p=map[p];
+var savings={'savings':1,'energy-savings':1,'calculator':1,'savings-calculator':1,'led-savings-calculator':1};
+if(savings[p]){location.replace('/savings/');return;}
 location.replace('/'+(p?'#/'+p:''));})();
 </script></head><body><p>Redirecting… <a href="/">naltx.com</a></p></body></html>
