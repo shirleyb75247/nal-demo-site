@@ -1,0 +1,58 @@
+{
+  "panel-backlit": {
+    "polygon": [
+      [
+        3,
+        36
+      ],
+      [
+        528,
+        168
+      ],
+      [
+        543,
+        188
+      ],
+      [
+        16,
+        77
+      ]
+    ],
+    "polygonGrow": 3,
+    "method": "canvas"
+  },
+  "MTTKAMPNNC7HTDPD3F55GR6Y": {
+    "polygon": [
+      [
+        3,
+        36
+      ],
+      [
+        528,
+        168
+      ],
+      [
+        543,
+        188
+      ],
+      [
+        16,
+        77
+      ]
+    ],
+    "polygonGrow": 3,
+    "method": "canvas"
+  },
+  "down-light": {
+    "method": "canvas"
+  },
+  "DZMVFM5IZAET2436BJKAHL65": {
+    "method": "canvas"
+  },
+  "module-20ft-kit-wt-power-adapter": {
+    "method": "canvas"
+  },
+  "R3KWILTBUWMMPABQBNAK6KD2": {
+    "method": "canvas"
+  }
+}

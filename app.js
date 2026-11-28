@@ -678,8 +678,33 @@
     );
   }
 
+  let processedImages = {};
+
+  function loadProcessedManifest() {
+    return fetch("img/products/manifest.json")
+      .then((r) => (r.ok ? r.json() : {}))
+      .catch(function () { return {}; });
+  }
+
+  function processedImagePath(productId) {
+    if (!productId || !processedImages[productId]) return "";
+    const rec = processedImages[productId];
+    if (typeof rec === "string") return rec;
+    return (rec && rec.file) || "";
+  }
+
+  function remoteProductImage(product, variation) {
+    if (variation && (variation.image || variation.thumb)) return variation.image || variation.thumb;
+    if (!product) return "";
+    return (product.thumbs && product.thumbs[0]) || (product.images && product.images[0]) || "";
+  }
+
+  function productImageUrl(product, variation) {
+    return processedImagePath(product && product.id) || remoteProductImage(product, variation);
+  }
+
   function thumbHtml(product, className) {
-    const src = (product.thumbs && product.thumbs[0]) || (product.images && product.images[0]);
+    const src = productImageUrl(product);
     if (src) {
       return (
         '<img src="' +
@@ -870,12 +895,14 @@
   }
 
   function loadCatalog() {
-    return fetch("products.json")
-      .then((r) => {
+    return Promise.all([
+      fetch("products.json").then((r) => {
         if (!r.ok) throw new Error("Could not load products.json (" + r.status + ")");
         return r.json();
-      })
-      .then((local) => {
+      }),
+      loadProcessedManifest(),
+    ]).then(([local, manifest]) => {
+        processedImages = manifest || {};
         const live = apiEnabled()
           ? fetch(String(API_BASE_URL).replace(/\/$/, "") + "/catalog")
               .then((r) => (r.ok ? r.json() : null))
@@ -1262,9 +1289,9 @@
 
   function categoryImage(slug) {
     const p = state.catalog.products.find(
-      (x) => x.categorySlug === slug && x.thumbs && x.thumbs[0]
+      (x) => x.categorySlug === slug && productImageUrl(x)
     );
-    return p ? p.thumbs[0] : "";
+    return p ? productImageUrl(p) : "";
   }
 
   /* ---------- pages ---------- */
@@ -1327,24 +1354,49 @@
   function resolveHomePromos() {
     const products = (state.catalog && state.catalog.products) || [];
     const items = [];
+    const seen = new Set();
     for (const entry of HOME_PROMOS) {
       if (!entry || !entry.slug) continue;
       const p = products.find((x) => x.slug === entry.slug);
       if (!p) continue;
-      const image =
-        entry.image ||
-        (p.thumbs && p.thumbs[0]) ||
-        (p.images && p.images[0]) ||
-        "";
-      if (!image) continue;
-      items.push({
-        slug: p.slug,
-        label: entry.label || p.displayName || p.name || "",
-        image: image,
-        badge: entry.badge || "",
-      });
+      addPromoItem(items, seen, p, entry.badge || "", entry.image, entry.label);
     }
+    const rest = products
+      .filter((p) => isClearance(p) || isSaleProduct(p))
+      .slice()
+      .sort(function (a, b) {
+        const ac = isClearance(a) ? 0 : 1;
+        const bc = isClearance(b) ? 0 : 1;
+        if (ac !== bc) return ac - bc;
+        return String(a.displayName || a.name || "").localeCompare(String(b.displayName || b.name || ""));
+      });
+    rest.forEach((p) => addPromoItem(items, seen, p, "", "", ""));
     return items;
+  }
+
+  function isSaleProduct(p) {
+    if (!p) return false;
+    return (p.badges || []).some((b) => /sale/i.test(String(b || "")));
+  }
+
+  function promoPriceText(p) {
+    if (!p || !p.hasPrice || p.priceMin == null) return "";
+    if (p.priceMin === p.priceMax) return money(p.priceMin);
+    return money(p.priceMin) + " – " + money(p.priceMax);
+  }
+
+  function addPromoItem(items, seen, p, badge, imageOverride, labelOverride) {
+    if (!p || seen.has(p.slug)) return;
+    const image = imageOverride || productImageUrl(p);
+    if (!image) return;
+    seen.add(p.slug);
+    items.push({
+      slug: p.slug,
+      label: labelOverride || p.displayName || p.name || "",
+      image: image,
+      badge: badge || "",
+      priceLabel: promoPriceText(p),
+    });
   }
 
   function promoCarouselHtml(promos) {
@@ -1371,6 +1423,9 @@
           escapeHtml(item.label) +
           '">' +
           badge +
+          (item.priceLabel
+            ? '<span class="promo-price">' + escapeHtml(item.priceLabel) + "</span>"
+            : "") +
           "</span>" +
           '<span class="promo-caption">' +
           escapeHtml(item.label) +
@@ -2085,10 +2140,7 @@
     }
     const selected = getSelectedOptions(p);
     const match = p.variations.find((v) => variationMatches(v, selected)) || null;
-    const img =
-      (match && (match.image || match.thumb)) ||
-      (p.images && p.images[0]) ||
-      (p.thumbs && p.thumbs[0]);
+    const img = productImageUrl(p, match);
     const price = match ? match.price : p.hasPrice ? p.priceMin : null;
     const hasFixed = match && match.price != null;
     const sku = match && match.sku ? match.sku : "";
@@ -2511,7 +2563,7 @@
   }
 
   function cartRow(line, idx) {
-    const img = line.thumb || line.image;
+    const img = processedImagePath(line.productId) || line.thumb || line.image;
     return (
       '<div class="cart-row' +
       (line.outOfStock ? " out-of-stock" : "") +
@@ -3118,8 +3170,8 @@
         qty,
         category: product.category || "",
         weightLb: product.weightLb != null ? product.weightLb : (DEFAULT_WEIGHT_LB[product.category] || 5),
-        image: variation.image || (product.images && product.images[0]) || "",
-        thumb: variation.thumb || (product.thumbs && product.thumbs[0]) || "",
+        image: productImageUrl(product, variation),
+        thumb: productImageUrl(product, variation),
       });
     }
     saveCart();
@@ -3925,12 +3977,21 @@
   });
 
   document.addEventListener("submit", (e) => {
+    const headerSearch = e.target.closest("[data-header-search]");
+    if (headerSearch) {
+      e.preventDefault();
+      const q = (headerSearch.q.value || "").trim();
+      location.hash = q ? "#/catalog?q=" + encodeURIComponent(q) : "#/catalog";
+      return;
+    }
+
     const search = e.target.closest("[data-search-form]");
     if (search) {
       e.preventDefault();
       const q = (search.q.value || "").trim();
       const { parts } = parseRoute();
-      const base = parts[1] ? "#/catalog/" + parts[1] : "#/catalog";
+      const onCatalog = parts[0] === "catalog";
+      const base = onCatalog && parts[1] ? "#/catalog/" + parts[1] : "#/catalog";
       location.hash = q ? base + "?q=" + encodeURIComponent(q) : base;
       return;
     }
