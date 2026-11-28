@@ -1339,6 +1339,7 @@
         })
         .join("") +
       "</div></section>" +
+      savingsTeaserHtml() +
       '<section class="wrap" style="padding-top:0">' +
       '<div class="section-head"><div><div class="section-kicker">From the catalog</div><h2>Featured fixtures</h2></div>' +
       '<a href="#/catalog">View all ' +
@@ -1349,6 +1350,32 @@
       "</div></section>" +
       factsBand()
     );
+  }
+
+  function savingsTeaserHtml() {
+    return (
+      '<section class="savings-teaser-wrap">' +
+      '<a class="savings-teaser" href="#/energy-savings">' +
+      '<div class="savings-teaser-copy">' +
+      '<div class="savings-teaser-kicker">Energy savings</div>' +
+      "<h2>LED Savings Calculator</h2>" +
+      "<p>Pick a fixture, enter run time and your electricity rate, and see the kWh and dollars saved per year.</p>" +
+      '<span class="savings-teaser-cta">Open calculator</span>' +
+      "</div>" +
+      '<div class="savings-teaser-window" aria-hidden="true">' +
+      '<div class="spw-label">Saved per year</div>' +
+      '<div class="spw-value">$18.92</div>' +
+      '<div class="spw-sub">157.7 kWh · 18W 4 ft LED Tube</div>' +
+      "</div>" +
+      "</a></section>"
+    );
+  }
+
+  function renderEnergySavings() {
+    if (typeof LED_SAVINGS_PAGE_HTML === "string" && LED_SAVINGS_PAGE_HTML) {
+      return LED_SAVINGS_PAGE_HTML;
+    }
+    return '<section class="wrap"><h1>LED Savings Calculator</h1><p>The calculator could not be loaded.</p></section>';
   }
 
   function resolveHomePromos() {
@@ -3193,6 +3220,8 @@
       "data-sharing": "Data Sharing",
       installation: "Installation Guide",
       "installation-instructions": "Installation Guide",
+      "energy-savings": "LED Savings Calculator",
+      "savings-calculator": "LED Savings Calculator",
     };
     if (pageTitles[root]) document.title = pageTitles[root] + " — " + name;
     else document.title = SITE_TITLE;
@@ -3730,6 +3759,7 @@
     else if (root === "exemption") html = renderExemption();
     else if (root === "approve") html = renderApprove(parts[1] || "");
     else if (root === "about") html = renderAbout();
+    else if (root === "energy-savings" || root === "savings-calculator") html = renderEnergySavings();
     else if (root === "installation" || root === "installation-instructions") html = renderInstallation();
     else if (root === "support" || root === "feedback" || root === "warranty") html = renderSupport();
     else if (root === "contact") html = renderContact();
@@ -3746,6 +3776,9 @@
     closeMenu();
     window.scrollTo(0, 0);
     initPromoCarousel();
+    if (root === "energy-savings" || root === "savings-calculator") {
+      if (typeof initLedSavingsCalculator === "function") initLedSavingsCalculator();
+    }
     if ((root === "installation" || root === "installation-instructions") && parts[1]) {
       const el = document.getElementById("install-" + parts[1]);
       if (el) requestAnimationFrame(function () { el.scrollIntoView({ block: "start" }); });

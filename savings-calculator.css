@@ -1,0 +1,177 @@
+/* Scoped LED Savings Calculator styles. Source: energy-savings-src/led-savings-calculator.html */
+
+/* Keep the calculator's own type inside the page area (site uses Syne/Manrope). */
+.nal-savings {
+  color-scheme: light dark;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  min-height: 100%;
+}
+.nal-savings h1, .nal-savings h2, .nal-savings h3, .nal-savings h4 {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+.nal-savings p { margin: 0; }
+
+  .nal-savings{
+    --bg:#f4f4f5;
+    --surface:#ffffff;
+    --surface-2:#fafafa;
+    --ink:#111111;
+    --ink-2:#3f3f46;
+    --muted:#71717a;
+    --line:#e4e4e7;
+    --line-strong:#d4d4d8;
+    --black:#111111;
+    --black-text:#ffffff;
+    --black-muted:#a1a1aa;
+    --input-bg:#ffffff;
+    --track:#e4e4e7;
+    --thumb:#111111;
+    --focus:#111111;
+  }
+  @media (prefers-color-scheme: dark){
+    .nal-savings{
+      --bg:#0a0a0a;
+      --surface:#171717;
+      --surface-2:#1c1c1c;
+      --ink:#fafafa;
+      --ink-2:#d4d4d8;
+      --muted:#a1a1aa;
+      --line:#262626;
+      --line-strong:#333333;
+      --black:#fafafa;
+      --black-text:#111111;
+      --black-muted:#525252;
+      --input-bg:#111111;
+      --track:#333333;
+      --thumb:#fafafa;
+      --focus:#fafafa;
+    }
+  }
+  .nal-savings, .nal-savings *{box-sizing:border-box}
+  .nal-savings{-webkit-text-size-adjust:100%}
+  .nal-savings{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height:1.5;
+    font-size:16px;
+  }
+  .nal-savings button, .nal-savings select, .nal-savings input{font:inherit; min-height:44px}
+  .nal-savings a{color:inherit}
+  .nal-savings .wrap{max-width:1080px;margin:0 auto;padding:28px 20px 56px}
+  /* Header */
+  .nal-savings .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:0 0 10px}
+  .nal-savings h1{font-size:clamp(28px,5vw,42px);line-height:1.08;letter-spacing:-.02em;margin:0;font-weight:750}
+  .nal-savings .lede{margin:14px 0 0;color:var(--ink-2);font-size:17px;max-width:640px}
+  .nal-savings .lede strong{color:var(--ink)}
+  /* Quick reference */
+  .nal-savings .section-label{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:36px 0 6px}
+  .nal-savings .section-note{color:var(--muted);font-size:14px;margin:0 0 14px}
+  .nal-savings .quick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .nal-savings .quick-card{
+    background:var(--surface);border:1px solid var(--line);border-radius:10px;
+    padding:18px 16px 16px;text-align:left;cursor:pointer;width:100%;color:var(--ink);
+    transition:border-color .15s ease;
+  }
+  .nal-savings .quick-card:hover{border-color:var(--ink)}
+  .nal-savings .quick-card.active{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+  .nal-savings .quick-card .qc-top{font-size:13px;color:var(--muted);font-weight:600;line-height:1.35;min-height:36px}
+  .nal-savings .quick-card .qc-vs{font-size:15px;font-weight:700;line-height:1.3;margin:8px 0 12px}
+  .nal-savings .quick-card .qc-vs span{color:var(--muted);font-weight:500}
+  .nal-savings .quick-card .qc-save{font-size:26px;font-weight:800;letter-spacing:-.02em;line-height:1}
+  .nal-savings .quick-card .qc-save small{font-size:13px;font-weight:600;color:var(--muted);letter-spacing:0}
+  .nal-savings .quick-card .qc-kwh{font-size:13px;color:var(--muted);margin-top:6px}
+  /* Calculator layout */
+  .nal-savings .calc{
+    margin-top:36px;background:var(--surface);border:1px solid var(--line);border-radius:12px;
+    display:grid;grid-template-columns:1.05fr .95fr;overflow:hidden;
+  }
+  .nal-savings .calc-form{padding:26px 26px 28px}
+  .nal-savings .calc-form h2, .nal-savings .calc-results h2{font-size:18px;margin:0 0 4px;letter-spacing:-.01em}
+  .nal-savings .calc-form .sub, .nal-savings .calc-results .sub{font-size:14px;color:var(--muted);margin:0 0 20px}
+  .nal-savings .calc-results .sub{color:var(--black-muted)}
+  .nal-savings .field{margin-bottom:18px}
+  .nal-savings .field label{display:block;font-size:13px;font-weight:700;letter-spacing:.02em;margin-bottom:7px}
+  .nal-savings .field .hint{font-size:12.5px;color:var(--muted);margin-top:6px}
+  .nal-savings select, .nal-savings input[type="number"], .nal-savings input[type="text"]{
+    width:100%;background:var(--input-bg);color:var(--ink);
+    border:1px solid var(--line-strong);border-radius:8px;padding:10px 12px;
+    appearance:none;-webkit-appearance:none;
+  }
+  .nal-savings select{
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;
+  }
+  .nal-savings select:focus, .nal-savings input:focus{outline:2px solid var(--focus);outline-offset:1px;border-color:var(--focus)}
+  .nal-savings .arrow-row{display:flex;align-items:center;gap:10px}
+  .nal-savings .arrow-row .swap-arrow{flex:0 0 auto;width:28px;height:28px;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;color:var(--muted);font-size:14px;margin-top:22px}
+  .nal-savings .arrow-row .field{flex:1}
+  .nal-savings .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .nal-savings .grid-2 .field{margin-bottom:18px}
+  .nal-savings .range-row{display:flex;align-items:center;gap:14px}
+  .nal-savings .range-row input[type="range"]{flex:1;min-height:44px;accent-color:var(--thumb);padding:0}
+  .nal-savings .range-row input[type="number"]{width:92px;flex:0 0 auto;text-align:center}
+  .nal-savings .unit-note{font-size:12.5px;color:var(--muted)}
+  .nal-savings details.advanced{border-top:1px solid var(--line);padding-top:14px;margin-top:2px}
+  .nal-savings details.advanced summary{cursor:pointer;font-size:14px;font-weight:700;min-height:36px;display:flex;align-items:center}
+  .nal-savings details.advanced .grid-2{margin-top:14px}
+  /* Results */
+  .nal-savings .calc-results{background:var(--black);color:var(--black-text);padding:26px 26px 28px}
+  .nal-savings .result-hero{border-bottom:1px solid rgba(128,128,128,.35);padding-bottom:20px;margin-bottom:20px}
+  .nal-savings .result-hero .r-label{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--black-muted);font-weight:700}
+  .nal-savings .result-hero .r-value{font-size:clamp(40px,6vw,54px);font-weight:800;letter-spacing:-.03em;line-height:1.05;margin:6px 0 2px}
+  .nal-savings .result-hero .r-sub{font-size:14px;color:var(--black-muted)}
+  .nal-savings .result-hero .r-sub strong{color:var(--black-text)}
+  .nal-savings .r-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px 16px}
+  .nal-savings .r-item .r-label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--black-muted);font-weight:700}
+  .nal-savings .r-item .r-num{font-size:21px;font-weight:750;letter-spacing:-.01em;margin-top:3px}
+  .nal-savings .r-item .r-note{font-size:12.5px;color:var(--black-muted)}
+  /* Watt compare bars */
+  .nal-savings .compare{margin-top:22px;border-top:1px solid rgba(128,128,128,.35);padding-top:18px}
+  .nal-savings .compare .r-label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--black-muted);font-weight:700;margin-bottom:12px}
+  .nal-savings .bar-row{display:grid;grid-template-columns:86px 1fr 52px;align-items:center;gap:10px;margin-bottom:10px;font-size:13px}
+  .nal-savings .bar-track{height:10px;background:rgba(128,128,128,.3);border-radius:99px;overflow:hidden}
+  .nal-savings .bar-fill{height:100%;border-radius:99px}
+  .nal-savings .bar-fill.old{background:#737373}
+  @media (prefers-color-scheme: dark){ .nal-savings .bar-fill.old{background:#a3a3a3} .nal-savings .bar-fill.new{background:#111} }
+  .nal-savings .bar-fill.new{background:#fafafa}
+  /* Light mode: results panel is black; use a light bar so the LED comparison is visible (source file used #111 here). */
+  @media (prefers-color-scheme: light){ .nal-savings .bar-fill.new{background:#fafafa} }
+  .nal-savings .bar-val{font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+  .nal-savings .pct-note{font-size:13px;color:var(--black-muted);margin-top:4px}
+  .nal-savings .pct-note strong{color:var(--black-text)}
+  /* Formula */
+  .nal-savings .formula-box{
+    margin-top:16px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:24px 26px;
+  }
+  .nal-savings .formula-box h2{font-size:18px;margin:0 0 6px}
+  .nal-savings .formula-box .sub{font-size:14px;color:var(--muted);margin:0 0 18px}
+  .nal-savings .formula-line{
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size:14.5px;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;
+    padding:14px 16px;margin-bottom:10px;white-space:normal;overflow-wrap:anywhere;
+    font-variant-numeric:tabular-nums;line-height:1.6;
+  }
+  .nal-savings .formula-line b{font-weight:700}
+  .nal-savings .formula-line .res{font-weight:700;text-decoration:underline;text-underline-offset:3px}
+  .nal-savings .note-box{margin-top:16px;border:1px solid var(--line);border-radius:12px;padding:20px 26px;background:var(--surface)}
+  .nal-savings .note-box h3{margin:0 0 8px;font-size:15px}
+  .nal-savings .note-box p{margin:0;color:var(--ink-2);font-size:14.5px}
+  .nal-savings .note-box p + p{margin-top:8px}
+  .nal-savings footer{margin-top:28px;color:var(--muted);font-size:13px;text-align:center}
+  @media (max-width:860px){
+    .nal-savings .quick-grid{grid-template-columns:1fr 1fr}
+    .nal-savings .calc{grid-template-columns:1fr}
+  }
+  @media (max-width:520px){
+    .nal-savings .wrap{padding:22px 14px 44px}
+    .nal-savings .quick-grid{grid-template-columns:1fr}
+    .nal-savings .quick-card .qc-top{min-height:0}
+    .nal-savings .grid-2{grid-template-columns:1fr}
+    .nal-savings .calc-form, .nal-savings .calc-results, .nal-savings .formula-box, .nal-savings .note-box{padding-left:18px;padding-right:18px}
+    .nal-savings .arrow-row{flex-direction:column;align-items:stretch;gap:0}
+    .nal-savings .arrow-row .swap-arrow{margin:0 auto 10px;transform:rotate(90deg)}
+    .nal-savings .r-grid{gap:16px 12px}
+  }
+  @media (prefers-reduced-motion: reduce){ .nal-savings, .nal-savings *{transition:none !important} }
